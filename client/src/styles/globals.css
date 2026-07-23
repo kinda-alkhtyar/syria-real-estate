@@ -1,0 +1,129 @@
+@import "tailwindcss";
+
+@theme {
+  --color-canvas: #f5f3ee;
+  --color-stone-soft: #eeece5;
+  --color-ink: #193028;
+  --color-ink-soft: #25483b;
+  --color-muted: #617069;
+  --color-line: #dcded8;
+  --color-accent: #a56e3c;
+  --color-accent-soft: #efe3d4;
+  --color-sand: #dec19c;
+}
+
+:root {
+  color: var(--color-ink);
+  background: var(--color-canvas);
+  font-family:
+    Inter, "Noto Sans Arabic", "Segoe UI", Tahoma, Arial, sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  scroll-behavior: smooth;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  min-height: 100svh;
+  margin: 0;
+  overflow-x: hidden;
+}
+
+button,
+input,
+select,
+textarea {
+  color: inherit;
+  font: inherit;
+}
+
+button,
+select {
+  -webkit-tap-highlight-color: transparent;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--color-accent) 70%, white);
+  outline-offset: 3px;
+}
+
+#root {
+  min-height: 100vh;
+  min-height: 100svh;
+}
+
+.hero-pattern {
+  background:
+    linear-gradient(145deg, transparent 52%, rgba(222, 193, 156, 0.13)),
+    repeating-linear-gradient(
+      90deg,
+      transparent 0,
+      transparent 47px,
+      rgba(255, 255, 255, 0.04) 48px
+    );
+}
+
+.property-placeholder {
+  background:
+    linear-gradient(160deg, rgba(255, 255, 255, 0.2), transparent 48%),
+    #e5e1d8;
+}
+
+.property-placeholder::before,
+.property-placeholder::after {
+  position: absolute;
+  content: "";
+  border: 1px solid rgba(25, 48, 40, 0.13);
+  background: rgba(255, 255, 255, 0.24);
+}
+
+.property-placeholder::before {
+  inset: 25% 12% -18% 32%;
+  border-radius: 45% 45% 0 0;
+  transform: rotate(-8deg);
+}
+
+.property-placeholder::after {
+  inset: 42% 38% -28% 8%;
+  border-radius: 2rem 2rem 0 0;
+  transform: rotate(7deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
