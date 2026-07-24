@@ -3,9 +3,13 @@ import { motion, useReducedMotion } from 'framer-motion'
 
 import Button from '../ui/Button.jsx'
 import Container from '../ui/Container.jsx'
-import PropertySearch from './PropertySearch.jsx'
+import PropertySearch from '../../features/property-search/components/PropertySearch.jsx'
+import { useLocale } from '../../hooks/useLocale.js'
+import { messages } from '../../i18n/messages/index.js'
 
 export default function HeroSection() {
+  const { locale } = useLocale()
+  const t = messages[locale]
   const prefersReducedMotion = useReducedMotion()
   const initialMotion = prefersReducedMotion ? false : { opacity: 0, y: 16 }
 
@@ -20,20 +24,18 @@ export default function HeroSection() {
           >
             <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-accent/25 bg-accent-soft px-3 py-1.5 text-xs font-bold uppercase tracking-[0.14em] text-ink">
               <ShieldCheck aria-hidden="true" size={16} />
-              Property decisions with confidence
+              {t.hero.badge}
             </p>
             <h1 className="max-w-3xl text-balance text-[clamp(2.5rem,7vw,5.75rem)] font-semibold leading-[0.98] tracking-[-0.055em] text-ink">
-              A clearer way to find your place in Syria.
+              {t.hero.title}
             </h1>
             <p className="mt-6 max-w-2xl text-pretty text-base leading-7 text-muted sm:text-lg sm:leading-8">
-              Explore quality-focused homes and opportunities through
-              structured locations, transparent currencies, and a marketplace
-              built for trust.
+              {t.hero.description}
             </p>
             <div className="mt-7 flex flex-wrap gap-3">
-              <Button href="#search">Explore properties</Button>
+              <Button href="#search">{t.actions.exploreProperties}</Button>
               <Button href="#trust" variant="secondary">
-                How trust works
+                {t.actions.howTrustWorks}
               </Button>
             </div>
           </motion.div>
@@ -51,10 +53,10 @@ export default function HeroSection() {
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="text-xs font-bold uppercase tracking-[0.16em] text-sand">
-                    Built around place
+                    {t.hero.sidebarLabel}
                   </p>
                   <p className="mt-2 max-w-xs text-2xl font-semibold leading-tight">
-                    From governorate to neighborhood.
+                    {t.hero.sidebarTitle}
                   </p>
                 </div>
                 <span className="inline-flex size-11 shrink-0 items-center justify-center rounded-full bg-white/10">
@@ -63,32 +65,18 @@ export default function HeroSection() {
               </div>
 
               <div className="ms-auto w-full max-w-sm rounded-2xl border border-white/15 bg-white/10 p-5 backdrop-blur-sm">
-                <p className="text-sm text-white/70">A trustworthy foundation</p>
+                <p className="text-sm text-white/70">{t.hero.foundation}</p>
                 <ul className="mt-4 grid gap-3 text-sm font-semibold">
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2
-                      aria-hidden="true"
-                      className="text-sand"
-                      size={18}
-                    />
-                    Moderation-ready architecture
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2
-                      aria-hidden="true"
-                      className="text-sand"
-                      size={18}
-                    />
-                    Arabic-first direction support
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2
-                      aria-hidden="true"
-                      className="text-sand"
-                      size={18}
-                    />
-                    Explicit USD and SYP display
-                  </li>
+                  {t.hero.features.map((feature, index) => (
+                    <li key={index} className="flex items-center gap-2">
+                      <CheckCircle2
+                        aria-hidden="true"
+                        className="text-sand"
+                        size={18}
+                      />
+                      {feature}
+                    </li>
+                  ))}
                 </ul>
               </div>
             </div>

@@ -1,22 +1,22 @@
 export const navigationItems = [
   {
-    label: 'Buy',
+    labelKey: 'navigation.buy',
     href: '#featured',
   },
   {
-    label: 'Rent',
+    labelKey: 'navigation.rent',
     href: '#search',
   },
   {
-    label: 'Sell',
+    labelKey: 'navigation.sell',
     href: '#list-property',
   },
   {
-    label: 'Locations',
+    labelKey: 'navigation.locations',
     href: '#locations',
   },
   {
-    label: 'About',
+    labelKey: 'navigation.about',
     href: '#trust',
   },
 ]

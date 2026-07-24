@@ -1,11 +1,17 @@
 import { ArrowUpRight, Building } from 'lucide-react'
 
+import { useLocale } from '../../hooks/useLocale.js'
+import { messages } from '../../i18n/messages/index.js'
+
 export default function PropertyCardPlaceholder({ property }) {
+  const { locale } = useLocale()
+  const t = messages[locale]
+
   return (
     <article className="group min-w-0 overflow-hidden rounded-3xl border border-line bg-white transition duration-300 hover:-translate-y-1 hover:shadow-[0_20px_50px_rgba(25,45,38,0.1)] motion-reduce:transform-none motion-reduce:transition-none">
       <div className="property-placeholder relative aspect-[4/3] overflow-hidden border-b border-line">
         <span className="absolute start-4 top-4 rounded-full bg-white/90 px-3 py-1.5 text-xs font-bold text-ink shadow-sm">
-          Preview
+          {t.featured.preview}
         </span>
         <Building
           aria-hidden="true"

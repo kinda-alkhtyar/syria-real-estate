@@ -15,7 +15,7 @@ export default function Button({
   ...props
 }) {
   const classes = [
-    'inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold leading-tight transition duration-200 motion-reduce:transition-none',
+    'inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold leading-tight transition duration-standard ease-standard motion-reduce:transition-none',
     variants[variant],
     className,
   ].join(' ')

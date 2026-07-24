@@ -1,5 +1,6 @@
 import Button from '../ui/Button.jsx'
 import LanguageSelector from '../common/LanguageSelector.jsx'
+import { useLocale } from '../../hooks/useLocale.js'
 
 export default function MobileNavigation({
   id,
@@ -7,6 +8,8 @@ export default function MobileNavigation({
   items,
   onNavigate,
 }) {
+  const { t } = useLocale()
+
   if (!isOpen) {
     return null
   }
@@ -16,7 +19,7 @@ export default function MobileNavigation({
       className="border-t border-line py-4 lg:hidden"
       id={id}
     >
-      <nav aria-label="Mobile navigation">
+      <nav aria-label={t('accessibility.mobileNavigation')}>
         <ul className="grid gap-1">
           {items.map((item) => (
             <li key={item.href}>
@@ -25,7 +28,7 @@ export default function MobileNavigation({
                 href={item.href}
                 onClick={onNavigate}
               >
-                {item.label}
+                {t(item.labelKey)}
               </a>
             </li>
           ))}
@@ -34,9 +37,9 @@ export default function MobileNavigation({
       <div className="mt-4 grid gap-3 border-t border-line pt-4 sm:grid-cols-3">
         <LanguageSelector />
         <Button href="#login" variant="secondary">
-          Log in
+          {t('actions.login')}
         </Button>
-        <Button href="#list-property">Add property</Button>
+        <Button href="#list-property">{t('actions.addProperty')}</Button>
       </div>
     </div>
   )

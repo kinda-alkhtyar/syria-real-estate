@@ -1,79 +1,22 @@
 @import "tailwindcss";
+@import "./tokens.css";
+@import "./reset.css";
 
 @theme {
-  --color-canvas: #f5f3ee;
-  --color-stone-soft: #eeece5;
-  --color-ink: #193028;
-  --color-ink-soft: #25483b;
-  --color-muted: #617069;
-  --color-line: #dcded8;
-  --color-accent: #a56e3c;
-  --color-accent-soft: #efe3d4;
-  --color-sand: #dec19c;
-}
-
-:root {
-  color: var(--color-ink);
-  background: var(--color-canvas);
-  font-family:
-    Inter, "Noto Sans Arabic", "Segoe UI", Tahoma, Arial, sans-serif;
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-
-html {
-  min-width: 320px;
-  scroll-behavior: smooth;
-}
-
-body {
-  min-width: 320px;
-  min-height: 100vh;
-  min-height: 100svh;
-  margin: 0;
-  overflow-x: hidden;
-}
-
-button,
-input,
-select,
-textarea {
-  color: inherit;
-  font: inherit;
-}
-
-button,
-select {
-  -webkit-tap-highlight-color: transparent;
-}
-
-img,
-svg {
-  display: block;
-  max-width: 100%;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-:focus-visible {
-  outline: 3px solid color-mix(in srgb, var(--color-accent) 70%, white);
-  outline-offset: 3px;
-}
-
-#root {
-  min-height: 100vh;
-  min-height: 100svh;
+  --color-canvas: var(--surface-canvas);
+  --color-surface: var(--surface-primary);
+  --color-stone-soft: var(--surface-subtle);
+  --color-ink: var(--text-primary);
+  --color-ink-soft: var(--brand-primary-hover);
+  --color-muted: var(--text-secondary);
+  --color-line: var(--border-subtle);
+  --color-accent: var(--brand-accent);
+  --color-accent-soft: var(--brand-accent-soft);
+  --color-sand: var(--brand-sand);
+  --ease-standard: var(--motion-ease-standard);
+  --duration-fast: var(--motion-duration-fast);
+  --duration-standard: var(--motion-duration-standard);
+  --z-header: var(--z-sticky);
 }
 
 .hero-pattern {
