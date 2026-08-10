@@ -14,3 +14,4 @@ export const locales = [
 ]
 
 export const defaultLocale = 'en'
+export const localeStorageKey = 'dar-syria-locale'

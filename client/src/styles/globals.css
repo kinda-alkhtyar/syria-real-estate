@@ -3,62 +3,126 @@
 @import "./reset.css";
 
 @theme {
-  --color-canvas: var(--surface-canvas);
-  --color-surface: var(--surface-primary);
-  --color-stone-soft: var(--surface-subtle);
+  /* Approved Figma desktop layout needs 1280px content + 80px side gutters.
+     Declared in rem so it sorts after the built-in rem breakpoints. */
+  --breakpoint-desktop: 90rem;
+
+  --color-canvas: var(--page-background);
+  --color-surface: var(--surface);
+  --color-elevated: var(--surface-elevated);
   --color-ink: var(--text-primary);
-  --color-ink-soft: var(--brand-primary-hover);
-  --color-muted: var(--text-secondary);
-  --color-line: var(--border-subtle);
-  --color-accent: var(--brand-accent);
-  --color-accent-soft: var(--brand-accent-soft);
-  --color-sand: var(--brand-sand);
+  --color-secondary: var(--text-secondary);
+  --color-muted: var(--text-muted);
+  --color-line: var(--border);
+  --color-input: var(--input-background);
+  --color-input-line: var(--input-border);
+  --color-action: var(--primary-action);
+  --color-action-hover: var(--primary-action-hover);
+  --color-on-action: var(--primary-action-text);
+  --color-action-secondary: var(--secondary-action);
+  --color-hover: var(--hover);
+  --color-focus: var(--focus-ring);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-sand: var(--accent-warm);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-error: var(--error);
+  --color-favorite-badge: var(--favorite-badge);
+  --color-on-favorite: var(--favorite-badge-text);
+  --color-overlay: var(--overlay);
+  --color-skeleton: var(--skeleton);
+  --color-header: var(--header-background);
+  --color-feature-text: var(--feature-text);
+  --color-home-heading: var(--home-heading);
+  --color-home-body: var(--home-body);
+  --color-home-muted: var(--home-muted);
+  --color-home-section: var(--home-section);
+  --color-home-panel: var(--home-panel);
+  --color-home-card-border: var(--home-card-border);
+  --color-home-gold: var(--home-gold);
+  --color-home-gold-hover: var(--home-gold-hover);
+  --color-home-gold-soft: var(--home-gold-soft);
+  --color-home-on-gold: var(--home-on-gold);
+  --color-home-band: var(--home-band);
+  --color-home-band-text: var(--home-band-text);
+  --color-home-button: var(--home-button);
+  --color-home-button-text: var(--home-button-text);
+  --color-whatsapp: var(--whatsapp);
+  --color-whatsapp-hover: var(--whatsapp-hover);
+  --color-on-whatsapp: var(--whatsapp-text);
   --ease-standard: var(--motion-ease-standard);
   --duration-fast: var(--motion-duration-fast);
   --duration-standard: var(--motion-duration-standard);
-  --z-header: var(--z-sticky);
+  --z-index-header: var(--z-sticky);
 }
 
-.hero-pattern {
-  background:
-    linear-gradient(145deg, transparent 52%, rgba(222, 193, 156, 0.13)),
-    repeating-linear-gradient(
-      90deg,
-      transparent 0,
-      transparent 47px,
-      rgba(255, 255, 255, 0.04) 48px
-    );
+html {
+  background-color: var(--page-background);
 }
 
-.property-placeholder {
-  background:
-    linear-gradient(160deg, rgba(255, 255, 255, 0.2), transparent 48%),
-    #e5e1d8;
+body {
+  font-family: var(--font-sans);
 }
 
-.property-placeholder::before,
-.property-placeholder::after {
-  position: absolute;
-  content: "";
-  border: 1px solid rgba(25, 48, 40, 0.13);
-  background: rgba(255, 255, 255, 0.24);
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-display);
 }
 
-.property-placeholder::before {
-  inset: 25% 12% -18% 32%;
-  border-radius: 45% 45% 0 0;
-  transform: rotate(-8deg);
+.text-on-action {
+  color: var(--primary-action-text);
 }
 
-.property-placeholder::after {
-  inset: 42% 38% -28% 8%;
-  border-radius: 2rem 2rem 0 0;
-  transform: rotate(7deg);
+.favorite-button [data-favorite-icon] {
+  color: var(--text-muted);
+  fill: none;
+  stroke: var(--text-muted);
+}
+
+.favorite-button [data-favorite-icon] path {
+  fill: none;
+  stroke: inherit;
+}
+
+.favorite-button[data-favorite="true"] [data-favorite-icon] {
+  color: var(--color-favorite-active);
+  fill: var(--color-favorite-active);
+  stroke: var(--color-favorite-active);
+}
+
+.favorite-button[data-favorite="true"] [data-favorite-icon] path {
+  fill: var(--color-favorite-active);
+  stroke: var(--color-favorite-active);
+}
+
+.hero-reveal {
+  animation: hero-reveal 420ms var(--motion-ease-standard) both;
+}
+
+@keyframes hero-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+
+  .hero-reveal {
+    animation: none;
   }
 
   *,

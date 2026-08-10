@@ -1,38 +1,37 @@
-/**
- * Search URL Utilities
- * Helpers for building and parsing search URLs
- */
+const searchKeys = ['transactionType', 'governorate', 'propertyType']
 
 /**
- * Build a search URL from parameters
- * @param {Object} params - Search parameters
- * @param {string} params.intent - 'buy' or 'rent'
- * @param {string} params.governorate - Governorate ID
- * @param {string} params.propertyType - Property type ID
- * @returns {string} URL query string
+ * Reads known search keys without treating URL input as validated data.
+ *
+ * @param {URLSearchParams} searchParams
+ * @returns {Record<(typeof searchKeys)[number], string>}
  */
-export function buildSearchUrl(params) {
-  const queryParams = new URLSearchParams()
-
-  if (params.intent) queryParams.append('intent', params.intent)
-  if (params.governorate) queryParams.append('gov', params.governorate)
-  if (params.propertyType) queryParams.append('type', params.propertyType)
-
-  const query = queryParams.toString()
-  return query ? `/search?${query}` : '/search'
+export function readSearchParams(searchParams) {
+  return Object.fromEntries(
+    searchKeys.map((key) => [key, searchParams.get(key) ?? '']),
+  )
 }
 
 /**
- * Parse search parameters from URL
- * @param {string} queryString - URL query string
- * @returns {Object} Parsed search parameters
+ * Serializes criteria while retaining URL state owned by other features.
+ *
+ * @param {Record<(typeof searchKeys)[number], string>} criteria
+ * @param {URLSearchParams} [currentSearchParams]
+ * @returns {URLSearchParams}
  */
-export function parseSearchUrl(queryString) {
-  const params = new URLSearchParams(queryString)
+export function createSearchParams(
+  criteria,
+  currentSearchParams = new URLSearchParams(),
+) {
+  const searchParams = new URLSearchParams(currentSearchParams)
 
-  return {
-    intent: params.get('intent') || 'buy',
-    governorate: params.get('gov') || '',
-    propertyType: params.get('type') || '',
-  }
+  searchKeys.forEach((key) => {
+    if (criteria[key]) {
+      searchParams.set(key, criteria[key])
+    } else {
+      searchParams.delete(key)
+    }
+  })
+
+  return searchParams
 }

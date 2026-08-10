@@ -1,0 +1,27 @@
+-- Enforces case-insensitive uniqueness of User.email at the database level.
+--
+-- Authentication normalises an address to trimmed lowercase before looking it
+-- up, so two rows differing only in case would leave one of them permanently
+-- unreachable. The plain "User_email_key" constraint is case-sensitive and
+-- cannot prevent that on its own; this expression index can.
+--
+-- Written by hand: Prisma Schema has no syntax for an index over an
+-- expression, so this index exists in the database only and is intentionally
+-- absent from schema.prisma. Keep it in mind when generating future
+-- migrations, which will otherwise propose dropping it.
+--
+-- Before applying, confirm no conflicting rows exist:
+--   SELECT lower("email") AS normalized, count(*), array_agg("id")
+--   FROM "User"
+--   GROUP BY lower("email")
+--   HAVING count(*) > 1;
+--
+-- The statement below fails safely on a conflict: it aborts the migration and
+-- changes no data. Resolve the duplicates first, then re-run.
+--
+-- Locking note: this builds under a lock that blocks writes to "User" for the
+-- duration. CONCURRENTLY is not an option because Prisma wraps each migration
+-- in a transaction. Acceptable at the current table size.
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_email_lower_key" ON "User"(lower("email"));

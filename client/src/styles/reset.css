@@ -5,18 +5,15 @@
 }
 
 html {
-  min-width: 320px;
   scroll-behavior: smooth;
 }
 
 body {
-  min-width: 320px;
   min-height: 100vh;
   min-height: 100svh;
   margin: 0;
-  overflow-x: hidden;
   color: var(--text-primary);
-  background: var(--surface-canvas);
+  background: var(--page-background);
   font-family: var(--font-sans);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -28,8 +25,14 @@ button,
 input,
 select,
 textarea {
-  color: inherit;
   font: inherit;
+}
+
+button:not([class]),
+input:not([class]),
+select:not([class]),
+textarea:not([class]) {
+  color: inherit;
 }
 
 button,
@@ -43,8 +46,11 @@ svg {
   max-width: 100%;
 }
 
-a {
+a:not([class]) {
   color: inherit;
+}
+
+a {
   text-decoration: none;
 }
 

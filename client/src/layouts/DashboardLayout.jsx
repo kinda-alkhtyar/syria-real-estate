@@ -1,0 +1,87 @@
+import { Building2, LayoutDashboard, Plus } from 'lucide-react'
+import { NavLink, Outlet } from 'react-router-dom'
+
+import LanguageSelector from '../components/common/LanguageSelector.jsx'
+import Logo from '../components/common/Logo.jsx'
+import ThemeSwitcher from '../components/common/ThemeSwitcher.jsx'
+import Container from '../components/ui/Container.jsx'
+import UserMenu from '../features/auth/components/UserMenu.jsx'
+import { useLocale } from '../hooks/useLocale.js'
+
+const navigation = [
+  {
+    end: true,
+    icon: LayoutDashboard,
+    labelKey: 'dashboard.navigation.overview',
+    to: '/dashboard',
+  },
+  {
+    icon: Plus,
+    labelKey: 'dashboard.navigation.create',
+    to: '/dashboard/properties/new',
+  },
+  {
+    icon: Building2,
+    labelKey: 'dashboard.navigation.browse',
+    to: '/properties',
+  },
+]
+
+export default function DashboardLayout() {
+  const { t } = useLocale()
+
+  return (
+    <div className="flex min-h-screen min-h-svh flex-col bg-canvas">
+      {/* Desktop-only shell: phones open straight into the approved mobile
+          screen, which draws its own header and owns language switching. */}
+      <header className="sticky top-0 z-header hidden border-b border-line bg-header lg:block">
+        <Container>
+          <div className="flex min-h-18 flex-wrap items-center justify-between gap-3 py-2">
+            <Logo />
+            <div className="flex items-center gap-1">
+              <LanguageSelector className="hidden sm:inline-flex" />
+              <ThemeSwitcher className="hidden sm:inline-flex" />
+              <UserMenu />
+            </div>
+          </div>
+        </Container>
+      </header>
+
+      <Container className="flex-1 max-lg:px-0! lg:py-8">
+        <div className="grid gap-6 lg:grid-cols-[13rem_minmax(0,1fr)] lg:gap-8">
+          <aside className="hidden lg:block">
+            <nav
+              aria-label={t('dashboard.navigation.label')}
+              className="rounded-2xl border border-line bg-surface p-2"
+            >
+              <ul className="flex gap-1 overflow-x-auto lg:grid">
+                {navigation.map(({ end, icon: Icon, labelKey, to }) => (
+                  <li className="shrink-0" key={to}>
+                    <NavLink
+                      className={({ isActive }) =>
+                        `flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-semibold outline-none transition-colors focus-visible:ring-3 focus-visible:ring-focus/35 ${
+                          isActive
+                            ? 'bg-action text-on-action'
+                            : 'text-muted hover:bg-hover hover:text-ink'
+                        }`
+                      }
+                      end={end}
+                      to={to}
+                    >
+                      <Icon aria-hidden="true" size={18} />
+                      {t(labelKey)}
+                    </NavLink>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          </aside>
+
+          <main className="min-w-0" id="dashboard-content">
+            <Outlet />
+          </main>
+        </div>
+      </Container>
+    </div>
+  )
+}

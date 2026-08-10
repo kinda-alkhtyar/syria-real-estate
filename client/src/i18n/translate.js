@@ -13,6 +13,22 @@ function interpolate(message, variables) {
   })
 }
 
+function selectPluralMessage(message, locale, variables) {
+  if (
+    !message ||
+    typeof message !== 'object' ||
+    variables?.count === undefined
+  ) {
+    return message
+  }
+
+  const count = Number(variables.count)
+  if (!Number.isFinite(count)) return message.other
+
+  const category = new Intl.PluralRules(locale).select(count)
+  return message[category] ?? message.other
+}
+
 export function translate(
   dictionaries,
   locale,
@@ -20,9 +36,10 @@ export function translate(
   key,
   variables,
 ) {
-  const message =
+  const localizedMessage =
     getMessage(dictionaries[locale], key) ??
     getMessage(dictionaries[fallbackLocale], key)
+  const message = selectPluralMessage(localizedMessage, locale, variables)
 
   if (typeof message !== 'string') {
     return key

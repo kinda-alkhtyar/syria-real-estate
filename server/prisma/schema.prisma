@@ -1,0 +1,166 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  USER
+  OWNER
+  ADMIN
+}
+
+enum TransactionType {
+  BUY
+  RENT
+  STAY
+}
+
+enum PropertyType {
+  APARTMENT
+  HOUSE
+  VILLA
+  LAND
+  COMMERCIAL
+  OFFICE
+}
+
+enum ListingStatus {
+  DRAFT
+  AVAILABLE
+  RESERVED
+  SOLD
+  RENTED
+  ARCHIVED
+}
+
+enum Currency {
+  USD
+  EUR
+  SYP
+}
+
+enum Governorate {
+  DAMASCUS
+  RIF_DIMASHQ
+  ALEPPO
+  LATAKIA
+  HOMS
+  HAMA
+  IDLIB
+  TARTUS
+  DARAA
+  AS_SUWAYDA
+  RAQQA
+  AL_HASAKAH
+  DEIR_EZ_ZOR
+  QUNEITRA
+}
+
+model User {
+  id           String        @id @default(uuid()) @db.Uuid
+  email        String        @unique
+  name         String
+  passwordHash String?
+  // Records how the account was first created. Kept as free text rather than an
+  // enum so adding a provider never needs a database migration.
+  provider     String        @default("PASSWORD")
+  googleSub    String?       @unique @map("google_sub")
+  isActive     Boolean       @default(true)
+  role         UserRole      @default(USER)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  properties   Property[]
+  sessions     AuthSession[]
+
+  // "User_email_lower_key", a unique index over lower("email"), also guards
+  // this column. Prisma Schema cannot express an index over an expression, so
+  // it lives in migration 20260809120000_add_email_lower_unique_index only.
+  // Future migrations must not drop it: sign-in normalises the address to
+  // lowercase, so a case-variant duplicate would be unreachable forever.
+  @@index([role])
+}
+
+model AuthSession {
+  id        String   @id @default(uuid()) @db.Uuid
+  tokenHash String   @unique
+  userId    String   @db.Uuid
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model Property {
+  id            String          @id @default(uuid()) @db.Uuid
+  slug          String          @unique
+  ownerId       String          @db.Uuid
+  titleEn       String
+  titleAr       String
+  titleDe       String
+  descriptionEn String?         @db.Text
+  descriptionAr String?         @db.Text
+  descriptionDe String?         @db.Text
+  transaction   TransactionType
+  propertyType  PropertyType
+  status        ListingStatus   @default(DRAFT)
+  price         Decimal         @db.Decimal(14, 2)
+  currency      Currency
+  governorate   Governorate
+  city          String
+  district      String?
+  neighborhood  String?
+  address       String?
+  bedrooms      Int?
+  bathrooms     Int?
+  area          Decimal         @db.Decimal(10, 2)
+  latitude      Decimal?        @db.Decimal(9, 6)
+  longitude     Decimal?        @db.Decimal(10, 6)
+  // Optional seller contact number used to open a WhatsApp chat from the
+  // listing. Stored as submitted (digits, spaces, optional leading +) so the
+  // owner recognises their own number; consumers strip separators themselves.
+  whatsapp      String?
+  featured      Boolean         @default(false)
+  videoUrl         String?
+  videoStoragePath String?      @unique
+  videoMimeType    String?
+  videoSizeBytes   BigInt?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  owner         User            @relation(fields: [ownerId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  images        PropertyImage[]
+
+  @@index([ownerId])
+  @@index([ownerId, updatedAt])
+  @@index([status, createdAt])
+  @@index([status, featured])
+  @@index([transaction, propertyType, governorate])
+  @@index([governorate, city, district])
+  @@index([price])
+  @@index([createdAt])
+}
+
+model PropertyImage {
+  id         String   @id @default(uuid()) @db.Uuid
+  propertyId String   @db.Uuid
+  url        String
+  storagePath String? @unique
+  mimeType    String?
+  sizeBytes   Int?
+  width       Int?
+  height      Int?
+  altEn      String?
+  altAr      String?
+  altDe      String?
+  sortOrder  Int      @default(0)
+  createdAt  DateTime @default(now())
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([propertyId, sortOrder])
+  @@index([propertyId])
+}

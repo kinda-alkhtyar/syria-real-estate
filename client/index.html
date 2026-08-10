@@ -2,13 +2,65 @@
 <html lang="en" dir="ltr">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#12243B" />
+    <!-- `viewport-fit=cover` is what makes env(safe-area-inset-*) resolve to the
+         real notch/home-indicator insets used by the fixed bottom bar. -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
     <meta
       name="description"
-      content="A trusted property marketplace built for Syria."
+      content="Discover homes for sale, for rent, and short stays across every Syrian governorate."
     />
-    <title>Dar Syria | Trusted Real Estate</title>
+    <script>
+      ;(() => {
+        const localeStorageKey = 'dar-syria-locale'
+        const supportedLocales = {
+          ar: 'rtl',
+          en: 'ltr',
+          de: 'ltr',
+        }
+
+        try {
+          const storedLocale = localStorage.getItem(localeStorageKey)
+          if (storedLocale && supportedLocales[storedLocale]) {
+            document.documentElement.lang = storedLocale
+            document.documentElement.dir = supportedLocales[storedLocale]
+          }
+        } catch {
+          // Storage can be unavailable in privacy-restricted environments.
+        }
+
+        const storageKey = 'dar-syria-theme'
+        const validThemes = ['light', 'dark', 'system']
+        let preference = 'system'
+
+        try {
+          const storedPreference = localStorage.getItem(storageKey)
+          if (validThemes.includes(storedPreference)) {
+            preference = storedPreference
+          }
+        } catch {
+          // Storage can be unavailable in privacy-restricted environments.
+        }
+
+        const resolvedTheme =
+          preference === 'system'
+            ? matchMedia('(prefers-color-scheme: dark)').matches
+              ? 'dark'
+              : 'light'
+            : preference
+
+        document.documentElement.dataset.theme = resolvedTheme
+        document.documentElement.dataset.themeMode = preference
+      })()
+    </script>
+    <title>Properties in Syria | Property for Sale and Rent in Syria</title>
   </head>
   <body>
     <div id="root"></div>

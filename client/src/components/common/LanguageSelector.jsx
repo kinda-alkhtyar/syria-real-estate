@@ -1,19 +1,22 @@
-import { Languages } from 'lucide-react'
+import { ChevronDown } from 'lucide-react'
 
 import { useLocale } from '../../hooks/useLocale.js'
 
-export default function LanguageSelector({ compact = false }) {
+export default function LanguageSelector({ className = '' }) {
   const { locale, locales, setLocale, t } = useLocale()
 
   return (
-    <label className="relative inline-flex min-h-11 items-center rounded-xl border border-line bg-surface text-ink">
+    <label
+      className={`relative inline-flex h-11 w-20 shrink-0 items-center justify-center gap-1 rounded-lg border border-line bg-transparent px-2.5 text-ink transition duration-fast ease-standard hover:border-input-line hover:bg-hover focus-within:border-focus focus-within:ring-3 focus-within:ring-focus/25 motion-reduce:transition-none ${className}`}
+    >
       <span className="sr-only">{t('accessibility.chooseLanguage')}</span>
-      <Languages aria-hidden="true" className="ms-3 shrink-0" size={17} />
+      <span aria-hidden="true" className="min-w-0 truncate text-xs font-bold">
+        {t(`languages.${locale.code}`)}
+      </span>
+      <ChevronDown aria-hidden="true" className="shrink-0 text-muted" size={14} />
       <select
         aria-label={t('accessibility.chooseLanguage')}
-        className={`min-h-11 appearance-none rounded-xl bg-transparent py-2 ps-2 pe-8 text-sm font-semibold outline-none ${
-          compact ? 'max-w-28' : 'min-w-32'
-        }`}
+        className="absolute inset-0 size-full cursor-pointer appearance-none opacity-0"
         onChange={(event) => setLocale(event.target.value)}
         value={locale.code}
       >

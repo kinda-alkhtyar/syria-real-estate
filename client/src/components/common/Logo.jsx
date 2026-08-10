@@ -1,25 +1,33 @@
-import { Building2 } from 'lucide-react'
-
 import { useLocale } from '../../hooks/useLocale.js'
 
-export default function Logo() {
+const logoSources = {
+  color: '/brand-full-color.png',
+  white: '/brand-full-white.png',
+  navy: '/brand-full-navy.png',
+  'symbol-color': '/brand-symbol-color.png',
+  'symbol-white': '/brand-symbol-white.png',
+  'symbol-navy': '/brand-symbol-navy.png',
+}
+
+export default function Logo({
+  variant = 'color',
+  className = '',
+  imageClassName = 'block h-[52px] w-auto max-w-[240px] object-contain object-left rtl:object-right',
+}) {
   const { t } = useLocale()
+  const src = logoSources[variant] ?? logoSources.color
 
   return (
     <a
       aria-label={t('accessibility.home')}
-      className="inline-flex min-h-11 items-center gap-2.5 rounded-lg text-ink"
+      className={`inline-flex items-center ${className}`}
       href="/"
     >
-      <span
-        aria-hidden="true"
-        className="inline-flex size-9 items-center justify-center rounded-lg bg-ink text-white"
-      >
-        <Building2 size={19} strokeWidth={1.8} />
-      </span>
-      <span className="whitespace-nowrap text-lg font-bold tracking-[-0.03em]">
-        {t('brand.name')}
-      </span>
+      <img
+        alt={t('brand.name')}
+        className={imageClassName}
+        src={src}
+      />
     </a>
   )
 }

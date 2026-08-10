@@ -1,34 +1,64 @@
-import { useState, useCallback } from 'react'
+import { useCallback, useEffect, useState } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+
+import { parsePropertySearchCriteria } from '../schemas/property-search.schema.js'
+import {
+  createSearchParams,
+  readSearchParams,
+} from '../utils/searchUrl.js'
 
 /**
- * usePropertySearch
- * Manages property search form state and submission
+ * Keeps edits local while making submitted search criteria shareable by URL.
+ *
+ * @returns {{
+ *   criteria: {transactionType: string, governorate: string, propertyType: string},
+ *   submitSearch: (event: React.FormEvent<HTMLFormElement>) => void,
+ *   updateCriterion: (name: string, value: string) => void
+ * }}
  */
-
 export function usePropertySearch() {
-  const [searchParams, setSearchParams] = useState({
-    intent: 'buy',
-    governorate: '',
-    propertyType: '',
-  })
+  const navigate = useNavigate()
+  const [urlSearchParams] = useSearchParams()
+  const [criteria, setCriteria] = useState(() =>
+    parsePropertySearchCriteria(readSearchParams(urlSearchParams)),
+  )
 
-  const handleChange = useCallback((event) => {
-    const { name, value } = event.target
-    setSearchParams((prev) => ({
-      ...prev,
+  useEffect(() => {
+    function syncCriteriaFromHistory() {
+      const currentSearchParams = new URLSearchParams(window.location.search)
+      setCriteria(
+        parsePropertySearchCriteria(readSearchParams(currentSearchParams)),
+      )
+    }
+
+    window.addEventListener('popstate', syncCriteriaFromHistory)
+    return () => window.removeEventListener('popstate', syncCriteriaFromHistory)
+  }, [])
+
+  const updateCriterion = useCallback((name, value) => {
+    setCriteria((currentCriteria) => ({
+      ...currentCriteria,
       [name]: value,
     }))
   }, [])
 
-  const handleSubmit = useCallback((event) => {
-    event.preventDefault()
-    // TODO: Implement search navigation or API call
-    console.log('Search submitted with params:', searchParams)
-  }, [searchParams])
+  const submitSearch = useCallback(
+    (event) => {
+      event.preventDefault()
+      const normalizedCriteria = parsePropertySearchCriteria(criteria)
+      setCriteria(normalizedCriteria)
+      const nextSearchParams = createSearchParams(
+        normalizedCriteria,
+        urlSearchParams,
+      )
+      navigate(`/properties?${nextSearchParams.toString()}`)
+    },
+    [criteria, navigate, urlSearchParams],
+  )
 
   return {
-    searchParams,
-    handleChange,
-    handleSubmit,
+    criteria,
+    submitSearch,
+    updateCriterion,
   }
 }

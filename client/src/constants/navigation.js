@@ -1,22 +1,32 @@
 export const navigationItems = [
   {
-    labelKey: 'navigation.buy',
-    href: '#featured',
+    labelKey: 'navigation.home',
+    href: '/',
   },
   {
-    labelKey: 'navigation.rent',
-    href: '#search',
+    labelKey: 'navigation.forSale',
+    href: '/properties?transactionType=buy',
   },
   {
-    labelKey: 'navigation.sell',
-    href: '#list-property',
+    labelKey: 'navigation.forRent',
+    href: '/properties?transactionType=rent',
   },
   {
-    labelKey: 'navigation.locations',
-    href: '#locations',
+    labelKey: 'navigation.stays',
+    href: '/properties?transactionType=stays',
+  },
+  /**
+   * Secondary entries: kept in the desktop navigation but hidden from the
+   * compact drawer, where the primary transaction links carry the journey.
+   */
+  {
+    labelKey: 'navigation.projects',
+    href: '/#featured',
+    compactHidden: true,
   },
   {
     labelKey: 'navigation.about',
-    href: '#trust',
+    href: '/#trust',
+    compactHidden: true,
   },
 ]

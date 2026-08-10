@@ -2,26 +2,121 @@
 [data-theme="light"] {
   color-scheme: light;
 
-  --brand-primary: #193028;
-  --brand-primary-hover: #25483b;
-  --brand-accent: #9a6639;
-  --brand-accent-soft: #f2e7db;
-  --brand-sand: #d9bd98;
+  --page-background: #f4f0e8;
+  --surface: #fbf9f5;
+  --surface-elevated: #ffffff;
+  --text-primary: #252725;
+  --text-secondary: #555a56;
+  --text-muted: #70756f;
+  --border: #d9d1c5;
+  --input-background: #fffdfa;
+  --input-border: #bdb4a7;
+  --primary-action: #17283a;
+  --primary-action-hover: #223b54;
+  --primary-action-text: #ffffff;
+  --secondary-action: #ffffff;
+  --hover: #e8e0d4;
+  --focus-ring: #a8794e;
+  --accent: #a8794e;
+  --accent-soft: #eee2d5;
+  --accent-warm: #cfad89;
+  --success: #397255;
+  --warning: #9a642b;
+  --error: #a4473f;
+  --color-favorite-active: #c94747;
+  --favorite-badge: #8f3d38;
+  --favorite-badge-text: #ffffff;
+  --overlay: rgb(25 48 40 / 0.5);
+  --skeleton: #e9e7e1;
+  --header-background: #f4f0e8;
+  --feature-text: #f4f0e8;
 
-  --surface-canvas: #f7f6f2;
-  --surface-primary: #ffffff;
-  --surface-subtle: #efede7;
-  --surface-raised: #ffffff;
+  --shadow-sm: 0 1px 2px rgb(25 48 40 / 0.05);
+  --shadow-md: 0 10px 30px rgb(25 48 40 / 0.08);
+  --shadow-lg: 0 24px 60px rgb(25 48 40 / 0.12);
 
-  --text-primary: #193028;
-  --text-secondary: #5d6d66;
-  --text-inverse: #ffffff;
-  --border-subtle: #dde0da;
-  --border-strong: #b7bdb8;
-  --focus-ring: #b47b49;
+  /* Homepage palette. Light values are the approved Figma hexes that used to be
+     hardcoded in the section components; only the dark counterparts differ. */
+  --home-heading: #12243b;
+  --home-body: #566170;
+  --home-muted: #667085;
+  --home-section: #f7f4ee;
+  --home-panel: #ffffff;
+  --home-card-border: #e5e0d8;
+  --home-gold: #d0a64a;
+  --home-gold-hover: #d8b15a;
+  --home-gold-soft: rgb(208 166 74 / 0.15);
+  --home-on-gold: #12243b;
+  --home-band: #12243b;
+  --home-band-text: #ffffff;
+  --home-button: #12243b;
+  --home-button-text: #ffffff;
 
-  --font-sans:
-    Inter, "Noto Sans Arabic", "Segoe UI", Tahoma, Arial, sans-serif;
+  /* WhatsApp is a third-party brand mark, so its green is fixed in both themes
+     rather than following the palette. Value taken from the approved 3a screen. */
+  --whatsapp: #2e7d5c;
+  --whatsapp-hover: #27694d;
+  --whatsapp-text: #ffffff;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --page-background: #171b1a;
+  --surface: #202524;
+  --surface-elevated: #282e2c;
+  --text-primary: #f1eee7;
+  --text-secondary: #c0c6c1;
+  --text-muted: #98a19c;
+  --border: #39413e;
+  --input-background: #1c211f;
+  --input-border: #4c5652;
+  --primary-action: #d7c1a5;
+  --primary-action-hover: #e2ceb5;
+  --primary-action-text: #1b211f;
+  --secondary-action: #282e2c;
+  --hover: #303735;
+  --focus-ring: #c58a55;
+  --accent: #c58a55;
+  --accent-soft: #3b2d22;
+  --accent-warm: #d0b28e;
+  --success: #79b991;
+  --warning: #d2a260;
+  --error: #df8178;
+  --color-favorite-active: #e26666;
+  --favorite-badge: #9f4942;
+  --favorite-badge-text: #ffffff;
+  --overlay: rgb(8 10 9 / 0.72);
+  --skeleton: #303634;
+  --header-background: #1b201e;
+  --feature-text: #f1eee7;
+
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.18);
+  --shadow-md: 0 10px 28px rgb(0 0 0 / 0.2);
+  --shadow-lg: 0 22px 52px rgb(0 0 0 / 0.24);
+
+  /* Dark counterparts of the homepage palette: the navy ink and the sand
+     surfaces swap roles so headings keep contrast against their own section. */
+  --home-heading: #f1eee7;
+  --home-body: #c0c6c1;
+  --home-muted: #98a19c;
+  --home-section: #202524;
+  --home-panel: #171b1a;
+  --home-card-border: #39413e;
+  --home-gold: #d9b268;
+  --home-gold-hover: #e2c184;
+  --home-gold-soft: rgb(217 178 104 / 0.16);
+  --home-on-gold: #17130a;
+  --home-band: #1d2b3d;
+  --home-band-text: #f5f7fa;
+  --home-button: #d7c1a5;
+  --home-button-text: #1b211f;
+}
+
+:root {
+  --font-sans: Inter, "Noto Sans Arabic", "Segoe UI", Tahoma, Arial, sans-serif;
+  --font-display: Alexandria, "IBM Plex Sans Arabic", "Noto Sans Arabic",
+    "Segoe UI", Tahoma, Arial, sans-serif;
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;
   --font-size-base: 1rem;
@@ -52,10 +147,6 @@
   --radius-lg: 0.875rem;
   --radius-xl: 1.25rem;
 
-  --shadow-sm: 0 1px 2px rgb(25 48 40 / 0.05);
-  --shadow-md: 0 10px 30px rgb(25 48 40 / 0.08);
-  --shadow-lg: 0 24px 60px rgb(25 48 40 / 0.12);
-
   --motion-duration-fast: 140ms;
   --motion-duration-standard: 220ms;
   --motion-duration-slow: 420ms;
@@ -68,4 +159,11 @@
   --z-sticky: 50;
   --z-modal: 70;
   --z-toast: 90;
+}
+
+/* Latin locales use a Latin-only stack; Arabic-first families stay for ar. */
+:root:lang(en),
+:root:lang(de) {
+  --font-sans: Inter, "Segoe UI", Tahoma, Arial, sans-serif;
+  --font-display: Inter, "Segoe UI", Tahoma, Arial, sans-serif;
 }

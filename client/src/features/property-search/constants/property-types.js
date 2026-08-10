@@ -1,20 +1,9 @@
-/**
- * Property Types
- * Standard property classification for search and filtering
- */
-
 export const propertyTypes = [
-  { id: 'apartment', key: 'apartment' },
-  { id: 'house', key: 'house' },
-  { id: 'land', key: 'land' },
-  { id: 'commercial', key: 'commercial' },
-  { id: 'studio', key: 'studio' },
-  { id: 'villa', key: 'villa' },
-  { id: 'townhouse', key: 'townhouse' },
+  { id: 'apartment', labelKey: 'propertyTypes.apartment' },
+  { id: 'house', labelKey: 'propertyTypes.house' },
+  { id: 'land', labelKey: 'propertyTypes.land' },
+  { id: 'commercial', labelKey: 'propertyTypes.commercial' },
+  { id: 'studio', labelKey: 'propertyTypes.studio' },
+  { id: 'villa', labelKey: 'propertyTypes.villa' },
+  { id: 'townhouse', labelKey: 'propertyTypes.townhouse' },
 ]
-
-export const getPropertyTypeLabel = (typeId) => {
-  // Keys map to translation file paths like propertyTypes.apartment
-  const key = propertyTypes.find((t) => t.id === typeId)?.key
-  return key ? `propertyTypes.${key}` : ''
-}
