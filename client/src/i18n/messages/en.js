@@ -296,12 +296,14 @@ export const en = {
       latitude: 'Optional — shown on the map. Example: 33.51',
       longitude: 'Optional — shown on the map. Example: 36.30',
       whatsapp:
-        'Optional — lets buyers message you on WhatsApp. Digits, spaces, and a leading + only.',
+        'Optional — lets buyers message you on WhatsApp. Start with your country code; spaces, dashes, and parentheses are fine.',
+      whatsappCountryCode:
+        'Add your country code so WhatsApp works (e.g., +90, +49, +43, +963)',
     },
     placeholders: {
       latitude: '33.51',
       longitude: '36.30',
-      whatsapp: '+963 944 123 456',
+      whatsapp: '+90 · +49 · +43 · +963',
     },
     validation: {
       required: 'This field is required.',
@@ -311,7 +313,7 @@ export const en = {
       latitude: 'Latitude must be between -90 and 90.',
       longitude: 'Longitude must be between -180 and 180.',
       whatsapp:
-        'Enter a valid number: digits, spaces, and a leading + only.',
+        'Enter a valid number: digits with an optional leading +, plus spaces, dashes, or parentheses.',
     },
     feedback: {
       success: 'The property was created successfully.',

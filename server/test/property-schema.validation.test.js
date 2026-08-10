@@ -126,11 +126,22 @@ test('rejects angle brackets in image alt text', () => {
   assert.equal(accepted.success, true)
 })
 
-test('accepts optional WhatsApp numbers with digits, spaces, and a leading +', () => {
-  for (const whatsapp of ['+963 944 123 456', '0944123456', '963944123456']) {
-    const result = createWith({ whatsapp })
-    assert.equal(result.success, true, `${whatsapp} should be accepted`)
-    assert.equal(result.data.whatsapp, whatsapp)
+test('accepts WhatsApp numbers from any country and stores them normalized', () => {
+  const cases = [
+    // Turkey, Germany, Austria and Syria in the separator styles each country
+    // is usually written with.
+    { input: '+90 532 123 45 67', stored: '+905321234567' },
+    { input: '+49 151 23456789', stored: '+4915123456789' },
+    { input: '+43 (664) 123-4567', stored: '+436641234567' },
+    { input: '+963 944 123 456', stored: '+963944123456' },
+    // No country code: kept as digits so the owner still recognises it.
+    { input: '0944 123 456', stored: '0944123456' },
+  ]
+
+  for (const { input, stored } of cases) {
+    const result = createWith({ whatsapp: input })
+    assert.equal(result.success, true, `${input} should be accepted`)
+    assert.equal(result.data.whatsapp, stored)
   }
 
   // Absent and explicitly cleared are both valid: the column is nullable.
@@ -143,9 +154,10 @@ test('accepts optional WhatsApp numbers with digits, spaces, and a leading +', (
 test('rejects WhatsApp numbers with letters, symbols, or an implausible length', () => {
   for (const whatsapp of [
     'call me',
-    '+963-944-123456',
-    '(963) 944123456',
+    '+963 944 abc',
+    '963/944/123456',
     '++963944123456',
+    '963+944123456',
     '12345',
     '9639441234567890123',
   ]) {

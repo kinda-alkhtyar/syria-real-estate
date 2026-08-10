@@ -48,9 +48,12 @@ export default function PropertyGallery({ images, label }) {
         </ul>
         {images.length > 1 && (
           <>
-            {/* Screen 3a shows position as dots; the counter stays for screen
-                readers, where a row of dots conveys nothing. */}
-            <p aria-live="polite" className="sr-only">
+            {/* Screen 3a shows both marks: the counter as a pill in the corner
+                and the dots centred underneath the image. */}
+            <p
+              aria-live="polite"
+              className="pointer-events-none absolute bottom-3 end-3 rounded-full bg-home-band/85 px-2.5 py-1 text-[11px] font-bold text-home-band-text backdrop-blur-sm"
+            >
               {t('propertyDetails.imageCounter', {
                 current: visibleIndex + 1,
                 total: images.length,

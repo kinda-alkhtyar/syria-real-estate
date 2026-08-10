@@ -4,6 +4,7 @@ import { NavLink, Outlet } from 'react-router-dom'
 import LanguageSelector from '../components/common/LanguageSelector.jsx'
 import Logo from '../components/common/Logo.jsx'
 import ThemeSwitcher from '../components/common/ThemeSwitcher.jsx'
+import BottomNav from '../components/layout/BottomNav.jsx'
 import Container from '../components/ui/Container.jsx'
 import UserMenu from '../features/auth/components/UserMenu.jsx'
 import { useLocale } from '../hooks/useLocale.js'
@@ -47,7 +48,8 @@ export default function DashboardLayout() {
         </Container>
       </header>
 
-      <Container className="flex-1 max-lg:px-0! lg:py-8">
+      {/* The trailing space clears the fixed bottom bar, which only exists below `lg`. */}
+      <Container className="flex-1 pb-[calc(4.5rem+env(safe-area-inset-bottom))] max-lg:px-0! lg:pb-0 lg:py-8">
         <div className="grid gap-6 lg:grid-cols-[13rem_minmax(0,1fr)] lg:gap-8">
           <aside className="hidden lg:block">
             <nav
@@ -82,6 +84,10 @@ export default function DashboardLayout() {
           </main>
         </div>
       </Container>
+
+      {/* Phones keep the same application bar as the rest of the app, so the
+          dashboard is never a dead end without navigation. */}
+      <BottomNav />
     </div>
   )
 }

@@ -65,16 +65,27 @@ const optionalDecimalFields = ['latitude', 'longitude']
 const integerFields = ['bedrooms', 'bathrooms']
 const knownFields = new Set(Object.keys(propertyCreationInitialValues))
 
-// Mirrors the server rule: digits and spaces with at most one leading `+`, and
-// a digit count a real number can actually have. Kept optional — a blank field
-// clears any stored number.
-const whatsappPattern = /^\+?\d[\d ]*$/
+// Mirrors the server rule: an optional leading `+` followed by digits and the
+// readable separators every country writes its numbers with, and a digit count
+// a real number can actually have. Kept optional — a blank field clears any
+// stored number.
+const whatsappPattern = /^\+?[\d\s()-]+$/
 
 export function isValidWhatsappNumber(value) {
   const trimmed = value.trim()
   if (!whatsappPattern.test(trimmed)) return false
   const digits = trimmed.replace(/\D/g, '').length
   return digits >= 6 && digits <= 15
+}
+
+/**
+ * True when something was typed without a country code. `wa.me` only resolves
+ * numbers in international form, so the form nudges the owner — it never blocks
+ * the submission, because the number may still be right for `tel:`.
+ */
+export function needsCountryCode(value) {
+  const trimmed = value.trim()
+  return trimmed !== '' && !trimmed.startsWith('+')
 }
 
 export function validatePropertyCreation(values) {

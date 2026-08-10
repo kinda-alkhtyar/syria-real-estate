@@ -303,12 +303,14 @@ export const de = {
       latitude: 'Optional — wird auf der Karte angezeigt. Beispiel: 33.51',
       longitude: 'Optional — wird auf der Karte angezeigt. Beispiel: 36.30',
       whatsapp:
-        'Optional — Interessenten können Ihnen direkt über WhatsApp schreiben. Nur Ziffern, Leerzeichen und ein führendes +.',
+        'Optional — Interessenten können Ihnen direkt über WhatsApp schreiben. Beginnen Sie mit Ihrer Ländervorwahl; Leerzeichen, Bindestriche und Klammern sind erlaubt.',
+      whatsappCountryCode:
+        'Fügen Sie Ihre Ländervorwahl hinzu, damit WhatsApp funktioniert (z. B. +90, +49, +43, +963)',
     },
     placeholders: {
       latitude: '33.51',
       longitude: '36.30',
-      whatsapp: '+963 944 123 456',
+      whatsapp: '+90 · +49 · +43 · +963',
     },
     validation: {
       required: 'Dieses Feld ist erforderlich.',
@@ -318,7 +320,7 @@ export const de = {
       latitude: 'Der Breitengrad muss zwischen -90 und 90 liegen.',
       longitude: 'Der Längengrad muss zwischen -180 und 180 liegen.',
       whatsapp:
-        'Bitte eine gültige Nummer eingeben: nur Ziffern, Leerzeichen und ein führendes +.',
+        'Bitte eine gültige Nummer eingeben: Ziffern mit optionalem führendem + sowie Leerzeichen, Bindestriche oder Klammern.',
     },
     feedback: {
       success: 'Die Immobilie wurde erfolgreich erstellt.',

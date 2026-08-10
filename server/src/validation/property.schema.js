@@ -202,27 +202,43 @@ function decimalSchema({
     )
 }
 
-// Light contact validation: digits and spaces, with at most one leading `+`.
-// Formatting is deliberately not normalised here — the value is echoed back to
-// the owner as they typed it, and consumers strip separators when they build a
-// `wa.me` or `tel:` link. `null` clears a previously stored number.
+// Sellers type their number in whatever convention their country uses, so the
+// readable separators are accepted and then dropped: what is stored is
+// canonical, `+<digits>` when a country code was given and bare digits
+// otherwise. Consumers can therefore build a `wa.me` link from the digits
+// without re-parsing. `null` clears a previously stored number.
+const whatsappCharacters = /^\+?[\d\s()-]+$/
+const minimumWhatsappDigits = 6
+const maximumWhatsappDigits = 15
+
+function whatsappDigits(value) {
+  return value.replace(/\D/g, '')
+}
+
+export function normalizeWhatsappNumber(value) {
+  const trimmed = value.trim()
+  const digits = whatsappDigits(trimmed)
+  return trimmed.startsWith('+') ? `+${digits}` : digits
+}
+
 const whatsappSchema = z
   .union([
     z
       .string()
       .trim()
       .regex(
-        /^\+?\d[\d ]*$/,
-        'WhatsApp number may contain digits, spaces, and a leading +.',
+        whatsappCharacters,
+        'WhatsApp number may contain digits, spaces, dashes, parentheses, and a leading +.',
       )
       .refine(
-        (value) => value.replace(/\D/g, '').length >= 6,
-        'WhatsApp number must contain at least 6 digits.',
+        (value) => whatsappDigits(value).length >= minimumWhatsappDigits,
+        `WhatsApp number must contain at least ${minimumWhatsappDigits} digits.`,
       )
       .refine(
-        (value) => value.replace(/\D/g, '').length <= 15,
-        'WhatsApp number must contain at most 15 digits.',
-      ),
+        (value) => whatsappDigits(value).length <= maximumWhatsappDigits,
+        `WhatsApp number must contain at most ${maximumWhatsappDigits} digits.`,
+      )
+      .transform(normalizeWhatsappNumber),
     z.null(),
   ])
   .optional()

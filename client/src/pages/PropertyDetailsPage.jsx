@@ -423,6 +423,7 @@ export default function PropertyDetailsPage() {
           </article>
 
           <PropertyContactCard
+            callHref={callHref}
             reference={property.information?.reference}
             whatsappHref={whatsappHref}
           />

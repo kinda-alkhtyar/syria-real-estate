@@ -20,6 +20,7 @@ import {
   createSubmissionGate,
   getPropertyCreationSuccessPath,
   isPropertyCreationDirty,
+  needsCountryCode,
   parsePropertyCreationErrors,
   propertyCreationInitialValues,
   propertyCreationOptions,
@@ -632,14 +633,20 @@ export default function PropertyCreationForm({
     </FormSelect>
   )
 
+  // The hint doubles as a live nudge: as soon as a number is typed without a
+  // country code it explains why WhatsApp would not reach the seller.
   const whatsappField = (
     <FormField
       autoComplete="tel"
       error={errorMessage('whatsapp')}
-      hint={t('propertyCreate.hints.whatsapp')}
+      hint={t(
+        needsCountryCode(values.whatsapp)
+          ? 'propertyCreate.hints.whatsappCountryCode'
+          : 'propertyCreate.hints.whatsapp',
+      )}
       inputMode="tel"
       label={t('propertyCreate.fields.whatsapp')}
-      maxLength={24}
+      maxLength={28}
       name="whatsapp"
       onChange={handleChange}
       placeholder={t('propertyCreate.placeholders.whatsapp')}
@@ -775,7 +782,9 @@ export default function PropertyCreationForm({
 
     return (
       <form
-        className="flex min-h-svh flex-col bg-home-panel"
+        // Fills the viewport minus the fixed bottom bar, so the wizard footer
+        // rests directly above it instead of forcing a short extra scroll.
+        className="flex min-h-[calc(100svh-4.5rem-env(safe-area-inset-bottom))] flex-col bg-home-panel"
         noValidate
         onSubmit={handleSubmit}
       >
@@ -942,7 +951,9 @@ export default function PropertyCreationForm({
           {formErrorNotice}
         </div>
 
-        <div className="flex shrink-0 gap-2.5 border-t border-home-card-border bg-home-panel px-4 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-3.5">
+        {/* The safe area is already reserved by the layout for the bottom bar,
+            so this footer only needs its own breathing room. */}
+        <div className="flex shrink-0 gap-2.5 border-t border-home-card-border bg-home-panel px-4 pb-5 pt-3.5">
           <button
             className="min-h-12 flex-1 rounded-[12px] border border-home-card-border px-2 text-[13px] font-bold text-home-heading outline-none transition-colors duration-fast ease-standard focus-visible:ring-3 focus-visible:ring-focus/35 disabled:opacity-60 motion-reduce:transition-none"
             disabled={isSubmitting}
