@@ -21,6 +21,10 @@ const environmentSchema = z.object({
   TRUST_PROXY: z.string().trim().default('false'),
   // Optional: Google sign-in stays switched off until an OAuth client is set.
   GOOGLE_CLIENT_ID: z.string().trim().default(''),
+  // Optional: review alerts stay switched off until both are set, so a
+  // deployment without a bot behaves exactly as it did before.
+  TELEGRAM_BOT_TOKEN: z.string().trim().default(''),
+  TELEGRAM_CHAT_ID: z.string().trim().default(''),
 })
 
 /**
@@ -65,7 +69,37 @@ export function parseApplicationEnvironment(environment) {
     authLoginRateWindowMinutes: result.data.AUTH_LOGIN_RATE_WINDOW_MINUTES,
     trustProxy: parseTrustProxy(result.data.TRUST_PROXY),
     googleClientId: result.data.GOOGLE_CLIENT_ID,
+    telegramBotToken: result.data.TELEGRAM_BOT_TOKEN,
+    telegramChatId: result.data.TELEGRAM_CHAT_ID,
   })
+}
+
+/**
+ * Configuration that parses cleanly but is dangerous once NODE_ENV is
+ * production. Reported at startup rather than rejected: each of these is a
+ * legitimate choice for some topology, and refusing to boot would be a worse
+ * outage than a loud log line.
+ *
+ * - TRUST_PROXY_DISABLED: behind a load balancer every request appears to come
+ *   from the proxy, so all callers share one rate-limit bucket — the limits
+ *   then throttle honest traffic and never isolate an attacker.
+ * - INSECURE_CORS_ORIGIN: the session cookie is `secure` in production, so a
+ *   plain-HTTP origin can never send it; the origin is either a leftover or a
+ *   sign that traffic is expected over HTTP.
+ */
+export function productionConfigurationWarnings(configuration) {
+  if (configuration.nodeEnv !== 'production') return []
+
+  const warnings = []
+  if (configuration.trustProxy === false) warnings.push('TRUST_PROXY_DISABLED')
+  if (
+    configuration.corsOrigins.some(
+      (origin) => new URL(origin).protocol !== 'https:',
+    )
+  ) {
+    warnings.push('INSECURE_CORS_ORIGIN')
+  }
+  return warnings
 }
 
 const env = parseApplicationEnvironment(process.env)

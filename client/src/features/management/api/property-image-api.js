@@ -1,6 +1,17 @@
 import { apiRequest } from '../../../api/api-client.js'
 
 const altTextFields = ['altEn', 'altAr', 'altDe']
+const localeSuffixes = { ar: 'Ar', de: 'De', en: 'En' }
+
+/**
+ * The alt-text field written in a given locale, e.g. `ar` → `altAr`. The upload
+ * form collects the alt text of the language being browsed only, the same way
+ * the property form collects a single title and description.
+ */
+export function altFieldForLocale(localeCode) {
+  const suffix = localeSuffixes[localeCode]
+  return suffix ? `alt${suffix}` : ''
+}
 
 export function createPropertyImageApi({ request = apiRequest } = {}) {
   function imagesPath(propertyId) {

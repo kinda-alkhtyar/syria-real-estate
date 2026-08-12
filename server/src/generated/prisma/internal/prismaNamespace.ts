@@ -400,6 +400,7 @@ export const ModelName = {
   User: 'User',
   AuthSession: 'AuthSession',
   Property: 'Property',
+  Office: 'Office',
   PropertyImage: 'PropertyImage'
 } as const
 
@@ -416,7 +417,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "authSession" | "property" | "propertyImage"
+    modelProps: "user" | "authSession" | "property" | "office" | "propertyImage"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -642,6 +643,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Office: {
+      payload: Prisma.$OfficePayload<ExtArgs>
+      fields: Prisma.OfficeFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.OfficeFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OfficePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.OfficeFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OfficePayload>
+        }
+        findFirst: {
+          args: Prisma.OfficeFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OfficePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.OfficeFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OfficePayload>
+        }
+        findMany: {
+          args: Prisma.OfficeFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OfficePayload>[]
+        }
+        create: {
+          args: Prisma.OfficeCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OfficePayload>
+        }
+        createMany: {
+          args: Prisma.OfficeCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.OfficeCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OfficePayload>[]
+        }
+        delete: {
+          args: Prisma.OfficeDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OfficePayload>
+        }
+        update: {
+          args: Prisma.OfficeUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OfficePayload>
+        }
+        deleteMany: {
+          args: Prisma.OfficeDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.OfficeUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.OfficeUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OfficePayload>[]
+        }
+        upsert: {
+          args: Prisma.OfficeUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OfficePayload>
+        }
+        aggregate: {
+          args: Prisma.OfficeAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateOffice>
+        }
+        groupBy: {
+          args: Prisma.OfficeGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OfficeGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.OfficeCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OfficeCountAggregateOutputType> | number
+        }
+      }
+    }
     PropertyImage: {
       payload: Prisma.$PropertyImagePayload<ExtArgs>
       fields: Prisma.PropertyImageFieldRefs
@@ -759,6 +834,8 @@ export const UserScalarFieldEnum = {
   id: 'id',
   email: 'email',
   name: 'name',
+  phone: 'phone',
+  whatsapp: 'whatsapp',
   passwordHash: 'passwordHash',
   provider: 'provider',
   googleSub: 'googleSub',
@@ -795,6 +872,7 @@ export const PropertyScalarFieldEnum = {
   transaction: 'transaction',
   propertyType: 'propertyType',
   status: 'status',
+  rejectionReason: 'rejectionReason',
   price: 'price',
   currency: 'currency',
   governorate: 'governorate',
@@ -813,11 +891,33 @@ export const PropertyScalarFieldEnum = {
   videoStoragePath: 'videoStoragePath',
   videoMimeType: 'videoMimeType',
   videoSizeBytes: 'videoSizeBytes',
+  officeId: 'officeId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type PropertyScalarFieldEnum = (typeof PropertyScalarFieldEnum)[keyof typeof PropertyScalarFieldEnum]
+
+
+export const OfficeScalarFieldEnum = {
+  id: 'id',
+  ownerId: 'ownerId',
+  nameAr: 'nameAr',
+  nameEn: 'nameEn',
+  nameDe: 'nameDe',
+  descriptionAr: 'descriptionAr',
+  descriptionEn: 'descriptionEn',
+  descriptionDe: 'descriptionDe',
+  governorate: 'governorate',
+  city: 'city',
+  phone: 'phone',
+  whatsapp: 'whatsapp',
+  logoUrl: 'logoUrl',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type OfficeScalarFieldEnum = (typeof OfficeScalarFieldEnum)[keyof typeof OfficeScalarFieldEnum]
 
 
 export const PropertyImageScalarFieldEnum = {
@@ -1197,6 +1297,7 @@ export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
   authSession?: Prisma.AuthSessionOmit
   property?: Prisma.PropertyOmit
+  office?: Prisma.OfficeOmit
   propertyImage?: Prisma.PropertyImageOmit
 }
 

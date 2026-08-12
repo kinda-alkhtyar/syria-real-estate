@@ -41,10 +41,12 @@ export type PropertyType = (typeof PropertyType)[keyof typeof PropertyType]
 
 export const ListingStatus = {
   DRAFT: 'DRAFT',
+  PENDING_REVIEW: 'PENDING_REVIEW',
   AVAILABLE: 'AVAILABLE',
   RESERVED: 'RESERVED',
   SOLD: 'SOLD',
   RENTED: 'RENTED',
+  REJECTED: 'REJECTED',
   ARCHIVED: 'ARCHIVED'
 } as const
 
@@ -64,6 +66,7 @@ export const Governorate = {
   DAMASCUS: 'DAMASCUS',
   RIF_DIMASHQ: 'RIF_DIMASHQ',
   ALEPPO: 'ALEPPO',
+  RIF_ALEPPO: 'RIF_ALEPPO',
   LATAKIA: 'LATAKIA',
   HOMS: 'HOMS',
   HAMA: 'HAMA',

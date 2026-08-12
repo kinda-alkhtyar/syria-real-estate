@@ -11,5 +11,6 @@
 export type * from './models/User.ts'
 export type * from './models/AuthSession.ts'
 export type * from './models/Property.ts'
+export type * from './models/Office.ts'
 export type * from './models/PropertyImage.ts'
 export type * from './commonInputTypes.ts'

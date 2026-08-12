@@ -108,6 +108,19 @@ export function createManagementReadRateLimiter(options = {}) {
   })
 }
 
+// A password change costs one argon2 verification plus one hash, and no
+// legitimate account needs more than a handful an hour, so this is the
+// tightest allowance on the API.
+export function createPasswordChangeRateLimiter(options = {}) {
+  return createRateLimiter({
+    code: 'PASSWORD_CHANGE_RATE_LIMITED',
+    limit: 5,
+    message: 'Too many password change attempts. Try again later.',
+    windowMs: 15 * 60_000,
+    ...options,
+  })
+}
+
 export function createImageUploadRateLimiter(options = {}) {
   return createRateLimiter({
     code: 'IMAGE_UPLOAD_RATE_LIMITED',

@@ -3,6 +3,7 @@ export const syrianGovernorates = [
   { id: 'damascus', labelKey: 'governorates.damascus' },
   { id: 'rif-dimashq', labelKey: 'governorates.rifDimashq' },
   { id: 'aleppo', labelKey: 'governorates.aleppo' },
+  { id: 'rif-aleppo', labelKey: 'governorates.rifAleppo' },
   { id: 'latakia', labelKey: 'governorates.latakia' },
   { id: 'homs', labelKey: 'governorates.homs' },
   { id: 'hama', labelKey: 'governorates.hama' },

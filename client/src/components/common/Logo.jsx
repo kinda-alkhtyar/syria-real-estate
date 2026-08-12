@@ -1,21 +1,24 @@
 import { useLocale } from '../../hooks/useLocale.js'
+import { useTheme } from '../../hooks/useTheme.js'
 
-const logoSources = {
-  color: '/brand-full-color.png',
-  white: '/brand-full-white.png',
-  navy: '/brand-full-navy.png',
-  'symbol-color': '/brand-symbol-color.png',
-  'symbol-white': '/brand-symbol-white.png',
-  'symbol-navy': '/brand-symbol-navy.png',
+import fullColor1x from '../../assets/brand/full-color-transparent@1x.png'
+import fullColor2x from '../../assets/brand/full-color-transparent@2x.png'
+import fullWhite1x from '../../assets/brand/full-white-transparent@1x.png'
+import fullWhite2x from '../../assets/brand/full-white-transparent@2x.png'
+
+/* Always the full lockup — house symbol plus the «عقارات في سوريا» wordmark —
+   at every breakpoint. The width/height pairs are the real pixel dimensions of
+   the 1x files, so the browser reserves the right box before the image lands;
+   the rendered height comes from the class, width follows the intrinsic ratio. */
+const lockup = {
+  light: { src: fullColor1x, retina: fullColor2x, width: 95, height: 48 },
+  dark: { src: fullWhite1x, retina: fullWhite2x, width: 96, height: 48 },
 }
 
-export default function Logo({
-  variant = 'color',
-  className = '',
-  imageClassName = 'block h-[52px] w-auto max-w-[240px] object-contain object-left rtl:object-right',
-}) {
+export default function Logo({ className = '', imageClassName = '' }) {
   const { t } = useLocale()
-  const src = logoSources[variant] ?? logoSources.color
+  const { resolvedTheme } = useTheme()
+  const asset = resolvedTheme === 'dark' ? lockup.dark : lockup.light
 
   return (
     <a
@@ -25,8 +28,12 @@ export default function Logo({
     >
       <img
         alt={t('brand.name')}
-        className={imageClassName}
-        src={src}
+        className={`h-11 w-auto object-contain desktop:h-12 ${imageClassName}`}
+        decoding="async"
+        height={asset.height}
+        src={asset.src}
+        srcSet={`${asset.src} 1x, ${asset.retina} 2x`}
+        width={asset.width}
       />
     </a>
   )

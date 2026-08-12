@@ -1,4 +1,5 @@
-import { Building2, LayoutDashboard, Plus } from 'lucide-react'
+import { Building2, LayoutDashboard, Plus, ShieldCheck } from 'lucide-react'
+import { useMemo } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 
 import LanguageSelector from '../components/common/LanguageSelector.jsx'
@@ -7,6 +8,8 @@ import ThemeSwitcher from '../components/common/ThemeSwitcher.jsx'
 import BottomNav from '../components/layout/BottomNav.jsx'
 import Container from '../components/ui/Container.jsx'
 import UserMenu from '../features/auth/components/UserMenu.jsx'
+import { useAuth } from '../features/auth/hooks/useAuth.js'
+import { usePendingReviewCount } from '../features/management/hooks/usePendingReviewCount.js'
 import { useLocale } from '../hooks/useLocale.js'
 
 const navigation = [
@@ -28,8 +31,27 @@ const navigation = [
   },
 ]
 
+// Moderation is administrator work, so the entry is added to the shared list
+// rather than living in it: an owner never sees the item or its request.
+const reviewNavigationItem = {
+  icon: ShieldCheck,
+  labelKey: 'dashboard.navigation.review',
+  to: '/dashboard/review',
+}
+
 export default function DashboardLayout() {
   const { t } = useLocale()
+  const { user } = useAuth()
+  const isAdministrator = user?.role === 'ADMIN'
+  const { count: pendingReviewCount, refresh: refreshPendingCount } =
+    usePendingReviewCount({ enabled: isAdministrator })
+  const items = isAdministrator
+    ? [navigation[0], reviewNavigationItem, ...navigation.slice(1)]
+    : navigation
+  const outletContext = useMemo(
+    () => ({ refreshPendingCount }),
+    [refreshPendingCount],
+  )
 
   return (
     <div className="flex min-h-screen min-h-svh flex-col bg-canvas">
@@ -57,7 +79,7 @@ export default function DashboardLayout() {
               className="rounded-2xl border border-line bg-surface p-2"
             >
               <ul className="flex gap-1 overflow-x-auto lg:grid">
-                {navigation.map(({ end, icon: Icon, labelKey, to }) => (
+                {items.map(({ end, icon: Icon, labelKey, to }) => (
                   <li className="shrink-0" key={to}>
                     <NavLink
                       className={({ isActive }) =>
@@ -72,6 +94,18 @@ export default function DashboardLayout() {
                     >
                       <Icon aria-hidden="true" size={18} />
                       {t(labelKey)}
+                      {to === reviewNavigationItem.to &&
+                        pendingReviewCount > 0 && (
+                          <span
+                            aria-label={t(
+                              'dashboard.navigation.reviewBadgeLabel',
+                              { count: pendingReviewCount },
+                            )}
+                            className="ms-auto inline-flex min-w-6 items-center justify-center rounded-full bg-warning/15 px-1.5 py-0.5 text-xs font-bold text-warning"
+                          >
+                            {pendingReviewCount}
+                          </span>
+                        )}
                     </NavLink>
                   </li>
                 ))}
@@ -80,7 +114,7 @@ export default function DashboardLayout() {
           </aside>
 
           <main className="min-w-0" id="dashboard-content">
-            <Outlet />
+            <Outlet context={outletContext} />
           </main>
         </div>
       </Container>

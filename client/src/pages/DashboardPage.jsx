@@ -1,6 +1,6 @@
 import { AlertCircle, Building2, LoaderCircle } from 'lucide-react'
-import { useEffect } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useCallback, useEffect } from 'react'
+import { useLocation, useOutletContext } from 'react-router-dom'
 
 import Button from '../components/ui/Button.jsx'
 import { ApiError } from '../api/api-client.js'
@@ -39,6 +39,14 @@ export default function DashboardPage() {
   } = useManagementProperties()
   const { t } = useLocale()
   const location = useLocation()
+  const { refreshPendingCount } = useOutletContext() ?? {}
+
+  // Archiving, restoring and deleting can all take a listing out of the review
+  // queue, so the badge in the shell is recounted alongside the page.
+  const handlePropertyChanged = useCallback(() => {
+    retry()
+    refreshPendingCount?.()
+  }, [refreshPendingCount, retry])
 
   useEffect(() => {
     const previousTitle = document.title
@@ -129,7 +137,7 @@ export default function DashboardPage() {
       {status === 'ready' && (
         <ManagementPropertyList
           meta={meta}
-          onPropertyChanged={retry}
+          onPropertyChanged={handlePropertyChanged}
           page={page}
           properties={data}
           setPage={setPage}

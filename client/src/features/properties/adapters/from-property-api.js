@@ -20,6 +20,22 @@ function localizedValue(record, field, localeCode) {
   return record[`${field}${suffix}`] ?? record[`${field}En`] ?? ''
 }
 
+// Owners write the description — and an image alt text — once, in the language
+// they list in, so a viewer browsing in another language would otherwise see
+// nothing at all. The active locale wins; failing that the first translation
+// that carries text.
+const translationFallbackOrder = ['ar', 'en', 'de']
+
+function localizedWithFallback(record, field, localeCode) {
+  for (const code of [localeCode, ...translationFallbackOrder]) {
+    const suffix = localeSuffixes[code]
+    if (!suffix) continue
+    const value = record[`${field}${suffix}`]
+    if (typeof value === 'string' && value.trim()) return value
+  }
+  return ''
+}
+
 function asNumber(value) {
   if (value === null || value === undefined) return undefined
   const number = Number(value)
@@ -84,7 +100,7 @@ function adaptImage(image, localeCode, staticImage) {
     return {
       ...staticImage,
       altKey: staticImage.altKey,
-      alt: localizedValue(image ?? {}, 'alt', localeCode) || undefined,
+      alt: localizedWithFallback(image ?? {}, 'alt', localeCode) || undefined,
     }
   }
 
@@ -92,7 +108,7 @@ function adaptImage(image, localeCode, staticImage) {
     src: usableImageUrl(image?.url) || staticImage?.src || '',
     width: image?.width ?? staticImage?.width ?? 960,
     height: image?.height ?? staticImage?.height ?? 720,
-    alt: localizedValue(image ?? {}, 'alt', localeCode),
+    alt: localizedWithFallback(image ?? {}, 'alt', localeCode),
     altKey: staticImage?.altKey,
   }
 }
@@ -118,7 +134,7 @@ export function fromPropertyApi(property, localeCode) {
     image,
     images: images.length > 0 ? images : [image],
     title: localizedValue(property, 'title', localeCode),
-    description: localizedValue(property, 'description', localeCode),
+    description: localizedWithFallback(property, 'description', localeCode),
     location: editorial ? undefined : locationText(property),
     locationKey: editorial?.locationKey,
     transactionType:

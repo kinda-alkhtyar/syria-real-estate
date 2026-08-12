@@ -84,9 +84,16 @@ export function createErrorMiddleware({
         : 500)
     const isServerError = statusCode >= 500
     const category = categorizeError(error, statusCode)
+    // A code is echoed only when the same error also declared its status. That
+    // pairing is what this codebase does for every error it raises on purpose,
+    // so it separates our vocabulary from codes that arrived with a failure we
+    // did not author — a Prisma `P2002`, a driver `ECONNRESET`. Those describe
+    // internals, and `P2002` even confirms which unique constraint was hit.
+    const deliberate =
+      Number.isInteger(error.statusCode) && error.statusCode >= 400
     const code =
       parserFailure?.code ??
-      (typeof error.code === 'string' && knownCode.test(error.code)
+      (deliberate && typeof error.code === 'string' && knownCode.test(error.code)
         ? error.code
         : 'INTERNAL_SERVER_ERROR')
     const message =

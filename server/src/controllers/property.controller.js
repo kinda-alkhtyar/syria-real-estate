@@ -1,8 +1,11 @@
 import {
+  approveProperty,
   archiveProperty,
   createProperty,
+  deleteProperty,
   getProperty,
   listProperties,
+  rejectProperty,
   restoreProperty,
   updateProperty,
 } from '../services/property.service.js'
@@ -12,6 +15,7 @@ import {
   propertyCreateSchema,
   propertyIdSchema,
   propertyQuerySchema,
+  propertyRejectionSchema,
   propertySlugSchema,
   propertyUpdateSchema,
 } from '../validation/property.schema.js'
@@ -60,8 +64,11 @@ export async function getPropertyBySlug(request, response) {
 
 export function createPropertyManagementController({
   service = {
+    approveProperty,
     archiveProperty,
     createProperty,
+    deleteProperty,
+    rejectProperty,
     restoreProperty,
     updateProperty,
   },
@@ -119,14 +126,47 @@ export function createPropertyManagementController({
       const property = await service.restoreProperty(id, request.auth.user)
       response.status(200).json({ data: property })
     },
+
+    // The listing is gone, so there is nothing to serialize back beyond the id
+    // the caller already holds; it is still returned in the usual envelope so
+    // every management write reads the same way on the client.
+    async remove(request, response) {
+      const { id } = parse(propertyIdSchema, request.params)
+      const deleted = await service.deleteProperty(id, request.auth.user)
+      response.status(200).json({ data: deleted })
+    },
+
+    // Moderation is administrator-only; the route enforces the role, so these
+    // two do not re-check it.
+    async approve(request, response) {
+      const { id } = parse(propertyIdSchema, request.params)
+      const property = await service.approveProperty(id, request.auth.user)
+      response.status(200).json({ data: property })
+    },
+
+    async reject(request, response) {
+      const { id } = parse(propertyIdSchema, request.params)
+      const { reason } = parse(propertyRejectionSchema, request.body)
+      const property = await service.rejectProperty(
+        id,
+        reason,
+        request.auth.user,
+      )
+      response.status(200).json({ data: property })
+    },
   }
 }
 
 const managementController = createPropertyManagementController()
 
 export const {
+  approve: approvePropertyById,
   archive: archivePropertyById,
   create: createPropertyRecord,
+  reject: rejectPropertyById,
+  remove: deletePropertyById,
   restore: restorePropertyById,
   update: updatePropertyById,
 } = managementController
+
+export default managementController

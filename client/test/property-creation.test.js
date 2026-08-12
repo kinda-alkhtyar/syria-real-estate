@@ -5,14 +5,18 @@ import test from 'node:test'
 import { createPropertyCreationApi } from '../src/features/management/api/property-creation-api.js'
 import {
   createSubmissionGate,
+  descriptionFieldForLocale,
   getPropertyCreationSuccessPath,
   isPropertyCreationDirty,
   parsePropertyCreationErrors,
   propertyCreationInitialValues,
   shouldWarnUnsavedChanges,
+  titleFieldForLocale,
   toPropertyCreationPayload,
+  toPropertyFormValues,
   validatePropertyCreation,
 } from '../src/features/management/forms/property-creation-form.js'
+import { locales } from '../src/constants/locales.js'
 import { messages } from '../src/i18n/messages/index.js'
 import { translate } from '../src/i18n/translate.js'
 
@@ -24,6 +28,7 @@ function validValues(overrides = {}) {
     titleDe: 'Familienhaus',
     price: '175000.50',
     city: 'Damascus',
+    neighborhood: 'Al-Malki',
     area: '184.5',
     ...overrides,
   }
@@ -69,6 +74,134 @@ test('preserves every localized value while changing the active language', () =>
   assert.equal(payload.descriptionDe, 'Deutsche Beschreibung')
 })
 
+test('creating copies the written title into the two titles the API also requires', () => {
+  const payload = toPropertyCreationPayload(
+    {
+      ...propertyCreationInitialValues,
+      titleAr: '  منزل عائلي  ',
+      descriptionAr: 'وصف عربي',
+      price: '175000.50',
+      city: 'Damascus',
+      area: '184.5',
+    },
+    { copyActiveTitle: true, localeCode: 'ar' },
+  )
+
+  assert.equal(titleFieldForLocale('ar'), 'titleAr')
+  assert.equal(payload.titleAr, 'منزل عائلي')
+  assert.equal(payload.titleEn, 'منزل عائلي')
+  assert.equal(payload.titleDe, 'منزل عائلي')
+  // Only the written description travels; the other two stay omitted.
+  assert.equal(payload.descriptionAr, 'وصف عربي')
+  assert.equal('descriptionEn' in payload, false)
+  assert.equal('descriptionDe' in payload, false)
+})
+
+test('an owner submission carries no status of its own', () => {
+  const values = {
+    ...propertyCreationInitialValues,
+    titleAr: 'منزل عائلي',
+    descriptionAr: 'وصف',
+    city: 'Damascus',
+    price: '250000',
+    area: '180',
+  }
+
+  // The owner create schema rejects an unknown key outright, and submitting is
+  // what puts a listing into review, so the field never leaves the form.
+  const ownerPayload = toPropertyCreationPayload(values, {
+    copyActiveTitle: true,
+    includeStatus: false,
+    localeCode: 'ar',
+  })
+  const administratorPayload = toPropertyCreationPayload(
+    { ...values, status: 'available' },
+    { copyActiveTitle: true, localeCode: 'ar' },
+  )
+
+  assert.equal('status' in ownerPayload, false)
+  assert.equal(administratorPayload.status, 'available')
+})
+
+test('editing leaves the titles and descriptions of other languages untouched', () => {
+  // The management record carries all three stored titles, so they prefill the
+  // form even though only the browsed one is shown.
+  const stored = toPropertyFormValues({
+    titleEn: 'Family home',
+    titleAr: 'منزل عائلي',
+    titleDe: 'Familienhaus',
+    descriptionEn: 'English description',
+    descriptionAr: 'وصف عربي',
+    descriptionDe: null,
+    transaction: 'BUY',
+    propertyType: 'APARTMENT',
+    status: 'AVAILABLE',
+    price: '175000.50',
+    currency: 'USD',
+    governorate: 'DAMASCUS',
+    city: 'Damascus',
+    area: '184.5',
+  })
+
+  assert.equal(stored.titleAr, 'منزل عائلي')
+  // The stored description of the browsed language pre-fills the single field.
+  assert.equal(stored.descriptionAr, 'وصف عربي')
+  assert.equal(stored.descriptionEn, 'English description')
+  assert.equal(stored.descriptionDe, '')
+
+  const payload = toPropertyCreationPayload(
+    { ...stored, titleAr: 'منزل عائلي مجدد', descriptionAr: 'وصف محدث' },
+    { copyActiveTitle: false, localeCode: 'ar' },
+  )
+
+  assert.equal(payload.titleAr, 'منزل عائلي مجدد')
+  assert.equal(payload.titleEn, 'Family home')
+  assert.equal(payload.titleDe, 'Familienhaus')
+  // A rewritten description replaces the stored one; the untouched languages
+  // travel back exactly as they were stored.
+  assert.equal(payload.descriptionAr, 'وصف محدث')
+  assert.equal(payload.descriptionEn, 'English description')
+  assert.equal('descriptionDe' in payload, false)
+})
+
+test('editing accepts a blank description and omits it from the patch', () => {
+  const stored = toPropertyFormValues({
+    titleAr: 'منزل عائلي',
+    descriptionAr: 'وصف عربي',
+    transaction: 'BUY',
+    propertyType: 'APARTMENT',
+    status: 'AVAILABLE',
+    price: '175000.50',
+    currency: 'USD',
+    governorate: 'DAMASCUS',
+    city: 'Damascus',
+    neighborhood: 'Al-Malki',
+    area: '184.5',
+  })
+  const cleared = { ...stored, descriptionAr: '' }
+
+  // Nothing to retype: an owner fixing a price submits with the field blank.
+  assert.deepEqual(
+    validatePropertyCreation(cleared, {
+      localeCode: 'ar',
+      requireDescription: false,
+    }),
+    {},
+  )
+  // Creating still demands one.
+  assert.equal(
+    validatePropertyCreation(cleared, { localeCode: 'ar' }).descriptionAr,
+    'required',
+  )
+
+  const payload = toPropertyCreationPayload(cleared, {
+    copyActiveTitle: false,
+    localeCode: 'ar',
+  })
+
+  assert.equal('descriptionAr' in payload, false)
+})
+
 test('validates required, numeric, and coordinate fields client-side', () => {
   const errors = validatePropertyCreation({
     ...propertyCreationInitialValues,
@@ -79,16 +212,55 @@ test('validates required, numeric, and coordinate fields client-side', () => {
     bedrooms: '1.5',
   })
 
-  assert.equal(errors.titleEn, 'required')
-  assert.equal(errors.titleAr, 'required')
-  assert.equal(errors.titleDe, 'required')
   assert.equal(errors.city, 'required')
+  assert.equal(errors.neighborhood, 'required')
   assert.equal(errors.price, 'number')
   assert.equal(errors.area, 'positive')
   assert.equal(errors.latitude, 'latitude')
   assert.equal(errors.longitude, 'longitude')
   assert.equal(errors.bedrooms, 'integer')
   assert.deepEqual(validatePropertyCreation(validValues()), {})
+})
+
+// The form stopped collecting a district, so the only way a stored one survives
+// an edit is by travelling back untouched. A blank one stays out of the payload
+// entirely — sending `null` there would erase the legacy value.
+test('carries a legacy district through an edit without clearing it', () => {
+  const stored = toPropertyCreationPayload(
+    validValues({ district: 'Old Damascus' }),
+  )
+  const blank = toPropertyCreationPayload(validValues())
+
+  assert.equal(stored.district, 'Old Damascus')
+  assert.equal('district' in blank, false)
+})
+
+test('requires only the browsed language title and description', () => {
+  const arabicErrors = validatePropertyCreation(
+    { ...propertyCreationInitialValues, city: 'Damascus', price: '1', area: '1' },
+    { localeCode: 'ar' },
+  )
+
+  assert.equal(arabicErrors.titleAr, 'required')
+  assert.equal(arabicErrors.titleEn, undefined)
+  assert.equal(arabicErrors.titleDe, undefined)
+  assert.equal(arabicErrors.descriptionAr, 'required')
+  assert.equal(arabicErrors.descriptionEn, undefined)
+  assert.equal(arabicErrors.descriptionDe, undefined)
+  assert.equal(descriptionFieldForLocale('de'), 'descriptionDe')
+
+  const values = validValues({ descriptionDe: 'Deutsche Beschreibung' })
+
+  assert.deepEqual(
+    validatePropertyCreation(values, { localeCode: 'de' }),
+    {},
+  )
+  // The untouched languages stay out of the payload, as a blank optional field
+  // always has.
+  const payload = toPropertyCreationPayload(values)
+  assert.equal(payload.descriptionDe, 'Deutsche Beschreibung')
+  assert.equal('descriptionAr' in payload, false)
+  assert.equal('descriptionEn' in payload, false)
 })
 
 test('maps structured backend validation details only to known form fields', () => {
@@ -164,7 +336,7 @@ test('has complete creation interface text in Arabic, English, and German', () =
   for (const locale of ['ar', 'en', 'de']) {
     for (const key of [
       'propertyCreate.title',
-      'propertyCreate.languageTabs',
+      'propertyCreate.localizedField',
       'propertyCreate.unsavedWarning',
       'propertyCreate.sections.localized',
       'propertyCreate.fields.title',
@@ -175,5 +347,27 @@ test('has complete creation interface text in Arabic, English, and German', () =
     ]) {
       assert.notEqual(translate(messages, locale, 'en', key), key)
     }
+  }
+})
+
+// The address step is governorate, city, neighbourhood and one free-text line —
+// nothing else. The removed district label is asserted gone so no locale keeps a
+// key the form can no longer show.
+test('labels the whole address step in all four locales and drops the district', () => {
+  for (const { code } of locales) {
+    for (const key of [
+      'propertyCreate.steps.location.title',
+      'propertyCreate.steps.location.description',
+      'propertyCreate.fields.governorate',
+      'propertyCreate.fields.city',
+      'propertyCreate.fields.neighborhood',
+      'propertyCreate.fields.address',
+    ]) {
+      assert.notEqual(translate(messages, code, 'en', key), key)
+    }
+    assert.equal(
+      messages[code].propertyCreate.fields.district,
+      undefined,
+    )
   }
 })

@@ -54,6 +54,7 @@ export const ModelName = {
   User: 'User',
   AuthSession: 'AuthSession',
   Property: 'Property',
+  Office: 'Office',
   PropertyImage: 'PropertyImage'
 } as const
 
@@ -77,6 +78,8 @@ export const UserScalarFieldEnum = {
   id: 'id',
   email: 'email',
   name: 'name',
+  phone: 'phone',
+  whatsapp: 'whatsapp',
   passwordHash: 'passwordHash',
   provider: 'provider',
   googleSub: 'googleSub',
@@ -113,6 +116,7 @@ export const PropertyScalarFieldEnum = {
   transaction: 'transaction',
   propertyType: 'propertyType',
   status: 'status',
+  rejectionReason: 'rejectionReason',
   price: 'price',
   currency: 'currency',
   governorate: 'governorate',
@@ -131,11 +135,33 @@ export const PropertyScalarFieldEnum = {
   videoStoragePath: 'videoStoragePath',
   videoMimeType: 'videoMimeType',
   videoSizeBytes: 'videoSizeBytes',
+  officeId: 'officeId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type PropertyScalarFieldEnum = (typeof PropertyScalarFieldEnum)[keyof typeof PropertyScalarFieldEnum]
+
+
+export const OfficeScalarFieldEnum = {
+  id: 'id',
+  ownerId: 'ownerId',
+  nameAr: 'nameAr',
+  nameEn: 'nameEn',
+  nameDe: 'nameDe',
+  descriptionAr: 'descriptionAr',
+  descriptionEn: 'descriptionEn',
+  descriptionDe: 'descriptionDe',
+  governorate: 'governorate',
+  city: 'city',
+  phone: 'phone',
+  whatsapp: 'whatsapp',
+  logoUrl: 'logoUrl',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type OfficeScalarFieldEnum = (typeof OfficeScalarFieldEnum)[keyof typeof OfficeScalarFieldEnum]
 
 
 export const PropertyImageScalarFieldEnum = {

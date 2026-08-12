@@ -2,14 +2,27 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 import { useLocale } from '../../../hooks/useLocale.js'
 
-export default function ResultPagination({ page, pageCount, onChange }) {
+/**
+ * @param {object} props
+ * @param {number} props.page
+ * @param {number} props.pageCount
+ * @param {(page: number) => void} props.onChange
+ * @param {string} [props.ariaLabel] Overrides the default results wording when
+ *   the same control paginates something other than the property results.
+ */
+export default function ResultPagination({
+  ariaLabel,
+  page,
+  pageCount,
+  onChange,
+}) {
   const { t } = useLocale()
 
   if (pageCount <= 1) return null
 
   return (
     <nav
-      aria-label={t('accessibility.resultsPagination')}
+      aria-label={ariaLabel ?? t('accessibility.resultsPagination')}
       className="mt-10 flex items-center justify-center gap-3"
     >
       <button

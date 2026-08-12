@@ -1,10 +1,13 @@
 import {
   Archive,
+  CircleAlert,
+  Clock,
   House,
   Image,
   MapPin,
   Pencil,
   RotateCcw,
+  Trash2,
   Video,
 } from 'lucide-react'
 import { useState } from 'react'
@@ -14,19 +17,15 @@ import Button from '../../../components/ui/Button.jsx'
 import { ApiError } from '../../../api/api-client.js'
 import { useLocale } from '../../../hooks/useLocale.js'
 import { toManagementPropertyModel } from '../adapters/to-management-property-model.js'
-import { archiveProperty, restoreProperty } from '../api/management-property-api.js'
+import {
+  archiveProperty,
+  deleteProperty,
+  restoreProperty,
+} from '../api/management-property-api.js'
+import DeletePropertyDialog from './DeletePropertyDialog.jsx'
 
 const actionClasses =
   'inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-line bg-surface px-3 text-sm font-semibold text-ink outline-none transition hover:bg-hover focus-visible:ring-3 focus-visible:ring-focus/35 disabled:cursor-not-allowed disabled:opacity-55'
-
-const statusStyles = {
-  archived: 'border-line bg-hover text-muted',
-  available: 'border-success/35 bg-success/10 text-success',
-  draft: 'border-warning/35 bg-warning/10 text-warning',
-  rented: 'border-line bg-hover text-muted',
-  reserved: 'border-warning/35 bg-warning/10 text-warning',
-  sold: 'border-line bg-hover text-muted',
-}
 
 function ActionButton({ children, disabled, icon: Icon, onClick }) {
   return (
@@ -52,9 +51,37 @@ export default function ManagementPropertyList({
   const { locale, t } = useLocale()
   const [actionErrorKey, setActionErrorKey] = useState('')
   const [pendingId, setPendingId] = useState('')
+  const [deletionId, setDeletionId] = useState('')
+  const [deletionErrorKey, setDeletionErrorKey] = useState('')
   const models = properties.map((property) =>
     toManagementPropertyModel(property, locale.code, t),
   )
+  const propertyBeingDeleted = models.find(({ id }) => id === deletionId)
+
+  function closeDeletion() {
+    setDeletionId('')
+    setDeletionErrorKey('')
+  }
+
+  // The listing is gone once this resolves, so the dialog closes and the caller
+  // reloads: the page it was on, the totals beside it, and the review badge all
+  // come from the server rather than being patched here.
+  async function confirmDeletion() {
+    setDeletionErrorKey('')
+    setPendingId(deletionId)
+    try {
+      await deleteProperty(deletionId)
+      closeDeletion()
+      onPropertyChanged?.()
+    } catch (error) {
+      setDeletionErrorKey(
+        error instanceof ApiError && error.code === 'NETWORK_ERROR'
+          ? 'dashboard.actionFeedback.network'
+          : 'dashboard.actionFeedback.unexpected',
+      )
+    }
+    setPendingId('')
+  }
 
   async function runLifecycleAction(property, action) {
     if (!window.confirm(t(`dashboard.confirmations.${action}`))) return
@@ -126,11 +153,39 @@ export default function ManagementPropertyList({
                     </p>
                   </div>
                   <span
-                    className={`rounded-lg border px-2.5 py-1 text-xs font-bold ${statusStyles[property.status] ?? statusStyles.archived}`}
+                    className={`rounded-lg border px-2.5 py-1 text-xs font-bold ${property.statusChipClass}`}
                   >
                     {property.statusLabel}
                   </span>
                 </div>
+
+                {property.awaitingReview && (
+                  <p className="mt-4 flex items-start gap-2 rounded-xl border border-warning/35 bg-warning/10 px-4 py-3 text-sm leading-6 text-ink">
+                    <Clock aria-hidden="true" className="mt-0.5 shrink-0" size={16} />
+                    <span>{t('dashboard.properties.pendingNotice')}</span>
+                  </p>
+                )}
+
+                {property.rejected && (
+                  <div className="mt-4 rounded-xl border border-error/35 bg-error/10 px-4 py-3">
+                    <p className="flex items-start gap-2 text-sm font-semibold text-ink">
+                      <CircleAlert
+                        aria-hidden="true"
+                        className="mt-0.5 shrink-0"
+                        size={16}
+                      />
+                      <span>{t('dashboard.properties.rejectedNotice')}</span>
+                    </p>
+                    {property.rejectionReason && (
+                      <p className="mt-2 text-sm leading-6 text-ink">
+                        <span className="font-semibold">
+                          {t('dashboard.properties.rejectionReasonLabel')}
+                        </span>{' '}
+                        {property.rejectionReason}
+                      </p>
+                    )}
+                  </div>
+                )}
 
                 <dl className="mt-5 grid grid-cols-2 gap-x-5 gap-y-3 text-sm lg:grid-cols-4">
                   {[
@@ -152,12 +207,19 @@ export default function ManagementPropertyList({
                   aria-label={t('dashboard.properties.actionsLabel')}
                   className="mt-5 flex flex-wrap gap-2 border-t border-line pt-4"
                 >
+                  {/* A rejected listing re-enters review the moment its edit is
+                      saved, so the same route is offered under the label that
+                      says what saving will do. */}
                   <Link
                     className={actionClasses}
                     to={`/dashboard/properties/${property.id}/edit`}
                   >
                     <Pencil aria-hidden="true" size={16} />
-                    {t('dashboard.actions.edit')}
+                    {t(
+                      property.rejected
+                        ? 'dashboard.actions.editAndResubmit'
+                        : 'dashboard.actions.edit',
+                    )}
                   </Link>
                   {property.status === 'archived' ? (
                     <ActionButton
@@ -190,6 +252,24 @@ export default function ManagementPropertyList({
                     <Video aria-hidden="true" size={16} />
                     {t('dashboard.actions.video')}
                   </Link>
+                  {/* Icon only, and pushed to the far end: deleting is
+                      available at every status, but it should not sit in the
+                      reading order of the actions somebody uses daily. */}
+                  <button
+                    aria-label={t('dashboard.actions.deleteLabel', {
+                      title: property.title,
+                    })}
+                    className={`${actionClasses} ms-auto border-transparent bg-transparent px-2.5 text-error hover:bg-error/10`}
+                    disabled={pendingId === property.id}
+                    onClick={() => {
+                      setActionErrorKey('')
+                      setDeletionErrorKey('')
+                      setDeletionId(property.id)
+                    }}
+                    type="button"
+                  >
+                    <Trash2 aria-hidden="true" size={16} />
+                  </button>
                 </div>
               </div>
             </article>
@@ -223,6 +303,16 @@ export default function ManagementPropertyList({
             {t('actions.nextPage')}
           </Button>
         </nav>
+      )}
+
+      {propertyBeingDeleted && (
+        <DeletePropertyDialog
+          errorMessage={deletionErrorKey ? t(deletionErrorKey) : ''}
+          onCancel={closeDeletion}
+          onConfirm={confirmDeletion}
+          pending={pendingId === propertyBeingDeleted.id}
+          propertyTitle={propertyBeingDeleted.title}
+        />
       )}
     </>
   )

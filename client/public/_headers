@@ -1,0 +1,31 @@
+# Static-host header rules, in the format Netlify and Cloudflare Pages read.
+# Vite copies this file to the build root untouched, and a host that does not
+# read it simply ignores it — see docs for the equivalent Nginx/Vercel config.
+#
+# These cover the static origin only. The API sets its own headers in
+# server/src/app.js; neither set substitutes for the other.
+
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+
+# Vite writes a content hash into every filename here, so a URL never changes
+# meaning and may be held for a year without revalidating.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# The entry document must be revalidated on every visit, or a returning visitor
+# keeps loading the previous build's asset URLs.
+/index.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+# Same reasoning, and more urgent: a cached worker script would keep serving the
+# old caching rules and could never be replaced.
+/sw.js
+  Cache-Control: public, max-age=0, must-revalidate
+
+/manifest.webmanifest
+  Cache-Control: public, max-age=3600

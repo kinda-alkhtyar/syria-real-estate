@@ -11,6 +11,7 @@ import {
   createLoginRateLimiter,
   loginRateLimiter,
 } from '../middleware/login-rate-limit.middleware.js'
+import noStoreMiddleware from '../middleware/no-store.middleware.js'
 import {
   createRequireAllowedOrigin,
   requireAllowedOrigin,
@@ -32,10 +33,7 @@ export function createAuthRouter({
     cookieManager,
   })
 
-  router.use((_request, response, next) => {
-    response.set('Cache-Control', 'no-store')
-    next()
-  })
+  router.use(noStoreMiddleware)
   router.post(
     '/login',
     originMiddleware,

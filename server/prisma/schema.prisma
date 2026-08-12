@@ -30,10 +30,14 @@ enum PropertyType {
 
 enum ListingStatus {
   DRAFT
+  // Submitted by an owner and waiting for an administrator decision. Never
+  // public: only DRAFT and REJECTED sit alongside it outside the public set.
+  PENDING_REVIEW
   AVAILABLE
   RESERVED
   SOLD
   RENTED
+  REJECTED
   ARCHIVED
 }
 
@@ -47,6 +51,7 @@ enum Governorate {
   DAMASCUS
   RIF_DIMASHQ
   ALEPPO
+  RIF_ALEPPO
   LATAKIA
   HOMS
   HAMA
@@ -64,6 +69,10 @@ model User {
   id           String        @id @default(uuid()) @db.Uuid
   email        String        @unique
   name         String
+  // Self-service contact details. Both are nullable: every account created
+  // before this column existed, and every Google sign-up, has neither.
+  phone        String?
+  whatsapp     String?
   passwordHash String?
   // Records how the account was first created. Kept as free text rather than an
   // enum so adding a provider never needs a database migration.
@@ -75,6 +84,7 @@ model User {
   updatedAt    DateTime      @updatedAt
   properties   Property[]
   sessions     AuthSession[]
+  office       Office?
 
   // "User_email_lower_key", a unique index over lower("email"), also guards
   // this column. Prisma Schema cannot express an index over an expression, so
@@ -97,44 +107,53 @@ model AuthSession {
 }
 
 model Property {
-  id            String          @id @default(uuid()) @db.Uuid
-  slug          String          @unique
-  ownerId       String          @db.Uuid
-  titleEn       String
-  titleAr       String
-  titleDe       String
-  descriptionEn String?         @db.Text
-  descriptionAr String?         @db.Text
-  descriptionDe String?         @db.Text
-  transaction   TransactionType
-  propertyType  PropertyType
-  status        ListingStatus   @default(DRAFT)
-  price         Decimal         @db.Decimal(14, 2)
-  currency      Currency
-  governorate   Governorate
-  city          String
-  district      String?
-  neighborhood  String?
-  address       String?
-  bedrooms      Int?
-  bathrooms     Int?
-  area          Decimal         @db.Decimal(10, 2)
-  latitude      Decimal?        @db.Decimal(9, 6)
-  longitude     Decimal?        @db.Decimal(10, 6)
+  id               String          @id @default(uuid()) @db.Uuid
+  slug             String          @unique
+  ownerId          String          @db.Uuid
+  titleEn          String
+  titleAr          String
+  titleDe          String
+  descriptionEn    String?         @db.Text
+  descriptionAr    String?         @db.Text
+  descriptionDe    String?         @db.Text
+  transaction      TransactionType
+  propertyType     PropertyType
+  status           ListingStatus   @default(DRAFT)
+  // Set by an administrator when a submission is rejected, and cleared the
+  // moment the owner resubmits or the listing is approved.
+  rejectionReason  String?         @db.Text
+  price            Decimal         @db.Decimal(14, 2)
+  currency         Currency
+  governorate      Governorate
+  city             String
+  district         String?
+  neighborhood     String?
+  address          String?
+  bedrooms         Int?
+  bathrooms        Int?
+  area             Decimal         @db.Decimal(10, 2)
+  latitude         Decimal?        @db.Decimal(9, 6)
+  longitude        Decimal?        @db.Decimal(10, 6)
   // Optional seller contact number used to open a WhatsApp chat from the
   // listing. Stored as submitted (digits, spaces, optional leading +) so the
   // owner recognises their own number; consumers strip separators themselves.
-  whatsapp      String?
-  featured      Boolean         @default(false)
+  whatsapp         String?
+  featured         Boolean         @default(false)
   videoUrl         String?
-  videoStoragePath String?      @unique
+  videoStoragePath String?         @unique
   videoMimeType    String?
   videoSizeBytes   BigInt?
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
-  owner         User            @relation(fields: [ownerId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  images        PropertyImage[]
+  // A listing may be published under an agency office. Optional and severed
+  // rather than cascaded on delete: closing an office must never take the
+  // listings with it.
+  officeId         String?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  owner            User            @relation(fields: [ownerId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  office           Office?         @relation(fields: [officeId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  images           PropertyImage[]
 
+  @@index([officeId])
   @@index([ownerId])
   @@index([ownerId, updatedAt])
   @@index([status, createdAt])
@@ -145,21 +164,49 @@ model Property {
   @@index([createdAt])
 }
 
+model Office {
+  // A cuid rather than a uuid: an office identifier is public and appears in
+  // shareable URLs, so a shorter, URL-safe token is preferred here. Every other
+  // model keeps its uuid primary key, which is why `Property.officeId` is TEXT.
+  id            String      @id @default(cuid())
+  // Unique, so an owner can hold at most one office. The create path relies on
+  // this constraint rather than a read-then-write check, which would race.
+  ownerId       String      @unique @db.Uuid
+  nameAr        String
+  nameEn        String
+  nameDe        String
+  descriptionAr String?     @db.Text
+  descriptionEn String?     @db.Text
+  descriptionDe String?     @db.Text
+  governorate   Governorate
+  city          String?
+  phone         String?
+  whatsapp      String?
+  logoUrl       String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  owner         User        @relation(fields: [ownerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  properties    Property[]
+
+  @@index([governorate])
+  @@index([createdAt])
+}
+
 model PropertyImage {
-  id         String   @id @default(uuid()) @db.Uuid
-  propertyId String   @db.Uuid
-  url        String
-  storagePath String? @unique
+  id          String   @id @default(uuid()) @db.Uuid
+  propertyId  String   @db.Uuid
+  url         String
+  storagePath String?  @unique
   mimeType    String?
   sizeBytes   Int?
   width       Int?
   height      Int?
-  altEn      String?
-  altAr      String?
-  altDe      String?
-  sortOrder  Int      @default(0)
-  createdAt  DateTime @default(now())
-  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  altEn       String?
+  altAr       String?
+  altDe       String?
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@unique([propertyId, sortOrder])
   @@index([propertyId])

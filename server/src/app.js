@@ -6,6 +6,7 @@ import helmet from 'helmet'
 import env from './config/env.js'
 import { getReadiness } from './controllers/health.controller.js'
 import errorMiddleware from './middleware/error.middleware.js'
+import noStoreMiddleware from './middleware/no-store.middleware.js'
 import notFoundMiddleware from './middleware/not-found.middleware.js'
 import { createGeneralApiRateLimiter } from './middleware/rate-limit.middleware.js'
 import requestIdMiddleware from './middleware/request-id.middleware.js'
@@ -16,7 +17,9 @@ import authRouter from './routes/auth.routes.js'
 import healthRouter from './routes/health.routes.js'
 import managementRouter from './routes/management.routes.js'
 import metricsRouter from './routes/metrics.routes.js'
+import officeRouter from './routes/office.routes.js'
 import propertyRouter from './routes/property.routes.js'
+import userRouter from './routes/user.routes.js'
 
 const app = express()
 
@@ -63,8 +66,10 @@ app.use(cors(corsOptions))
 app.use(compression())
 app.use(express.json({ limit: '1mb' }))
 
-app.use('/health', createRouteContext('/health'), healthRouter)
-app.get('/ready', getReadiness)
+// A cached probe answer would report the state of whichever instance replied
+// first, minutes ago, which is the one thing a probe must never do.
+app.use('/health', createRouteContext('/health'), noStoreMiddleware, healthRouter)
+app.get('/ready', noStoreMiddleware, getReadiness)
 app.use('/metrics', createRouteContext('/metrics'), metricsRouter)
 
 // Applied to the API only: liveness and readiness probes must never be
@@ -78,10 +83,17 @@ app.use(
   managementRouter,
 )
 app.use(
+  '/api/v1/offices',
+  createRouteContext('/api/v1/offices'),
+  officeRouter,
+)
+app.use(
   '/api/v1/properties',
   createRouteContext('/api/v1/properties'),
   propertyRouter,
 )
+
+app.use('/api/v1/users', createRouteContext('/api/v1/users'), userRouter)
 
 app.use(notFoundMiddleware)
 app.use(errorMiddleware)

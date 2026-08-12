@@ -33,6 +33,11 @@ export type AuthSession = Prisma.AuthSessionModel
  */
 export type Property = Prisma.PropertyModel
 /**
+ * Model Office
+ * 
+ */
+export type Office = Prisma.OfficeModel
+/**
  * Model PropertyImage
  * 
  */

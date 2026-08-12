@@ -1,14 +1,12 @@
 import {
   ChevronLeft,
-  CircleHelp,
   Globe,
   Heart,
   House,
   LogOut,
-  Settings,
   UserRound,
 } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 
 import { useAuth } from '../features/auth/hooks/useAuth.js'
@@ -99,14 +97,11 @@ function ManagedPropertiesRow() {
  * approved mobile design: the navy identity banner followed by the settings
  * rows. Language switching lives here and nowhere else on phones.
  *
- * Profile, settings, and help have no route in this project yet, so they are
- * rendered as the design shows them and announce a "coming soon" toast instead
- * of navigating to an invented page.
+ * The profile row opens `/account/profile`, which is guarded: a visitor who
+ * taps it is sent to sign-in, which is the same place the row below offers.
  */
 export default function AccountPage() {
   const [isLoggingOut, setIsLoggingOut] = useState(false)
-  const [toastMessage, setToastMessage] = useState('')
-  const toastTimerRef = useRef(0)
   const { count: favoriteCount } = useFavorites()
   const { isAuthenticated, logout, user } = useAuth()
   const { locale, locales, setLocale, t } = useLocale()
@@ -114,14 +109,6 @@ export default function AccountPage() {
   const canManage = ['ADMIN', 'OWNER'].includes(user?.role)
   const displayName = isAuthenticated ? user?.name : t('account.guest')
   const initial = displayName?.trim().charAt(0) ?? ''
-
-  useEffect(() => () => window.clearTimeout(toastTimerRef.current), [])
-
-  function showComingSoon() {
-    window.clearTimeout(toastTimerRef.current)
-    setToastMessage(t('account.comingSoon'))
-    toastTimerRef.current = window.setTimeout(() => setToastMessage(''), 3200)
-  }
 
   async function handleLogout() {
     setIsLoggingOut(true)
@@ -152,17 +139,13 @@ export default function AccountPage() {
       </header>
 
       <div className="bg-home-panel">
-        <button
-          className={rowClassName}
-          onClick={showComingSoon}
-          type="button"
-        >
+        <Link className={rowClassName} to="/account/profile">
           <RowIcon>
             <UserRound size={16} strokeWidth={1.8} />
           </RowIcon>
           <RowLabel>{t('account.profile')}</RowLabel>
           <RowChevron />
-        </button>
+        </Link>
 
         {canManage && <ManagedPropertiesRow />}
 
@@ -206,30 +189,6 @@ export default function AccountPage() {
           </select>
         </div>
 
-        <button
-          className={rowClassName}
-          onClick={showComingSoon}
-          type="button"
-        >
-          <RowIcon>
-            <Settings size={16} strokeWidth={1.8} />
-          </RowIcon>
-          <RowLabel>{t('account.settings')}</RowLabel>
-          <RowChevron />
-        </button>
-
-        <button
-          className={rowClassName}
-          onClick={showComingSoon}
-          type="button"
-        >
-          <RowIcon>
-            <CircleHelp size={16} strokeWidth={1.8} />
-          </RowIcon>
-          <RowLabel>{t('account.help')}</RowLabel>
-          <RowChevron />
-        </button>
-
         {isAuthenticated ? (
           <button
             className={`${rowClassName} border-b-0 disabled:opacity-60`}
@@ -258,18 +217,6 @@ export default function AccountPage() {
           </Link>
         )}
       </div>
-
-      <div aria-live="polite" className="sr-only">
-        {toastMessage}
-      </div>
-      {toastMessage && (
-        <p
-          aria-hidden="true"
-          className="fixed inset-x-4 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-[var(--z-toast)] mx-auto max-w-[440px] rounded-[12px] bg-home-band px-4 py-3 text-center text-[12.5px] font-semibold text-home-band-text shadow-[var(--shadow-md)] lg:bottom-6"
-        >
-          {toastMessage}
-        </p>
-      )}
     </div>
   )
 }

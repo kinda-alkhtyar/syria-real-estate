@@ -1,14 +1,14 @@
-import { Heart, Menu, X } from 'lucide-react'
+import { Menu, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 
 import { navigationItems } from '../../constants/navigation.js'
 import { useLocale } from '../../hooks/useLocale.js'
-import { useFavorites } from '../../hooks/useFavorites.js'
 import UserMenu from '../../features/auth/components/UserMenu.jsx'
 import { useAuth } from '../../features/auth/hooks/useAuth.js'
 import LanguageSelector from '../common/LanguageSelector.jsx'
 import Logo from '../common/Logo.jsx'
+import ThemeToggle from '../common/ThemeToggle.jsx'
 import Button from '../ui/Button.jsx'
 import Container from '../ui/Container.jsx'
 import IconButton from '../ui/IconButton.jsx'
@@ -25,33 +25,10 @@ const mobileNavigationId = 'mobile-navigation'
 export default function Header({ className = '' }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
-  const { count: favoriteCount } = useFavorites()
   const { isAuthenticated, status } = useAuth()
   const { t } = useLocale()
   const location = useLocation()
   const currentPath = `${location.pathname}${location.search}`
-  const favoritesLabel =
-    favoriteCount > 0
-      ? t('favorites.count', { count: favoriteCount })
-      : t('favorites.title')
-
-  const favoriteIcon = (
-    <span className="relative shrink-0">
-      <Heart
-        aria-hidden="true"
-        data-favorite-icon
-        size={19}
-      />
-      {favoriteCount > 0 && (
-        <span
-          aria-hidden="true"
-          className="absolute -end-2 -top-2 inline-flex min-h-[18px] min-w-[18px] items-center justify-center rounded-full bg-favorite-badge px-1 text-[10px] font-bold leading-none text-on-favorite"
-        >
-          {favoriteCount}
-        </span>
-      )}
-    </span>
-  )
 
   function closeMenu() {
     setIsMenuOpen(false)
@@ -109,10 +86,7 @@ export default function Header({ className = '' }) {
       <Container className="h-full desktop:w-[min(1280px,calc(100%-160px))]! desktop:px-0!">
         <div className="flex h-full items-center justify-between gap-3 desktop:gap-6">
           <div className="flex min-w-0 items-center">
-            <Logo
-              className="h-12 w-[110px] shrink-0 desktop:h-[79px] desktop:w-[180px]"
-              imageClassName="block h-full w-full object-contain object-left rtl:object-right"
-            />
+            <Logo className="shrink-0" />
           </div>
 
           <nav
@@ -140,6 +114,7 @@ export default function Header({ className = '' }) {
           </nav>
 
           <div className="hidden items-center gap-4 desktop:flex">
+            <ThemeToggle />
             <LanguageSelector />
 
             {isAuthenticated ? (
@@ -164,17 +139,8 @@ export default function Header({ className = '' }) {
           </div>
 
           <div className="flex items-center justify-self-end gap-1 desktop:hidden">
-            <Link
-              aria-label={favoritesLabel}
-              className="favorite-button inline-flex h-11 min-w-11 items-center justify-center gap-2 rounded-xl bg-transparent px-3 text-sm font-semibold text-ink transition duration-200 ease-standard hover:bg-hover focus-visible:ring-3 focus-visible:ring-focus/30 motion-reduce:transition-none sm:justify-start"
-              data-favorite={favoriteCount > 0}
-              to="/favorites"
-            >
-              {favoriteIcon}
-              <span className="hidden whitespace-nowrap sm:inline">
-                {t('favorites.title')}
-              </span>
-            </Link>
+            <ThemeToggle />
+            <LanguageSelector />
             <IconButton
               aria-controls={mobileNavigationId}
               aria-expanded={isMenuOpen}

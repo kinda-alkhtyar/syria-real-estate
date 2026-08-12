@@ -1,65 +1,71 @@
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
+/* Everything here belongs to the `base` layer. Left unlayered, these rules
+   outrank every `@layer utilities` declaration regardless of specificity, which
+   silently disabled utilities such as `hidden` on img/svg and `text-*` on form
+   controls. */
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
 
-html {
-  scroll-behavior: smooth;
-}
+  html {
+    scroll-behavior: smooth;
+  }
 
-body {
-  min-height: 100vh;
-  min-height: 100svh;
-  margin: 0;
-  color: var(--text-primary);
-  background: var(--page-background);
-  font-family: var(--font-sans);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+  body {
+    min-height: 100vh;
+    min-height: 100svh;
+    margin: 0;
+    color: var(--text-primary);
+    background: var(--page-background);
+    font-family: var(--font-sans);
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 
-button,
-input,
-select,
-textarea {
-  font: inherit;
-}
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
 
-button:not([class]),
-input:not([class]),
-select:not([class]),
-textarea:not([class]) {
-  color: inherit;
-}
+  button:not([class]),
+  input:not([class]),
+  select:not([class]),
+  textarea:not([class]) {
+    color: inherit;
+  }
 
-button,
-select {
-  -webkit-tap-highlight-color: transparent;
-}
+  button,
+  select {
+    -webkit-tap-highlight-color: transparent;
+  }
 
-img,
-svg {
-  display: block;
-  max-width: 100%;
-}
+  img,
+  svg {
+    display: block;
+    max-width: 100%;
+  }
 
-a:not([class]) {
-  color: inherit;
-}
+  a:not([class]) {
+    color: inherit;
+  }
 
-a {
-  text-decoration: none;
-}
+  a {
+    text-decoration: none;
+  }
 
-:focus-visible {
-  outline: 3px solid var(--focus-ring);
-  outline-offset: 3px;
-}
+  :focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 3px;
+  }
 
-#root {
-  min-height: 100vh;
-  min-height: 100svh;
+  #root {
+    min-height: 100vh;
+    min-height: 100svh;
+  }
 }

@@ -11,6 +11,10 @@ export const locales = [
     code: 'de',
     direction: 'ltr',
   },
+  {
+    code: 'tr',
+    direction: 'ltr',
+  },
 ]
 
 export const defaultLocale = 'en'

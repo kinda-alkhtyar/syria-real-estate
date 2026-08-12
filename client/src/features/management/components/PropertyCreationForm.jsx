@@ -2,6 +2,7 @@ import {
   ChevronLeft,
   Clapperboard,
   Crosshair,
+  Clock,
   Images,
   LoaderCircle,
 } from 'lucide-react'
@@ -13,11 +14,16 @@ import { ApiError } from '../../../api/api-client.js'
 import { syrianGovernorates } from '../../../constants/syrian-governorates.js'
 import { useAuth } from '../../auth/hooks/useAuth.js'
 import { useLocale } from '../../../hooks/useLocale.js'
+import {
+  pendingReviewFilter,
+  writableStatusesFor,
+} from '../constants/listing-status-presentation.js'
 import { formatCurrency } from '../../properties/utils/property-formatters.js'
 import { updateProperty } from '../api/management-property-api.js'
 import { createProperty } from '../api/property-creation-api.js'
 import {
   createSubmissionGate,
+  descriptionFieldForLocale,
   getPropertyCreationSuccessPath,
   isPropertyCreationDirty,
   needsCountryCode,
@@ -25,11 +31,14 @@ import {
   propertyCreationInitialValues,
   propertyCreationOptions,
   shouldWarnUnsavedChanges,
+  titleFieldForLocale,
   toPropertyCreationPayload,
   validatePropertyCreation,
 } from '../forms/property-creation-form.js'
 
-const languageTabs = [
+// Writing direction and field suffix per interface language. The form writes
+// only the language being browsed, so this is a lookup, not a tab list.
+const languages = [
   { code: 'en', direction: 'ltr', suffix: 'En' },
   { code: 'ar', direction: 'rtl', suffix: 'Ar' },
   { code: 'de', direction: 'ltr', suffix: 'De' },
@@ -54,7 +63,7 @@ const desktopQuery = '(min-width: 64rem)'
 const wizardSteps = [
   { fields: ['propertyType', 'transaction', 'status', 'featured'], id: 'listing' },
   {
-    fields: ['governorate', 'city', 'district', 'neighborhood', 'address'],
+    fields: ['governorate', 'city', 'neighborhood', 'address'],
     id: 'location',
   },
   { fields: ['latitude', 'longitude'], id: 'map' },
@@ -181,6 +190,7 @@ function FormSelect({
   label,
   name,
   onChange,
+  required = false,
   value,
 }) {
   const errorId = `${name}-error`
@@ -188,6 +198,7 @@ function FormSelect({
     <div className="min-w-0">
       <label className="mb-1.5 block text-sm font-semibold text-ink" htmlFor={name}>
         {label}
+        {required && <span aria-hidden="true"> *</span>}
       </label>
       <select
         aria-describedby={error ? errorId : undefined}
@@ -227,7 +238,6 @@ export default function PropertyCreationForm({
   propertyId = '',
 }) {
   const isEditing = mode === 'edit'
-  const [activeLanguage, setActiveLanguage] = useState('en')
   const [errors, setErrors] = useState({})
   const [formErrorKey, setFormErrorKey] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -239,13 +249,25 @@ export default function PropertyCreationForm({
     () => window.matchMedia(desktopQuery).matches,
   )
   const [succeeded, setSucceeded] = useState(false)
+  const [submittedForReview, setSubmittedForReview] = useState(false)
   const [values, setValues] = useState({ ...initialValues })
   const submissionGate = useRef(createSubmissionGate())
-  const tabRefs = useRef([])
   const navigate = useNavigate()
   const { locale, t } = useLocale()
   const { user } = useAuth()
   const isAdministrator = user?.role === 'ADMIN'
+  const statusOptions = writableStatusesFor(user?.role)
+  const initialStatus = initialValues.status
+  // Only the language being browsed is written here, so the form shows a single
+  // title and a single description and validates those two fields. The payload
+  // builder copies the title into the other two languages the API requires.
+  const contentLanguage =
+    languages.find((language) => language.code === locale.code) ?? languages[0]
+  const titleField =
+    titleFieldForLocale(locale.code) || `title${contentLanguage.suffix}`
+  const descriptionField =
+    descriptionFieldForLocale(locale.code) ||
+    `description${contentLanguage.suffix}`
   const dirty = useMemo(
     () => isPropertyCreationDirty(values, initialValues),
     [initialValues, values],
@@ -331,10 +353,6 @@ export default function PropertyCreationForm({
 
   function focusFirstError(nextErrors) {
     const firstField = Object.keys(nextErrors)[0]
-    const language = languageTabs.find(({ suffix }) =>
-      firstField?.endsWith(suffix),
-    )
-    if (language) setActiveLanguage(language.code)
     // An off-step field would otherwise stay hidden from both the owner and the
     // focus call below, so the wizard jumps to the first step that holds one.
     const invalidSteps = Object.keys(nextErrors)
@@ -376,7 +394,12 @@ export default function PropertyCreationForm({
     event.preventDefault()
     if (!submissionGate.current.tryStart()) return
 
-    const nextErrors = validatePropertyCreation(values)
+    // While editing, a blank description keeps the stored text: it is omitted
+    // from the PATCH rather than demanded from the owner.
+    const nextErrors = validatePropertyCreation(values, {
+      localeCode: locale.code,
+      requireDescription: !isEditing,
+    })
     if (Object.keys(nextErrors).length > 0) {
       setErrors(nextErrors)
       focusFirstError(nextErrors)
@@ -391,15 +414,33 @@ export default function PropertyCreationForm({
       // `featured` is never sent while editing: the management endpoint does
       // not return it, so submitting a value would overwrite the stored flag
       // with a default the administrator never saw.
+      // The title is copied into the other two languages on create only. While
+      // editing they are already prefilled from the record and travel back
+      // unchanged, so an owner fixing a price never rewrites a translation.
       const payload = toPropertyCreationPayload(values, {
+        copyActiveTitle: !isEditing,
         includeFeatured: isAdministrator && !isEditing,
+        // An owner never chooses the status of a new listing: submitting is
+        // what puts it into review. While editing, the status travels only when
+        // it was actually changed to one the role may write — an untouched
+        // field is what lets the server resubmit a rejected listing.
+        includeStatus:
+          (isEditing || isAdministrator) &&
+          values.status !== initialStatus &&
+          statusOptions.includes(values.status),
+        localeCode: locale.code,
       })
-      if (isEditing) {
-        await updateProperty(propertyId, payload)
-      } else {
-        await createProperty(payload)
-      }
+      const saved = isEditing
+        ? await updateProperty(propertyId, payload)
+        : await createProperty(payload)
       setSucceeded(true)
+      // The server decides: a submission and a resubmitted rejection both come
+      // back as PENDING_REVIEW, and both deserve the same explanation instead
+      // of a bare "saved" banner.
+      if (saved?.status === pendingReviewFilter) {
+        setSubmittedForReview(true)
+        return
+      }
       navigate(getPropertyCreationSuccessPath(), {
         replace: true,
         state: isEditing
@@ -434,14 +475,12 @@ export default function PropertyCreationForm({
     }
   }
 
-  function handleTabKeyDown(event, index) {
-    if (!['ArrowLeft', 'ArrowRight'].includes(event.key)) return
-    event.preventDefault()
-    const direction = event.key === 'ArrowRight' ? 1 : -1
-    const nextIndex =
-      (index + direction + languageTabs.length) % languageTabs.length
-    setActiveLanguage(languageTabs[nextIndex].code)
-    tabRefs.current[nextIndex]?.focus()
+  /** e.g. «العنوان (العربية)» — names the language the field is written in. */
+  function localizedFieldLabel(fieldKey, code) {
+    return t('propertyCreate.localizedField', {
+      field: t(`propertyCreate.fields.${fieldKey}`),
+      language: t(`languages.${code}`),
+    })
   }
 
   function leaveWizard() {
@@ -453,14 +492,26 @@ export default function PropertyCreationForm({
     }
   }
 
-  const statusSelect = (
+  // Hidden while an owner creates a listing: the status is not part of that
+  // payload, so offering the choice would promise something the submission
+  // cannot keep.
+  //
+  // A listing under moderation shows its state as a disabled option, selected
+  // and unreachable: `pending_review` and `rejected` are the server's to set,
+  // and leaving the field alone is what lets an owner's edit resubmit.
+  const statusSelect = (isEditing || isAdministrator) && (
     <FormSelect
       label={t('propertyCreate.fields.status')}
       name="status"
       onChange={handleChange}
       value={values.status}
     >
-      {propertyCreationOptions.statuses.map((status) => (
+      {!statusOptions.includes(initialStatus) && (
+        <option disabled value={initialStatus}>
+          {t(`listingStatuses.${initialStatus}`)}
+        </option>
+      )}
+      {statusOptions.map((status) => (
         <option key={status} value={status}>
           {t(`listingStatuses.${status}`)}
         </option>
@@ -518,6 +569,7 @@ export default function PropertyCreationForm({
       label={t('propertyCreate.fields.governorate')}
       name="governorate"
       onChange={handleChange}
+      required
       value={values.governorate}
     >
       {propertyCreationOptions.governorates.map((governorate) => (
@@ -528,20 +580,21 @@ export default function PropertyCreationForm({
     </FormSelect>
   )
 
-  const addressFields = ['city', 'district', 'neighborhood', 'address'].map(
-    (field) => (
-      <FormField
-        error={errorMessage(field)}
-        key={field}
-        label={t(`propertyCreate.fields.${field}`)}
-        maxLength={field === 'address' ? 500 : 120}
-        name={field}
-        onChange={handleChange}
-        required={field === 'city'}
-        value={values[field]}
-      />
-    ),
-  )
+  // `district` is deliberately absent: an owner names the neighbourhood, and the
+  // stored value of a legacy listing travels back untouched through the payload
+  // builder rather than being cleared by a field nobody fills in any more.
+  const addressFields = ['city', 'neighborhood', 'address'].map((field) => (
+    <FormField
+      error={errorMessage(field)}
+      key={field}
+      label={t(`propertyCreate.fields.${field}`)}
+      maxLength={field === 'address' ? 500 : 120}
+      name={field}
+      onChange={handleChange}
+      required={field !== 'address'}
+      value={values[field]}
+    />
+  ))
 
   const coordinateFields = (
     <>
@@ -726,6 +779,33 @@ export default function PropertyCreationForm({
     }`,
   )
 
+  // Replaces the whole form, phone wizard included: the listing is saved, so
+  // there is nothing left to fill in — only the outcome to explain.
+  if (submittedForReview) {
+    return (
+      <section
+        aria-labelledby="property-submitted-title"
+        className="rounded-2xl border border-line bg-surface px-5 py-14 text-center"
+      >
+        <Clock aria-hidden="true" className="mx-auto text-warning" size={34} />
+        <h2
+          className="mt-4 text-2xl font-bold text-ink"
+          id="property-submitted-title"
+        >
+          {t('propertyCreate.submitted.title')}
+        </h2>
+        <p className="mx-auto mt-3 max-w-lg leading-7 text-muted">
+          {t('propertyCreate.submitted.description')}
+        </p>
+        <div className="mt-7 flex flex-col items-center gap-3">
+          <Button onClick={() => navigate('/dashboard')}>
+            {t('propertyCreate.submitted.action')}
+          </Button>
+        </div>
+      </section>
+    )
+  }
+
   if (!isDesktop) {
     const currentStep = wizardSteps[step]
     const isReview = step === reviewStep
@@ -733,12 +813,6 @@ export default function PropertyCreationForm({
     /** Off-step content stays mounted so typed values survive navigation. */
     const panelClassName = (id) =>
       currentStep.id === id ? 'grid gap-5' : 'hidden'
-
-    const localizedLabel = (fieldKey, code) =>
-      t('propertyCreate.localizedField', {
-        field: t(`propertyCreate.fields.${fieldKey}`),
-        language: t(`languages.${code}`),
-      })
 
     const reviewType = [
       t(`propertyTypes.${values.propertyType}`),
@@ -868,38 +942,35 @@ export default function PropertyCreationForm({
 
           <div className={panelClassName('map')}>{coordinateFields}</div>
 
-          {/* No language tab row on phones: each localized field is labelled
-              with its own language so nothing is hidden behind a tab. */}
+          {/* One title in the language being browsed, labelled with it so the
+              owner always knows which language they are writing. */}
           <div className={panelClassName('title')}>
-            {languageTabs.map((language) => (
-              <div dir={language.direction} key={language.code}>
-                <FormField
-                  error={errorMessage(`title${language.suffix}`)}
-                  label={localizedLabel('title', language.code)}
-                  maxLength={200}
-                  name={`title${language.suffix}`}
-                  onChange={handleChange}
-                  required
-                  value={values[`title${language.suffix}`]}
-                />
-              </div>
-            ))}
+            <div dir={contentLanguage.direction}>
+              <FormField
+                error={errorMessage(titleField)}
+                label={localizedFieldLabel('title', contentLanguage.code)}
+                maxLength={200}
+                name={titleField}
+                onChange={handleChange}
+                required
+                value={values[titleField]}
+              />
+            </div>
           </div>
 
           <div className={panelClassName('description')}>
-            {languageTabs.map((language) => (
-              <div dir={language.direction} key={language.code}>
-                <FormField
-                  error={errorMessage(`description${language.suffix}`)}
-                  label={localizedLabel('description', language.code)}
-                  maxLength={20000}
-                  multiline
-                  name={`description${language.suffix}`}
-                  onChange={handleChange}
-                  value={values[`description${language.suffix}`]}
-                />
-              </div>
-            ))}
+            <div dir={contentLanguage.direction}>
+              <FormField
+                error={errorMessage(descriptionField)}
+                label={localizedFieldLabel('description', contentLanguage.code)}
+                maxLength={20000}
+                multiline
+                name={descriptionField}
+                onChange={handleChange}
+                required={!isEditing}
+                value={values[descriptionField]}
+              />
+            </div>
           </div>
 
           <div className={panelClassName('specs')}>
@@ -1017,70 +1088,29 @@ export default function PropertyCreationForm({
         isDesktop
         title={t('propertyCreate.sections.titleLocation')}
       >
-        <div
-          aria-label={t('propertyCreate.languageTabs')}
-          className="mb-5 flex border-b border-line"
-          role="tablist"
-        >
-          {languageTabs.map((language, index) => (
-            <button
-              aria-controls={`language-panel-${language.code}`}
-              aria-selected={activeLanguage === language.code}
-              className={`min-h-11 flex-1 whitespace-normal border-b-2 px-3 py-2 text-sm font-semibold outline-none focus-visible:ring-3 focus-visible:ring-focus/35 ${
-                activeLanguage === language.code
-                  ? 'border-accent text-ink'
-                  : 'border-transparent text-muted hover:text-ink'
-              }`}
-              id={`language-tab-${language.code}`}
-              key={language.code}
-              onClick={() => setActiveLanguage(language.code)}
-              onKeyDown={(event) => handleTabKeyDown(event, index)}
-              ref={(node) => {
-                tabRefs.current[index] = node
-              }}
-              role="tab"
-              tabIndex={activeLanguage === language.code ? 0 : -1}
-              type="button"
-            >
-              {t(`languages.${language.code}`)}
-            </button>
-          ))}
+        {/* Title and description are written once, in the language being
+            browsed, so there are no language tabs to switch between. */}
+        <div className="grid gap-5" dir={contentLanguage.direction}>
+          <FormField
+            error={errorMessage(titleField)}
+            label={localizedFieldLabel('title', contentLanguage.code)}
+            maxLength={200}
+            name={titleField}
+            onChange={handleChange}
+            required
+            value={values[titleField]}
+          />
+          <FormField
+            error={errorMessage(descriptionField)}
+            label={localizedFieldLabel('description', contentLanguage.code)}
+            maxLength={20000}
+            multiline
+            name={descriptionField}
+            onChange={handleChange}
+            required={!isEditing}
+            value={values[descriptionField]}
+          />
         </div>
-
-        {languageTabs.map((language) => {
-          const titleField = `title${language.suffix}`
-          const descriptionField = `description${language.suffix}`
-          return (
-            <div
-              aria-labelledby={`language-tab-${language.code}`}
-              className="grid gap-5"
-              dir={language.direction}
-              hidden={activeLanguage !== language.code}
-              id={`language-panel-${language.code}`}
-              key={language.code}
-              role="tabpanel"
-            >
-              <FormField
-                error={errorMessage(titleField)}
-                label={t('propertyCreate.fields.title')}
-                maxLength={200}
-                name={titleField}
-                onChange={handleChange}
-                required
-                value={values[titleField]}
-              />
-              <FormField
-                error={errorMessage(descriptionField)}
-                label={t('propertyCreate.fields.description')}
-                maxLength={20000}
-                multiline
-                name={descriptionField}
-                onChange={handleChange}
-                value={values[descriptionField]}
-              />
-            </div>
-          )
-        })}
 
         <div className="mt-6 grid gap-5 border-t border-line pt-6 sm:grid-cols-2">
           {governorateSelect}

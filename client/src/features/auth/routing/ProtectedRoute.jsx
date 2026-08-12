@@ -38,6 +38,10 @@ export function AuthenticatedRoute(props) {
   return <RoleProtectedRoute {...props} />
 }
 
+export function AdministratorRoute(props) {
+  return <RoleProtectedRoute {...props} allowedRoles={['ADMIN']} />
+}
+
 export function OwnerAdminRoute(props) {
   return (
     <RoleProtectedRoute

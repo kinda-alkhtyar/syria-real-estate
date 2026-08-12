@@ -44,7 +44,9 @@ export function createLogger({
           : `${entry.timestamp} ${level.toUpperCase()} ${event} ${JSON.stringify(
               safeFields(fields),
             )}`
-      const writer = level === 'error' ? sink.error : sink.log
+      const writer =
+        (level === 'error' ? sink.error : level === 'warn' ? sink.warn : null) ??
+        sink.log
       if (typeof writer === 'function') writer.call(sink, output)
     } catch {
       // Observability must never interrupt request processing.
@@ -57,6 +59,11 @@ export function createLogger({
     },
     info(event, fields) {
       write('info', event, fields)
+    },
+    // For configuration that boots but should not stay this way in production:
+    // loud enough to notice, not an error the process failed on.
+    warn(event, fields) {
+      write('warn', event, fields)
     },
   }
 }

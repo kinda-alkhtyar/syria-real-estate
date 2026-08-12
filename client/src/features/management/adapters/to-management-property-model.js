@@ -1,24 +1,35 @@
+import { governorateKey } from '../../../constants/governorate-keys.js'
 import { formatCurrency } from '../../properties/utils/property-formatters.js'
+import {
+  isAwaitingReview,
+  isRejected,
+  listingStatusChipClass,
+} from '../constants/listing-status-presentation.js'
 
 const localeSuffix = { ar: 'Ar', de: 'De', en: 'En' }
-const governorateKeys = {
-  AL_HASAKAH: 'alHasakah',
-  AS_SUWAYDA: 'asSuwayda',
-  DEIR_EZ_ZOR: 'deirEzZor',
-  RIF_DIMASHQ: 'rifDimashq',
-}
 
 function localized(record, field, localeCode) {
   const suffix = localeSuffix[localeCode] ?? localeSuffix.en
   return record[`${field}${suffix}`] || record[`${field}En`] || ''
 }
 
-function normalizedKey(value) {
-  return value.toLowerCase()
+// An image is described once, in the language it was uploaded in, so the alt
+// text of another language would otherwise be empty. The active locale wins;
+// failing that the first translation that carries text.
+const altFallbackOrder = ['ar', 'en', 'de']
+
+function localizedAlt(image, localeCode) {
+  for (const code of [localeCode, ...altFallbackOrder]) {
+    const suffix = localeSuffix[code]
+    if (!suffix) continue
+    const value = image[`alt${suffix}`]
+    if (typeof value === 'string' && value.trim()) return value
+  }
+  return ''
 }
 
-function governorateKey(value) {
-  return governorateKeys[value] ?? normalizedKey(value)
+function normalizedKey(value) {
+  return value.toLowerCase()
 }
 
 export function toManagementPropertyModel(record, localeCode, t) {
@@ -31,10 +42,15 @@ export function toManagementPropertyModel(record, localeCode, t) {
     .filter(Boolean)
     .join(', ')
   const primaryImage = record.images?.[0]
+  const status = normalizedKey(record.status)
+  const dateFormat = new Intl.DateTimeFormat(localeCode, {
+    dateStyle: 'medium',
+  })
 
   return {
     id: record.id,
     slug: record.slug,
+    governorate: t(`governorates.${governorateKey(record.governorate)}`),
     title: localized(record, 'title', localeCode),
     location,
     transaction: t(
@@ -47,20 +63,26 @@ export function toManagementPropertyModel(record, localeCode, t) {
     propertyType: t(
       `propertyTypes.${normalizedKey(record.propertyType)}`,
     ),
-    status: normalizedKey(record.status),
-    statusLabel: t(`listingStatuses.${normalizedKey(record.status)}`),
+    status,
+    statusLabel: t(`listingStatuses.${status}`),
+    statusChipClass: listingStatusChipClass(status),
+    awaitingReview: isAwaitingReview(status),
+    rejected: isRejected(status),
+    // Present only on a rejected listing; the API sends null otherwise.
+    rejectionReason: record.rejectionReason ?? '',
     price: formatCurrency(
       Number(record.price),
       record.currency,
       localeCode,
     ),
-    updatedAt: new Intl.DateTimeFormat(localeCode, {
-      dateStyle: 'medium',
-    }).format(new Date(record.updatedAt)),
+    createdAt: record.createdAt
+      ? dateFormat.format(new Date(record.createdAt))
+      : '',
+    updatedAt: dateFormat.format(new Date(record.updatedAt)),
     image: primaryImage
       ? {
           alt:
-            localized(primaryImage, 'alt', localeCode) ||
+            localizedAlt(primaryImage, localeCode) ||
             localized(record, 'title', localeCode),
           height: primaryImage.height ?? 720,
           src: primaryImage.url,

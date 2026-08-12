@@ -20,9 +20,17 @@ function serializeManagementProperty(property) {
     titleEn: property.titleEn,
     titleAr: property.titleAr,
     titleDe: property.titleDe,
+    // Exposed to the dashboard on purpose, like `whatsapp`: the edit form
+    // pre-fills the description of the language being written.
+    descriptionEn: property.descriptionEn ?? null,
+    descriptionAr: property.descriptionAr ?? null,
+    descriptionDe: property.descriptionDe ?? null,
     transaction: property.transaction,
     propertyType: property.propertyType,
     status: property.status,
+    // Null unless the listing is REJECTED: the dashboard shows the moderator's
+    // note next to the status so the owner knows what to change.
+    rejectionReason: property.rejectionReason ?? null,
     governorate: property.governorate,
     city: property.city,
     district: property.district,

@@ -10,11 +10,14 @@ export const ar = {
     ar: 'العربية',
     en: 'English',
     de: 'Deutsch',
+    tr: 'Türkçe',
   },
   theme: {
     light: 'فاتح',
     dark: 'داكن',
     system: 'النظام',
+    toggleToDark: 'التبديل إلى المظهر الداكن',
+    toggleToLight: 'التبديل إلى المظهر الفاتح',
   },
   navigation: {
     home: 'الرئيسية',
@@ -71,11 +74,13 @@ export const ar = {
   },
   accessibility: {
     resultsPagination: 'صفحات نتائج العقارات',
+    officesPagination: 'صفحات المكاتب',
     addToFavorites: 'إضافة {title} إلى المفضلة',
     removeFromFavorites: 'إزالة {title} من المفضلة',
     loadingProperty: 'جارٍ تحميل العقار',
     home: 'الصفحة الرئيسية لعقارات في سوريا',
     chooseLanguage: 'تغيير اللغة',
+    languageMenu: 'تغيير اللغة، الحالية: {language}',
     changeTheme: 'تغيير المظهر',
     primaryNavigation: 'التنقل الرئيسي',
     mobileNavigation: 'التنقل على الهاتف',
@@ -146,6 +151,8 @@ export const ar = {
   },
   listingStatuses: {
     draft: 'مسودة',
+    pending_review: 'قيد المراجعة',
+    rejected: 'مرفوض',
     available: 'متاح',
     reserved: 'محجوز',
     sold: 'مباع',
@@ -160,6 +167,15 @@ export const ar = {
     navigation: {
       label: 'التنقل في لوحة التحكم',
       overview: 'لوحة التحكم',
+      review: 'المراجعة',
+      reviewBadgeLabel: {
+        zero: 'لا توجد إعلانات بانتظار المراجعة',
+        one: 'إعلان واحد بانتظار المراجعة',
+        two: 'إعلانان بانتظار المراجعة',
+        few: '{count} إعلانات بانتظار المراجعة',
+        many: '{count} إعلاناً بانتظار المراجعة',
+        other: '{count} إعلان بانتظار المراجعة',
+      },
       create: 'إدراج عقار',
       browse: 'تصفح العقارات',
     },
@@ -173,6 +189,10 @@ export const ar = {
       sessionExpired: 'ربما انتهت جلستك. يرجى تسجيل الدخول مرة أخرى.',
       retry: 'إعادة المحاولة',
       noImage: 'لا تتوفر صورة للعقار',
+      pendingNotice:
+        'هذا الإعلان قيد المراجعة من فريقنا، وسيُنشر للجمهور فور الموافقة عليه.',
+      rejectedNotice: 'رُفض هذا الإعلان ولم يُنشر.',
+      rejectionReasonLabel: 'سبب الرفض:',
       actionsLabel: 'إجراءات العقار',
       pagination: 'صفحات العقارات المُدارة',
       fields: {
@@ -184,18 +204,85 @@ export const ar = {
     },
     actions: {
       edit: 'تعديل',
+      editAndResubmit: 'عدّل وأعد الإرسال',
       archive: 'أرشفة',
       restore: 'استعادة',
       images: 'إدارة الصور',
       video: 'إدارة الفيديو',
+      deleteLabel: 'حذف «{title}»',
     },
     confirmations: {
       archive: 'أرشفة هذا العقار؟ لن يظهر بعدها في النتائج العامة.',
       restore: 'استعادة هذا العقار؟ سيعود إلى حالة المسودة.',
     },
+    delete: {
+      title: 'حذف هذا العقار',
+      description: 'سيُحذف «{title}» نهائياً مع جميع صوره.',
+      warning: 'لا يمكن التراجع عن هذا الإجراء.',
+      confirm: 'حذف نهائي',
+      cancel: 'إلغاء',
+    },
     actionFeedback: {
       network: 'تعذر الاتصال. يرجى المحاولة مرة أخرى.',
       unexpected: 'تعذر إتمام الإجراء. يرجى المحاولة مرة أخرى.',
+    },
+  },
+  review: {
+    eyebrow: 'الإشراف',
+    title: 'مراجعة الإعلانات',
+    description:
+      'الإعلانات المرسلة من الملاك بانتظار قرارك؛ الموافقة تنشرها مباشرة، والرفض يعيدها إلى صاحبها مع السبب.',
+    queue: {
+      listLabel: 'الإعلانات بانتظار المراجعة',
+      actionsLabel: 'إجراءات المراجعة',
+      pagination: 'صفحات قائمة المراجعة',
+      loading: 'جارٍ تحميل قائمة المراجعة',
+      emptyTitle: 'لا شيء بانتظار المراجعة',
+      emptyDescription: 'ستظهر هنا الإعلانات الجديدة فور إرسالها من الملاك.',
+      errorTitle: 'تعذر تحميل قائمة المراجعة',
+      errorDescription: 'يرجى محاولة تحميل قائمة المراجعة مرة أخرى.',
+      submittedOn: 'أُرسل في {date}',
+      total: {
+        zero: 'لا توجد إعلانات بانتظار المراجعة',
+        one: 'إعلان واحد بانتظار المراجعة',
+        two: 'إعلانان بانتظار المراجعة',
+        few: '{count} إعلانات بانتظار المراجعة',
+        many: '{count} إعلاناً بانتظار المراجعة',
+        other: '{count} إعلان بانتظار المراجعة',
+      },
+      fields: {
+        governorate: 'المحافظة',
+        type: 'نوع العقار',
+        price: 'السعر',
+      },
+    },
+    actions: {
+      approve: 'موافقة',
+      reject: 'رفض',
+      cancel: 'إلغاء',
+      openDetails: 'عرض التفاصيل',
+    },
+    approve: {
+      title: 'الموافقة على الإعلان',
+      description: 'سيُنشر «{title}» للجمهور مباشرة بعد الموافقة.',
+      confirm: 'موافقة ونشر',
+    },
+    reject: {
+      title: 'رفض الإعلان',
+      description: 'سيبقى «{title}» غير منشور، وسيرى صاحبه سبب الرفض.',
+      confirm: 'تأكيد الرفض',
+      reasonLabel: 'سبب الرفض',
+      reasonCounter: 'المتبقي {remaining} من {maximum} حرف',
+      validation: {
+        required: 'يرجى كتابة سبب الرفض.',
+        length: 'يجب ألا يتجاوز السبب {maximum} حرف.',
+        html: 'لا يمكن أن يحتوي السبب على الرمزين < أو >.',
+      },
+    },
+    feedback: {
+      network: 'تعذر الاتصال. يرجى المحاولة مرة أخرى.',
+      missing: 'لم يعد هذا الإعلان موجوداً. يرجى تحديث القائمة.',
+      unexpected: 'تعذر إتمام القرار. يرجى المحاولة مرة أخرى.',
     },
   },
   propertyCreate: {
@@ -203,8 +290,13 @@ export const ar = {
     title: 'إدراج عقار',
     description:
       'أنشئ سجل العقار أولاً. يمكن إدارة الصور في مرحلة لاحقة.',
-    languageTabs: 'لغات محتوى العقار',
     unsavedWarning: 'لديك تغييرات غير محفوظة.',
+    submitted: {
+      title: 'تم إرسال إعلانك',
+      description:
+        'سيُنشر إعلانك بعد مراجعة فريقنا؛ يمكنك متابعة حالته من صفحة إعلاناتك.',
+      action: 'إلى إعلاناتي',
+    },
     leaveConfirmation: 'هل تريد مغادرة هذه الصفحة وتجاهل التغييرات غير المحفوظة؟',
     stepCounter: '{current} / {total}',
     stepProgress: 'تقدم خطوات إضافة العقار',
@@ -279,7 +371,6 @@ export const ar = {
       propertyType: 'نوع العقار',
       governorate: 'المحافظة',
       city: 'المدينة',
-      district: 'المنطقة',
       neighborhood: 'الحي',
       address: 'العنوان التفصيلي',
       latitude: 'خط العرض على الخريطة (Latitude)',
@@ -465,6 +556,7 @@ export const ar = {
     damascus: 'دمشق',
     rifDimashq: 'ريف دمشق',
     aleppo: 'حلب',
+    rifAleppo: 'ريف حلب',
     latakia: 'اللاذقية',
     homs: 'حمص',
     hama: 'حماة',
@@ -490,15 +582,181 @@ export const ar = {
     language: 'اللغة',
     profile: 'الملف الشخصي',
     myProperties: 'عقاراتي',
-    settings: 'الإعدادات',
-    help: 'المساعدة',
-    comingSoon: 'هذه الميزة قيد الإعداد وستتوفر قريباً.',
+    profileTitle: 'الملف الشخصي',
+    profileDescription:
+      'راجع بياناتك، وغيّر كلمة المرور، وتابع إعلاناتك ومكتبك من مكان واحد.',
+    details: {
+      title: 'بياناتي',
+      description: 'الاسم ووسائل التواصل التي تظهر لمن يتواصل معك.',
+      name: 'الاسم',
+      email: 'البريد الإلكتروني',
+      phone: 'رقم الهاتف',
+      whatsapp: 'رقم واتساب',
+      empty: 'غير محدد',
+      emailLocked: 'البريد الإلكتروني هو معرّف حسابك ولا يمكن تغييره.',
+      edit: 'تعديل البيانات',
+    },
+    security: {
+      title: 'الأمان',
+      description: 'غيّر كلمة المرور دون الحاجة إلى تسجيل الدخول من جديد.',
+      changePassword: 'تغيير كلمة المرور',
+    },
+    listings: {
+      title: 'إعلاناتي',
+    },
+    office: {
+      title: 'مكتبي',
+      loading: 'جارٍ تحميل بيانات مكتبك…',
+    },
+    editDialog: {
+      title: 'تعديل بياناتي',
+      description: 'حدّث اسمك ووسائل التواصل. البريد الإلكتروني للعرض فقط.',
+      save: 'حفظ التغييرات',
+      saving: 'جارٍ الحفظ…',
+      cancel: 'إلغاء',
+    },
+    passwordDialog: {
+      title: 'تغيير كلمة المرور',
+      description: 'أدخل كلمة المرور الحالية، ثم الجديدة مرتين.',
+      current: 'كلمة المرور الحالية',
+      new: 'كلمة المرور الجديدة',
+      confirm: 'تأكيد كلمة المرور الجديدة',
+      hint: 'يجب ألا تقل كلمة المرور عن {minimum} حرفاً وأن تختلف عن الحالية.',
+      submit: 'تحديث كلمة المرور',
+      submitting: 'جارٍ التحديث…',
+    },
+    errors: {
+      nameRequired: 'الاسم مطلوب.',
+      nameTooLong: 'يجب ألا يتجاوز الاسم {maximum} حرفاً.',
+      noHtml: 'لا يمكن أن يحتوي النص على وسوم HTML.',
+      contactNumber: 'أدخل رقماً صحيحاً من 6 إلى 15 رقماً، ويمكن أن يبدأ بـ +.',
+      currentRequired: 'أدخل كلمة المرور الحالية.',
+      passwordTooShort:
+        'يجب ألا تقل كلمة المرور الجديدة عن {minimum} حرفاً.',
+      passwordSame: 'يجب أن تختلف كلمة المرور الجديدة عن الحالية.',
+      passwordMismatch: 'كلمتا المرور غير متطابقتين.',
+    },
+    feedback: {
+      loading: 'جارٍ تحميل بياناتك…',
+      loadError: 'تعذّر تحميل بياناتك.',
+      retry: 'إعادة المحاولة',
+      profileSaved: 'تم حفظ بياناتك.',
+      passwordChanged:
+        'تم تحديث كلمة المرور، وجلستك الحالية ما تزال فعّالة.',
+      saveError: 'تعذّر حفظ التغييرات. حاول مرة أخرى.',
+      invalidCurrentPassword: 'كلمة المرور الحالية غير صحيحة.',
+      passwordUnavailable:
+        'هذا الحساب يسجّل الدخول عبر Google ولا يملك كلمة مرور.',
+      rateLimited: 'محاولات كثيرة خلال وقت قصير. حاول بعد قليل.',
+      sessionExpired: 'انتهت جلستك. سجّل الدخول من جديد.',
+    },
   },
   offices: {
-    badge: 'قريباً',
     title: 'المكاتب العقارية',
-    description:
-      'نعمل على إضافة صفحات المكاتب العقارية لتتصفح عقارات كل مكتب في مكان واحد.',
+    description: 'تصفّح المكاتب العقارية على دار سوريا وكل ما تعرضه من عقارات.',
+    loading: 'جارٍ تحميل المكاتب',
+    mine: {
+      label: 'مكتبي',
+      createTitle: 'أضف مكتبك',
+      createDescription:
+        'انشر صفحة مكتبك وستنتقل عقاراتك الحالية إليه تلقائياً.',
+      createAction: 'أضف مكتبك',
+      editAction: 'تعديل',
+      viewAction: 'عرض',
+    },
+    count: {
+      zero: 'لا توجد عقارات',
+      one: 'عقار واحد',
+      two: 'عقاران',
+      few: '{count} عقارات',
+      many: '{count} عقاراً',
+      other: '{count} عقار',
+    },
+    empty: {
+      title: 'لا توجد مكاتب بعد',
+      description: 'ستظهر أول المكاتب هنا فور نشر صفحاتها.',
+    },
+    error: {
+      title: 'تعذّر تحميل المكاتب',
+      description: 'تحقق من اتصالك ثم أعد المحاولة.',
+      action: 'إعادة المحاولة',
+    },
+    details: {
+      loading: 'جارٍ تحميل المكتب',
+      back: 'كل المكاتب',
+      call: 'اتصال',
+      whatsapp: 'واتساب',
+      whatsappMessage: 'مرحباً، وجدت مكتبكم على دار سوريا.',
+      notFound: {
+        title: 'المكتب غير موجود',
+        description: 'قد يكون هذا المكتب قد حُذف أو أن الرابط غير صحيح.',
+        action: 'العودة إلى المكاتب',
+      },
+      properties: {
+        title: 'عقارات هذا المكتب',
+        empty: {
+          title: 'لا توجد عقارات بعد',
+          description: 'لم ينشر هذا المكتب أي عقار حتى الآن.',
+        },
+      },
+    },
+  },
+  officeForm: {
+    createTitle: 'أضف مكتبك',
+    createDescription:
+      'اكتب الاسم بلغة التصفح الحالية، وستُستخدم اللغات الأخرى الاسم نفسه حتى تترجمها.',
+    editTitle: 'تعديل المكتب',
+    editDescription:
+      'يسري التعديل على لغة التصفح الحالية، وتبقى الترجمات الأخرى كما هي.',
+    localizedField: '{field} ({language})',
+    fields: {
+      name: 'اسم المكتب',
+      description: 'نبذة عن المكتب',
+      governorate: 'المحافظة',
+      city: 'المدينة',
+      phone: 'رقم الهاتف',
+      whatsapp: 'رقم واتساب',
+    },
+    hints: {
+      name: 'يُستخدم للغات الثلاث حتى تعدّل كل لغة على حدة.',
+    },
+    actions: {
+      create: 'إنشاء المكتب',
+      save: 'حفظ التغييرات',
+      saving: 'جارٍ الحفظ…',
+      cancel: 'إلغاء',
+    },
+    delete: {
+      zoneTitle: 'منطقة الخطر',
+      zoneDescription:
+        'إغلاق المكتب يزيل صفحته العامة نهائياً. عقاراتك لا تتأثر.',
+      action: 'حذف المكتب',
+      title: 'حذف هذا المكتب',
+      description: 'سيُحذف «{name}» نهائياً مع صفحته العامة.',
+      warning: 'لا يمكن التراجع عن هذا الإجراء.',
+      propertiesNotice:
+        'عقاراتك لن تُحذف — ستبقى منشورة دون ربط بالمكتب.',
+      confirm: 'حذف المكتب نهائياً',
+      cancel: 'إلغاء',
+      feedback: {
+        network: 'تعذر الاتصال. يرجى المحاولة مرة أخرى.',
+        unexpected: 'تعذر حذف المكتب. يرجى المحاولة مرة أخرى.',
+      },
+    },
+    errors: {
+      nameRequired: 'أدخل اسم المكتب.',
+      nameTooLong: 'الاسم طويل جداً.',
+      descriptionTooLong: 'النبذة طويلة جداً.',
+      cityTooLong: 'اسم المدينة طويل جداً.',
+      contactNumber: 'أدخل رقماً صحيحاً من 6 إلى 15 خانة.',
+      noHtml: 'لا يمكن أن يحتوي النص على الرمزين < أو >.',
+    },
+    feedback: {
+      alreadyExists: 'هذا الحساب يملك مكتباً بالفعل.',
+      validation: 'راجع الحقول المحددة ثم أعد المحاولة.',
+      network: 'فشل الاتصال. أعد المحاولة.',
+      unexpected: 'تعذّر حفظ المكتب. أعد المحاولة.',
+    },
   },
   homepage: {
     mobile: {
@@ -570,6 +828,9 @@ export const ar = {
     title: 'عقارات للبيع والإيجار في سوريا',
     description:
       'تصفّح العقارات المتاحة واستخدم الفلاتر للوصول إلى الخيار الأنسب لك.',
+    buyTitle: 'عقارات للبيع في سوريا',
+    buyDescription:
+      'اكتشف عقارات للبيع في مختلف المحافظات السورية، واستخدم عوامل التصفية للوصول إلى العقار الأنسب لاحتياجاتك.',
     rentTitle: 'عقارات للإيجار في سوريا',
     rentDescription:
       'اكتشف عقارات للإيجار في مختلف المحافظات السورية، واستخدم عوامل التصفية للوصول إلى العقار الأنسب لاحتياجاتك.',
@@ -724,6 +985,6 @@ export const ar = {
     coverage: 'نخدم المجتمعات في مختلف أنحاء سوريا',
     contactSoon: 'ستتوفر معلومات التواصل قريباً',
     copyright: '© {year} عقارات في سوريا. جميع الحقوق محفوظة.',
-    languages: 'العربية · الإنجليزية · الألمانية',
+    languages: 'العربية · الإنجليزية · الألمانية · التركية',
   },
 }

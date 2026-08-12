@@ -28,6 +28,8 @@ export type UserMinAggregateOutputType = {
   id: string | null
   email: string | null
   name: string | null
+  phone: string | null
+  whatsapp: string | null
   passwordHash: string | null
   provider: string | null
   googleSub: string | null
@@ -41,6 +43,8 @@ export type UserMaxAggregateOutputType = {
   id: string | null
   email: string | null
   name: string | null
+  phone: string | null
+  whatsapp: string | null
   passwordHash: string | null
   provider: string | null
   googleSub: string | null
@@ -54,6 +58,8 @@ export type UserCountAggregateOutputType = {
   id: number
   email: number
   name: number
+  phone: number
+  whatsapp: number
   passwordHash: number
   provider: number
   googleSub: number
@@ -69,6 +75,8 @@ export type UserMinAggregateInputType = {
   id?: true
   email?: true
   name?: true
+  phone?: true
+  whatsapp?: true
   passwordHash?: true
   provider?: true
   googleSub?: true
@@ -82,6 +90,8 @@ export type UserMaxAggregateInputType = {
   id?: true
   email?: true
   name?: true
+  phone?: true
+  whatsapp?: true
   passwordHash?: true
   provider?: true
   googleSub?: true
@@ -95,6 +105,8 @@ export type UserCountAggregateInputType = {
   id?: true
   email?: true
   name?: true
+  phone?: true
+  whatsapp?: true
   passwordHash?: true
   provider?: true
   googleSub?: true
@@ -181,6 +193,8 @@ export type UserGroupByOutputType = {
   id: string
   email: string
   name: string
+  phone: string | null
+  whatsapp: string | null
   passwordHash: string | null
   provider: string
   googleSub: string | null
@@ -215,6 +229,8 @@ export type UserWhereInput = {
   id?: Prisma.UuidFilter<"User"> | string
   email?: Prisma.StringFilter<"User"> | string
   name?: Prisma.StringFilter<"User"> | string
+  phone?: Prisma.StringNullableFilter<"User"> | string | null
+  whatsapp?: Prisma.StringNullableFilter<"User"> | string | null
   passwordHash?: Prisma.StringNullableFilter<"User"> | string | null
   provider?: Prisma.StringFilter<"User"> | string
   googleSub?: Prisma.StringNullableFilter<"User"> | string | null
@@ -224,12 +240,15 @@ export type UserWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   properties?: Prisma.PropertyListRelationFilter
   sessions?: Prisma.AuthSessionListRelationFilter
+  office?: Prisma.XOR<Prisma.OfficeNullableScalarRelationFilter, Prisma.OfficeWhereInput> | null
 }
 
 export type UserOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   email?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  phone?: Prisma.SortOrderInput | Prisma.SortOrder
+  whatsapp?: Prisma.SortOrderInput | Prisma.SortOrder
   passwordHash?: Prisma.SortOrderInput | Prisma.SortOrder
   provider?: Prisma.SortOrder
   googleSub?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -239,6 +258,7 @@ export type UserOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   properties?: Prisma.PropertyOrderByRelationAggregateInput
   sessions?: Prisma.AuthSessionOrderByRelationAggregateInput
+  office?: Prisma.OfficeOrderByWithRelationInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -249,6 +269,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.UserWhereInput[]
   NOT?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
   name?: Prisma.StringFilter<"User"> | string
+  phone?: Prisma.StringNullableFilter<"User"> | string | null
+  whatsapp?: Prisma.StringNullableFilter<"User"> | string | null
   passwordHash?: Prisma.StringNullableFilter<"User"> | string | null
   provider?: Prisma.StringFilter<"User"> | string
   isActive?: Prisma.BoolFilter<"User"> | boolean
@@ -257,12 +279,15 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   properties?: Prisma.PropertyListRelationFilter
   sessions?: Prisma.AuthSessionListRelationFilter
+  office?: Prisma.XOR<Prisma.OfficeNullableScalarRelationFilter, Prisma.OfficeWhereInput> | null
 }, "id" | "email" | "googleSub">
 
 export type UserOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   email?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  phone?: Prisma.SortOrderInput | Prisma.SortOrder
+  whatsapp?: Prisma.SortOrderInput | Prisma.SortOrder
   passwordHash?: Prisma.SortOrderInput | Prisma.SortOrder
   provider?: Prisma.SortOrder
   googleSub?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -282,6 +307,8 @@ export type UserScalarWhereWithAggregatesInput = {
   id?: Prisma.UuidWithAggregatesFilter<"User"> | string
   email?: Prisma.StringWithAggregatesFilter<"User"> | string
   name?: Prisma.StringWithAggregatesFilter<"User"> | string
+  phone?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  whatsapp?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   passwordHash?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   provider?: Prisma.StringWithAggregatesFilter<"User"> | string
   googleSub?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
@@ -295,6 +322,8 @@ export type UserCreateInput = {
   id?: string
   email: string
   name: string
+  phone?: string | null
+  whatsapp?: string | null
   passwordHash?: string | null
   provider?: string
   googleSub?: string | null
@@ -304,12 +333,15 @@ export type UserCreateInput = {
   updatedAt?: Date | string
   properties?: Prisma.PropertyCreateNestedManyWithoutOwnerInput
   sessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
+  office?: Prisma.OfficeCreateNestedOneWithoutOwnerInput
 }
 
 export type UserUncheckedCreateInput = {
   id?: string
   email: string
   name: string
+  phone?: string | null
+  whatsapp?: string | null
   passwordHash?: string | null
   provider?: string
   googleSub?: string | null
@@ -319,12 +351,15 @@ export type UserUncheckedCreateInput = {
   updatedAt?: Date | string
   properties?: Prisma.PropertyUncheckedCreateNestedManyWithoutOwnerInput
   sessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
+  office?: Prisma.OfficeUncheckedCreateNestedOneWithoutOwnerInput
 }
 
 export type UserUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   provider?: Prisma.StringFieldUpdateOperationsInput | string
   googleSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -334,12 +369,15 @@ export type UserUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   properties?: Prisma.PropertyUpdateManyWithoutOwnerNestedInput
   sessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
+  office?: Prisma.OfficeUpdateOneWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   provider?: Prisma.StringFieldUpdateOperationsInput | string
   googleSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -349,12 +387,15 @@ export type UserUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   properties?: Prisma.PropertyUncheckedUpdateManyWithoutOwnerNestedInput
   sessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
+  office?: Prisma.OfficeUncheckedUpdateOneWithoutOwnerNestedInput
 }
 
 export type UserCreateManyInput = {
   id?: string
   email: string
   name: string
+  phone?: string | null
+  whatsapp?: string | null
   passwordHash?: string | null
   provider?: string
   googleSub?: string | null
@@ -368,6 +409,8 @@ export type UserUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   provider?: Prisma.StringFieldUpdateOperationsInput | string
   googleSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -381,6 +424,8 @@ export type UserUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   provider?: Prisma.StringFieldUpdateOperationsInput | string
   googleSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -394,6 +439,8 @@ export type UserCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   email?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  phone?: Prisma.SortOrder
+  whatsapp?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
   provider?: Prisma.SortOrder
   googleSub?: Prisma.SortOrder
@@ -407,6 +454,8 @@ export type UserMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   email?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  phone?: Prisma.SortOrder
+  whatsapp?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
   provider?: Prisma.SortOrder
   googleSub?: Prisma.SortOrder
@@ -420,6 +469,8 @@ export type UserMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   email?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  phone?: Prisma.SortOrder
+  whatsapp?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
   provider?: Prisma.SortOrder
   googleSub?: Prisma.SortOrder
@@ -482,10 +533,26 @@ export type UserUpdateOneRequiredWithoutPropertiesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutPropertiesInput, Prisma.UserUpdateWithoutPropertiesInput>, Prisma.UserUncheckedUpdateWithoutPropertiesInput>
 }
 
+export type UserCreateNestedOneWithoutOfficeInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutOfficeInput, Prisma.UserUncheckedCreateWithoutOfficeInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutOfficeInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutOfficeNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutOfficeInput, Prisma.UserUncheckedCreateWithoutOfficeInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutOfficeInput
+  upsert?: Prisma.UserUpsertWithoutOfficeInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutOfficeInput, Prisma.UserUpdateWithoutOfficeInput>, Prisma.UserUncheckedUpdateWithoutOfficeInput>
+}
+
 export type UserCreateWithoutSessionsInput = {
   id?: string
   email: string
   name: string
+  phone?: string | null
+  whatsapp?: string | null
   passwordHash?: string | null
   provider?: string
   googleSub?: string | null
@@ -494,12 +561,15 @@ export type UserCreateWithoutSessionsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   properties?: Prisma.PropertyCreateNestedManyWithoutOwnerInput
+  office?: Prisma.OfficeCreateNestedOneWithoutOwnerInput
 }
 
 export type UserUncheckedCreateWithoutSessionsInput = {
   id?: string
   email: string
   name: string
+  phone?: string | null
+  whatsapp?: string | null
   passwordHash?: string | null
   provider?: string
   googleSub?: string | null
@@ -508,6 +578,7 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   properties?: Prisma.PropertyUncheckedCreateNestedManyWithoutOwnerInput
+  office?: Prisma.OfficeUncheckedCreateNestedOneWithoutOwnerInput
 }
 
 export type UserCreateOrConnectWithoutSessionsInput = {
@@ -530,6 +601,8 @@ export type UserUpdateWithoutSessionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   provider?: Prisma.StringFieldUpdateOperationsInput | string
   googleSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -538,12 +611,15 @@ export type UserUpdateWithoutSessionsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   properties?: Prisma.PropertyUpdateManyWithoutOwnerNestedInput
+  office?: Prisma.OfficeUpdateOneWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSessionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   provider?: Prisma.StringFieldUpdateOperationsInput | string
   googleSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -552,12 +628,15 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   properties?: Prisma.PropertyUncheckedUpdateManyWithoutOwnerNestedInput
+  office?: Prisma.OfficeUncheckedUpdateOneWithoutOwnerNestedInput
 }
 
 export type UserCreateWithoutPropertiesInput = {
   id?: string
   email: string
   name: string
+  phone?: string | null
+  whatsapp?: string | null
   passwordHash?: string | null
   provider?: string
   googleSub?: string | null
@@ -566,12 +645,15 @@ export type UserCreateWithoutPropertiesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   sessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
+  office?: Prisma.OfficeCreateNestedOneWithoutOwnerInput
 }
 
 export type UserUncheckedCreateWithoutPropertiesInput = {
   id?: string
   email: string
   name: string
+  phone?: string | null
+  whatsapp?: string | null
   passwordHash?: string | null
   provider?: string
   googleSub?: string | null
@@ -580,6 +662,7 @@ export type UserUncheckedCreateWithoutPropertiesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   sessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
+  office?: Prisma.OfficeUncheckedCreateNestedOneWithoutOwnerInput
 }
 
 export type UserCreateOrConnectWithoutPropertiesInput = {
@@ -602,6 +685,8 @@ export type UserUpdateWithoutPropertiesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   provider?: Prisma.StringFieldUpdateOperationsInput | string
   googleSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -610,12 +695,15 @@ export type UserUpdateWithoutPropertiesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
+  office?: Prisma.OfficeUpdateOneWithoutOwnerNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPropertiesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   provider?: Prisma.StringFieldUpdateOperationsInput | string
   googleSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -623,6 +711,91 @@ export type UserUncheckedUpdateWithoutPropertiesInput = {
   role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
+  office?: Prisma.OfficeUncheckedUpdateOneWithoutOwnerNestedInput
+}
+
+export type UserCreateWithoutOfficeInput = {
+  id?: string
+  email: string
+  name: string
+  phone?: string | null
+  whatsapp?: string | null
+  passwordHash?: string | null
+  provider?: string
+  googleSub?: string | null
+  isActive?: boolean
+  role?: $Enums.UserRole
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  properties?: Prisma.PropertyCreateNestedManyWithoutOwnerInput
+  sessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutOfficeInput = {
+  id?: string
+  email: string
+  name: string
+  phone?: string | null
+  whatsapp?: string | null
+  passwordHash?: string | null
+  provider?: string
+  googleSub?: string | null
+  isActive?: boolean
+  role?: $Enums.UserRole
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  properties?: Prisma.PropertyUncheckedCreateNestedManyWithoutOwnerInput
+  sessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutOfficeInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutOfficeInput, Prisma.UserUncheckedCreateWithoutOfficeInput>
+}
+
+export type UserUpsertWithoutOfficeInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutOfficeInput, Prisma.UserUncheckedUpdateWithoutOfficeInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutOfficeInput, Prisma.UserUncheckedCreateWithoutOfficeInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutOfficeInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutOfficeInput, Prisma.UserUncheckedUpdateWithoutOfficeInput>
+}
+
+export type UserUpdateWithoutOfficeInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  provider?: Prisma.StringFieldUpdateOperationsInput | string
+  googleSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  properties?: Prisma.PropertyUpdateManyWithoutOwnerNestedInput
+  sessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutOfficeInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  provider?: Prisma.StringFieldUpdateOperationsInput | string
+  googleSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  properties?: Prisma.PropertyUncheckedUpdateManyWithoutOwnerNestedInput
   sessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -670,6 +843,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   id?: boolean
   email?: boolean
   name?: boolean
+  phone?: boolean
+  whatsapp?: boolean
   passwordHash?: boolean
   provider?: boolean
   googleSub?: boolean
@@ -679,6 +854,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   updatedAt?: boolean
   properties?: boolean | Prisma.User$propertiesArgs<ExtArgs>
   sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
+  office?: boolean | Prisma.User$officeArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -686,6 +862,8 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   id?: boolean
   email?: boolean
   name?: boolean
+  phone?: boolean
+  whatsapp?: boolean
   passwordHash?: boolean
   provider?: boolean
   googleSub?: boolean
@@ -699,6 +877,8 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   id?: boolean
   email?: boolean
   name?: boolean
+  phone?: boolean
+  whatsapp?: boolean
   passwordHash?: boolean
   provider?: boolean
   googleSub?: boolean
@@ -712,6 +892,8 @@ export type UserSelectScalar = {
   id?: boolean
   email?: boolean
   name?: boolean
+  phone?: boolean
+  whatsapp?: boolean
   passwordHash?: boolean
   provider?: boolean
   googleSub?: boolean
@@ -721,10 +903,11 @@ export type UserSelectScalar = {
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "name" | "passwordHash" | "provider" | "googleSub" | "isActive" | "role" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "name" | "phone" | "whatsapp" | "passwordHash" | "provider" | "googleSub" | "isActive" | "role" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   properties?: boolean | Prisma.User$propertiesArgs<ExtArgs>
   sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
+  office?: boolean | Prisma.User$officeArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -735,11 +918,14 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   objects: {
     properties: Prisma.$PropertyPayload<ExtArgs>[]
     sessions: Prisma.$AuthSessionPayload<ExtArgs>[]
+    office: Prisma.$OfficePayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     email: string
     name: string
+    phone: string | null
+    whatsapp: string | null
     passwordHash: string | null
     provider: string
     googleSub: string | null
@@ -1143,6 +1329,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   readonly [Symbol.toStringTag]: "PrismaPromise"
   properties<T extends Prisma.User$propertiesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$propertiesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PropertyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   sessions<T extends Prisma.User$sessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AuthSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  office<T extends Prisma.User$officeArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$officeArgs<ExtArgs>>): Prisma.Prisma__OfficeClient<runtime.Types.Result.GetResult<Prisma.$OfficePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1175,6 +1362,8 @@ export interface UserFieldRefs {
   readonly id: Prisma.FieldRef<"User", 'String'>
   readonly email: Prisma.FieldRef<"User", 'String'>
   readonly name: Prisma.FieldRef<"User", 'String'>
+  readonly phone: Prisma.FieldRef<"User", 'String'>
+  readonly whatsapp: Prisma.FieldRef<"User", 'String'>
   readonly passwordHash: Prisma.FieldRef<"User", 'String'>
   readonly provider: Prisma.FieldRef<"User", 'String'>
   readonly googleSub: Prisma.FieldRef<"User", 'String'>
@@ -1620,6 +1809,25 @@ export type User$sessionsArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   take?: number
   skip?: number
   distinct?: Prisma.AuthSessionScalarFieldEnum | Prisma.AuthSessionScalarFieldEnum[]
+}
+
+/**
+ * User.office
+ */
+export type User$officeArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Office
+   */
+  select?: Prisma.OfficeSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Office
+   */
+  omit?: Prisma.OfficeOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OfficeInclude<ExtArgs> | null
+  where?: Prisma.OfficeWhereInput
 }
 
 /**

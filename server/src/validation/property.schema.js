@@ -11,25 +11,49 @@ const propertyTypes = [
 ]
 const listingStatuses = [
   'draft',
+  'pending_review',
   'available',
+  'reserved',
+  'sold',
+  'rented',
+  'rejected',
+  'archived',
+]
+// Statuses a visitor is allowed to see. DRAFT, PENDING_REVIEW, REJECTED, and
+// ARCHIVED are internal and must never reach the public list or detail
+// responses.
+const publicListingStatuses = ['available', 'reserved', 'sold', 'rented']
+
+// Statuses an OWNER may write directly. AVAILABLE is absent on purpose: under
+// moderation, publishing is an administrator decision taken through the approve
+// endpoint, so an owner cannot self-publish by sending a status. PENDING_REVIEW
+// and REJECTED are equally moderation-owned and are set by the server.
+const ownerWritableStatuses = [
+  'draft',
   'reserved',
   'sold',
   'rented',
   'archived',
 ]
-// Statuses a visitor is allowed to see. DRAFT and ARCHIVED are owner-only and
-// must never reach the public list or detail responses.
-const publicListingStatuses = ['available', 'reserved', 'sold', 'rented']
+
+// An administrator publishes directly, but PENDING_REVIEW and REJECTED stay out
+// of the generic write: they are reached through submission and through the
+// reject endpoint, which is what keeps a REJECTED listing always carrying a
+// reason.
+const administratorWritableStatuses = listingStatuses.filter(
+  (status) => status !== 'pending_review' && status !== 'rejected',
+)
 
 export const publicPropertyStatuses = Object.freeze(
   publicListingStatuses.map((status) => status.toUpperCase()),
 )
 
 const currencies = ['usd', 'eur', 'syp']
-const governorates = [
+export const governorates = [
   'damascus',
   'rif_dimashq',
   'aleppo',
+  'rif_aleppo',
   'latakia',
   'homs',
   'hama',
@@ -43,7 +67,7 @@ const governorates = [
   'quneitra',
 ]
 
-function enumValue(values) {
+export function enumValue(values) {
   return z
     .string()
     .transform((value) => value.trim().toLowerCase())
@@ -51,7 +75,7 @@ function enumValue(values) {
     .transform((value) => value.toUpperCase())
 }
 
-function optionalEnum(values) {
+export function optionalEnum(values) {
   return enumValue(values).optional()
 }
 
@@ -79,6 +103,13 @@ function positiveIntegerSchema(maximum, defaultValue) {
   )
 }
 
+// The pagination contract is identical on every paginated list, so the two
+// fields are declared once and spread into each query schema.
+export const paginationFields = Object.freeze({
+  page: positiveIntegerSchema(maximumPage, 1),
+  pageSize: positiveIntegerSchema(maximumPageSize, 20),
+})
+
 export const propertyQuerySchema = z
   .object({
     transactionType: optionalEnum(transactionTypes),
@@ -91,8 +122,7 @@ export const propertyQuerySchema = z
     sort: z
       .enum(['newest', 'oldest', 'price-asc', 'price-desc'])
       .default('newest'),
-    page: positiveIntegerSchema(maximumPage, 1),
-    pageSize: positiveIntegerSchema(maximumPageSize, 20),
+    ...paginationFields,
   })
   .strict()
   .refine(
@@ -122,8 +152,7 @@ export const propertyManagementQuerySchema = z
         'price-desc',
       ])
       .default('updated-newest'),
-    page: positiveIntegerSchema(maximumPage, 1),
-    pageSize: positiveIntegerSchema(maximumPageSize, 20),
+    ...paginationFields,
   })
   .strict()
 
@@ -146,8 +175,8 @@ const containsNoHtml = (value) => !value.includes('<') && !value.includes('>')
 const plainText = (maximum) =>
   z.string().trim().min(1).max(maximum).refine(containsNoHtml, htmlMessage)
 
-const requiredText = (maximum) => plainText(maximum)
-const nullableText = (maximum) =>
+export const requiredText = (maximum) => plainText(maximum)
+export const nullableText = (maximum) =>
   z.union([plainText(maximum), z.null()]).optional()
 
 /**
@@ -221,27 +250,33 @@ export function normalizeWhatsappNumber(value) {
   return trimmed.startsWith('+') ? `+${digits}` : digits
 }
 
-const whatsappSchema = z
-  .union([
-    z
-      .string()
-      .trim()
-      .regex(
-        whatsappCharacters,
-        'WhatsApp number may contain digits, spaces, dashes, parentheses, and a leading +.',
-      )
-      .refine(
-        (value) => whatsappDigits(value).length >= minimumWhatsappDigits,
-        `WhatsApp number must contain at least ${minimumWhatsappDigits} digits.`,
-      )
-      .refine(
-        (value) => whatsappDigits(value).length <= maximumWhatsappDigits,
-        `WhatsApp number must contain at most ${maximumWhatsappDigits} digits.`,
-      )
-      .transform(normalizeWhatsappNumber),
-    z.null(),
-  ])
-  .optional()
+// An office stores a landline alongside its WhatsApp number, and both are the
+// same kind of value, so the rules are parameterised by the label they report.
+export function contactNumberSchema(label) {
+  return z
+    .union([
+      z
+        .string()
+        .trim()
+        .regex(
+          whatsappCharacters,
+          `${label} may contain digits, spaces, dashes, parentheses, and a leading +.`,
+        )
+        .refine(
+          (value) => whatsappDigits(value).length >= minimumWhatsappDigits,
+          `${label} must contain at least ${minimumWhatsappDigits} digits.`,
+        )
+        .refine(
+          (value) => whatsappDigits(value).length <= maximumWhatsappDigits,
+          `${label} must contain at most ${maximumWhatsappDigits} digits.`,
+        )
+        .transform(normalizeWhatsappNumber),
+      z.null(),
+    ])
+    .optional()
+}
+
+const whatsappSchema = contactNumberSchema('WhatsApp number')
 
 // `slug` is absent by design: it is generated server-side on create and is
 // never updatable. The schemas are strict, so a submitted slug is rejected
@@ -255,7 +290,6 @@ const propertyFields = {
   descriptionDe: nullableText(20_000),
   transaction: enumValue(transactionTypes),
   propertyType: enumValue(propertyTypes),
-  status: enumValue(listingStatuses).optional(),
   price: decimalSchema({
     minimum: 0,
     maximum: 999_999_999_999.99,
@@ -284,12 +318,21 @@ const propertyFields = {
   whatsapp: whatsappSchema,
 }
 
+// `status` is absent from `propertyFields` on purpose. An owner does not choose
+// the state a new listing starts in — every owner submission enters review — so
+// the field belongs to the update variant only, and to the administrator
+// schemas, where it is what keeps instant publishing available.
+const ownerUpdateOnlyFields = {
+  status: enumValue(ownerWritableStatuses).optional(),
+}
+
 // `featured` is editorial placement on the public homepage, so an OWNER must
 // not be able to promote their own listing. Absent from the OWNER schemas,
 // which are strict, an OWNER sending it is rejected rather than silently
 // ignored.
 const administratorOnlyFields = {
   featured: z.boolean().optional(),
+  status: enumValue(administratorWritableStatuses).optional(),
 }
 
 function optionalVariant(fields) {
@@ -310,7 +353,10 @@ export const administratorPropertyCreateSchema = z
   .strict()
 
 export const propertyUpdateSchema = z
-  .object(optionalVariant(propertyFields))
+  .object({
+    ...optionalVariant(propertyFields),
+    ...ownerUpdateOnlyFields,
+  })
   .strict()
   .refine(...nonEmptyUpdate)
 
@@ -325,5 +371,14 @@ export const administratorPropertyUpdateSchema = z
 export const propertyIdSchema = z
   .object({
     id: z.string().uuid(),
+  })
+  .strict()
+
+// A rejection is only useful to the owner if it says why, so the reason is
+// required rather than optional, and it is plain text like every other stored
+// free-text field.
+export const propertyRejectionSchema = z
+  .object({
+    reason: requiredText(500),
   })
   .strict()

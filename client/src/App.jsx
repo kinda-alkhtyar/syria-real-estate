@@ -6,7 +6,11 @@ import PropertyResultsLoadingPage from './features/property-results/components/P
 import PropertyDetailsErrorBoundary from './features/properties/components/PropertyDetailsErrorBoundary.jsx'
 import PropertyDetailsSkeleton from './features/properties/components/PropertyDetailsSkeleton.jsx'
 import { useLocale } from './hooks/useLocale.js'
-import { OwnerAdminRoute } from './features/auth/routing/ProtectedRoute.jsx'
+import {
+  AdministratorRoute,
+  AuthenticatedRoute,
+  OwnerAdminRoute,
+} from './features/auth/routing/ProtectedRoute.jsx'
 import { AuthenticationLoadingState } from './features/auth/components/AuthRouteState.jsx'
 import MainLayout from './layouts/MainLayout.jsx'
 import HomePage from './pages/HomePage.jsx'
@@ -16,7 +20,10 @@ const PropertyResultsPage = lazy(
   () => import('./pages/PropertyResultsPage.jsx'),
 )
 const OfficesPage = lazy(() => import('./pages/OfficesPage.jsx'))
+const OfficeDetailsPage = lazy(() => import('./pages/OfficeDetailsPage.jsx'))
+const OfficeFormPage = lazy(() => import('./pages/OfficeFormPage.jsx'))
 const AccountPage = lazy(() => import('./pages/AccountPage.jsx'))
+const AccountProfilePage = lazy(() => import('./pages/AccountProfilePage.jsx'))
 const PropertyDetailsPage = lazy(
   () => import('./pages/PropertyDetailsPage.jsx'),
 )
@@ -27,6 +34,7 @@ const PropertyCreationPage = lazy(
   () => import('./pages/PropertyCreationPage.jsx'),
 )
 const PropertyEditPage = lazy(() => import('./pages/PropertyEditPage.jsx'))
+const ReviewQueuePage = lazy(() => import('./pages/ReviewQueuePage.jsx'))
 const PropertyImagesPage = lazy(() => import('./pages/PropertyImagesPage.jsx'))
 const PropertyVideoPage = lazy(() => import('./pages/PropertyVideoPage.jsx'))
 
@@ -55,6 +63,19 @@ function App() {
               </Suspense>
             }
           />
+          {/* Moderation is administrator-only, and the guard sits on the route
+              rather than on the page so an owner reaching the URL directly is
+              refused before the queue is ever requested. */}
+          <Route element={<AdministratorRoute />}>
+            <Route
+              element={
+                <Suspense fallback={<AuthenticationLoadingState />}>
+                  <ReviewQueuePage />
+                </Suspense>
+              }
+              path="review"
+            />
+          </Route>
           <Route
             element={
               <Suspense fallback={<AuthenticationLoadingState />}>
@@ -100,6 +121,34 @@ function App() {
           }
           path="offices"
         />
+        {/* Owner-only, and registered before `offices/:officeId` so "new" is
+            never read as an office identifier. */}
+        <Route element={<OwnerAdminRoute />}>
+          <Route
+            element={
+              <Suspense fallback={<AuthenticationLoadingState />}>
+                <OfficeFormPage />
+              </Suspense>
+            }
+            path="offices/new"
+          />
+          <Route
+            element={
+              <Suspense fallback={<AuthenticationLoadingState />}>
+                <OfficeFormPage />
+              </Suspense>
+            }
+            path="offices/:officeId/edit"
+          />
+        </Route>
+        <Route
+          element={
+            <Suspense fallback={null}>
+              <OfficeDetailsPage />
+            </Suspense>
+          }
+          path="offices/:officeId"
+        />
         <Route
           element={
             <Suspense fallback={null}>
@@ -108,6 +157,19 @@ function App() {
           }
           path="account"
         />
+        {/* Self-service, so every signed-in role is allowed and only the
+            manager sections inside the page vary. Registered after `account`
+            so the hub itself stays public. */}
+        <Route element={<AuthenticatedRoute />}>
+          <Route
+            element={
+              <Suspense fallback={<AuthenticationLoadingState />}>
+                <AccountProfilePage />
+              </Suspense>
+            }
+            path="account/profile"
+          />
+        </Route>
         <Route
           element={
             <Suspense fallback={null}>

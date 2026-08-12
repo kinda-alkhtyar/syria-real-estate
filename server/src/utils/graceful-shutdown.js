@@ -59,6 +59,11 @@ export function createGracefulShutdown({
       exit(0)
     })
 
+    // `close` alone waits for every keep-alive socket to go idle on its own,
+    // which normally means burning the whole timeout above before the drain
+    // finishes. Idle sockets carry no request, so ending them costs nothing.
+    httpServer.closeIdleConnections?.()
+
     return true
   }
 }

@@ -11,11 +11,14 @@ export const en = {
     ar: 'العربية',
     en: 'English',
     de: 'Deutsch',
+    tr: 'Türkçe',
   },
   theme: {
     light: 'Light',
     dark: 'Dark',
     system: 'System',
+    toggleToDark: 'Switch to dark appearance',
+    toggleToLight: 'Switch to light appearance',
   },
   navigation: {
     home: 'Home',
@@ -73,6 +76,7 @@ export const en = {
   accessibility: {
     home: 'Properties in Syria home',
     chooseLanguage: 'Change language',
+    languageMenu: 'Change language, current: {language}',
     changeTheme: 'Change appearance',
     primaryNavigation: 'Primary navigation',
     mobileNavigation: 'Mobile navigation',
@@ -86,6 +90,7 @@ export const en = {
     removeFromFavorites: 'Remove {title} from favorites',
     loadingProperty: 'Loading property',
     resultsPagination: 'Property results pagination',
+    officesPagination: 'Offices pagination',
   },
   favorites: {
     title: 'Favorites',
@@ -143,6 +148,8 @@ export const en = {
   },
   listingStatuses: {
     draft: 'Draft',
+    pending_review: 'Pending review',
+    rejected: 'Rejected',
     available: 'Available',
     reserved: 'Reserved',
     sold: 'Sold',
@@ -157,6 +164,11 @@ export const en = {
     navigation: {
       label: 'Dashboard navigation',
       overview: 'Dashboard',
+      review: 'Review',
+      reviewBadgeLabel: {
+        one: '{count} listing awaiting review',
+        other: '{count} listings awaiting review',
+      },
       create: 'List a property',
       browse: 'Browse properties',
     },
@@ -171,6 +183,10 @@ export const en = {
       sessionExpired: 'Your session may have expired. Please log in again.',
       retry: 'Try again',
       noImage: 'No property image available',
+      pendingNotice:
+        'This listing is being reviewed by our team and goes public as soon as it is approved.',
+      rejectedNotice: 'This listing was rejected and is not published.',
+      rejectionReasonLabel: 'Reason:',
       actionsLabel: 'Property actions',
       pagination: 'Managed property pages',
       fields: {
@@ -182,19 +198,84 @@ export const en = {
     },
     actions: {
       edit: 'Edit',
+      editAndResubmit: 'Edit and resubmit',
       archive: 'Archive',
       restore: 'Restore',
       images: 'Manage images',
       video: 'Manage video',
+      deleteLabel: 'Delete “{title}”',
     },
     confirmations: {
       archive:
         'Archive this property? It will no longer appear in public results.',
       restore: 'Restore this property? It will return to draft status.',
     },
+    delete: {
+      title: 'Delete this property',
+      description:
+        '“{title}” will be removed permanently, together with its images.',
+      warning: 'This cannot be undone.',
+      confirm: 'Delete permanently',
+      cancel: 'Cancel',
+    },
     actionFeedback: {
       network: 'We could not connect. Please try again.',
       unexpected: 'The action could not be completed. Please try again.',
+    },
+  },
+  review: {
+    eyebrow: 'Moderation',
+    title: 'Listing review',
+    description:
+      'Listings submitted by owners are waiting for your decision. Approving publishes a listing immediately; rejecting returns it to its owner with your reason.',
+    queue: {
+      listLabel: 'Listings awaiting review',
+      actionsLabel: 'Review actions',
+      pagination: 'Review queue pages',
+      loading: 'Loading the review queue',
+      emptyTitle: 'Nothing is waiting for review',
+      emptyDescription: 'New listings appear here as soon as owners submit them.',
+      errorTitle: 'The review queue could not be loaded',
+      errorDescription: 'Please try loading the review queue again.',
+      submittedOn: 'Submitted on {date}',
+      total: {
+        one: '{count} listing awaiting review',
+        other: '{count} listings awaiting review',
+      },
+      fields: {
+        governorate: 'Governorate',
+        type: 'Property type',
+        price: 'Price',
+      },
+    },
+    actions: {
+      approve: 'Approve',
+      reject: 'Reject',
+      cancel: 'Cancel',
+      openDetails: 'Open details',
+    },
+    approve: {
+      title: 'Approve this listing',
+      description: '“{title}” goes public immediately after approval.',
+      confirm: 'Approve and publish',
+    },
+    reject: {
+      title: 'Reject this listing',
+      description:
+        '“{title}” stays unpublished, and its owner reads the reason you give.',
+      confirm: 'Confirm rejection',
+      reasonLabel: 'Reason for rejection',
+      reasonCounter: '{remaining} of {maximum} characters left',
+      validation: {
+        required: 'Please write a reason for the rejection.',
+        length: 'The reason must be at most {maximum} characters.',
+        html: 'The reason cannot contain the < or > characters.',
+      },
+    },
+    feedback: {
+      network: 'We could not connect. Please try again.',
+      missing: 'This listing no longer exists. Please refresh the queue.',
+      unexpected: 'The decision could not be completed. Please try again.',
     },
   },
   propertyCreate: {
@@ -202,8 +283,13 @@ export const en = {
     title: 'List a property',
     description:
       'Create the property record first. Images can be managed in a later phase.',
-    languageTabs: 'Property content languages',
     unsavedWarning: 'You have unsaved changes.',
+    submitted: {
+      title: 'Your listing has been submitted',
+      description:
+        'It will be published once our team has reviewed it. You can follow its status from your listings page.',
+      action: 'Go to my listings',
+    },
     leaveConfirmation: 'Leave this page and discard your unsaved changes?',
     stepCounter: '{current} / {total}',
     stepProgress: 'Add property step progress',
@@ -216,7 +302,7 @@ export const en = {
       location: {
         title: 'Where is the property?',
         description:
-          'Set the governorate and district so searchers can find your listing',
+          'Set the governorate and neighborhood so searchers can find your listing',
       },
       map: {
         title: 'Pin it on the map',
@@ -279,9 +365,8 @@ export const en = {
       propertyType: 'Property type',
       governorate: 'Governorate',
       city: 'City',
-      district: 'District',
       neighborhood: 'Neighborhood',
-      address: 'Address',
+      address: 'Detailed address',
       latitude: 'Latitude (map coordinate)',
       longitude: 'Longitude (map coordinate)',
       price: 'Price',
@@ -469,6 +554,7 @@ export const en = {
     damascus: 'Damascus',
     rifDimashq: 'Rif Dimashq',
     aleppo: 'Aleppo',
+    rifAleppo: 'Aleppo Countryside',
     latakia: 'Latakia',
     homs: 'Homs',
     hama: 'Hama',
@@ -494,15 +580,183 @@ export const en = {
     language: 'Language',
     profile: 'Profile',
     myProperties: 'My properties',
-    settings: 'Settings',
-    help: 'Help',
-    comingSoon: 'This feature is being built and will be available soon.',
+    profileTitle: 'Profile',
+    profileDescription:
+      'Review your details, change your password, and reach your listings and office from one place.',
+    details: {
+      title: 'My details',
+      description: 'The name and contact numbers people reach you on.',
+      name: 'Name',
+      email: 'Email address',
+      phone: 'Phone number',
+      whatsapp: 'WhatsApp number',
+      empty: 'Not set',
+      emailLocked:
+        'Your email address identifies the account and cannot be changed.',
+      edit: 'Edit details',
+    },
+    security: {
+      title: 'Security',
+      description: 'Change your password without signing in again.',
+      changePassword: 'Change password',
+    },
+    listings: {
+      title: 'My listings',
+    },
+    office: {
+      title: 'My office',
+      loading: 'Loading your office…',
+    },
+    editDialog: {
+      title: 'Edit my details',
+      description:
+        'Update your name and contact numbers. The email address is shown for reference only.',
+      save: 'Save changes',
+      saving: 'Saving…',
+      cancel: 'Cancel',
+    },
+    passwordDialog: {
+      title: 'Change password',
+      description: 'Enter your current password, then the new one twice.',
+      current: 'Current password',
+      new: 'New password',
+      confirm: 'Confirm new password',
+      hint: 'Use at least {minimum} characters, different from your current password.',
+      submit: 'Update password',
+      submitting: 'Updating…',
+    },
+    errors: {
+      nameRequired: 'A name is required.',
+      nameTooLong: 'The name cannot exceed {maximum} characters.',
+      noHtml: 'The text cannot contain HTML tags.',
+      contactNumber:
+        'Enter a valid number of 6 to 15 digits, optionally starting with +.',
+      currentRequired: 'Enter your current password.',
+      passwordTooShort:
+        'The new password must be at least {minimum} characters.',
+      passwordSame: 'The new password must differ from the current one.',
+      passwordMismatch: 'The two passwords do not match.',
+    },
+    feedback: {
+      loading: 'Loading your details…',
+      loadError: 'Your details could not be loaded.',
+      retry: 'Try again',
+      profileSaved: 'Your details were saved.',
+      passwordChanged:
+        'Your password was updated, and this session is still signed in.',
+      saveError: 'The changes could not be saved. Please try again.',
+      invalidCurrentPassword: 'The current password is incorrect.',
+      passwordUnavailable:
+        'This account signs in with Google and has no password.',
+      rateLimited: 'Too many attempts. Please try again shortly.',
+      sessionExpired: 'Your session has ended. Please sign in again.',
+    },
   },
   offices: {
-    badge: 'Coming soon',
     title: 'Real estate offices',
     description:
-      'Office pages are on the way, so you will be able to browse every listing from one office in a single place.',
+      'Browse the offices publishing on Dar Syria and every listing they offer.',
+    loading: 'Loading offices',
+    mine: {
+      label: 'My office',
+      createTitle: 'Add your office',
+      createDescription:
+        'Publish an office page and your existing listings move under it automatically.',
+      createAction: 'Add your office',
+      editAction: 'Edit',
+      viewAction: 'View',
+    },
+    count: {
+      one: '{count} property',
+      other: '{count} properties',
+    },
+    empty: {
+      title: 'No offices yet',
+      description:
+        'The first offices will appear here as soon as they publish their pages.',
+    },
+    error: {
+      title: 'Offices could not be loaded',
+      description: 'Check your connection and try again.',
+      action: 'Try again',
+    },
+    details: {
+      loading: 'Loading the office',
+      back: 'All offices',
+      call: 'Call',
+      whatsapp: 'WhatsApp',
+      whatsappMessage: 'Hello, I found your office on Dar Syria.',
+      notFound: {
+        title: 'Office not found',
+        description:
+          'This office may have been removed, or the link is incorrect.',
+        action: 'Back to offices',
+      },
+      properties: {
+        title: 'Listings from this office',
+        empty: {
+          title: 'No listings yet',
+          description: 'This office has not published any property yet.',
+        },
+      },
+    },
+  },
+  officeForm: {
+    createTitle: 'Add your office',
+    createDescription:
+      'Write the name in the language you are browsing; the other languages reuse it until you translate them.',
+    editTitle: 'Edit the office',
+    editDescription:
+      'Changes apply to the language you are browsing. The other translations stay as they are.',
+    localizedField: '{field} ({language})',
+    fields: {
+      name: 'Office name',
+      description: 'About the office',
+      governorate: 'Governorate',
+      city: 'City',
+      phone: 'Phone number',
+      whatsapp: 'WhatsApp number',
+    },
+    hints: {
+      name: 'Used for all three languages until you edit each one.',
+    },
+    actions: {
+      create: 'Create the office',
+      save: 'Save changes',
+      saving: 'Saving…',
+      cancel: 'Cancel',
+    },
+    delete: {
+      zoneTitle: 'Danger zone',
+      zoneDescription:
+        'Closing the office removes its public page for good. Your properties are not affected.',
+      action: 'Delete the office',
+      title: 'Delete this office',
+      description: '“{name}” will be removed permanently, with its public page.',
+      warning: 'This cannot be undone.',
+      propertiesNotice:
+        'Your properties will not be deleted — they stay published, just no longer linked to an office.',
+      confirm: 'Delete the office permanently',
+      cancel: 'Cancel',
+      feedback: {
+        network: 'We could not connect. Please try again.',
+        unexpected: 'The office could not be deleted. Please try again.',
+      },
+    },
+    errors: {
+      nameRequired: 'Enter the office name.',
+      nameTooLong: 'The name is too long.',
+      descriptionTooLong: 'The description is too long.',
+      cityTooLong: 'The city name is too long.',
+      contactNumber: 'Enter a valid number, 6 to 15 digits.',
+      noHtml: 'The text cannot contain the < or > characters.',
+    },
+    feedback: {
+      alreadyExists: 'This account already has an office.',
+      validation: 'Check the highlighted fields and try again.',
+      network: 'The connection failed. Try again.',
+      unexpected: 'The office could not be saved. Try again.',
+    },
   },
   homepage: {
     mobile: {
@@ -731,6 +985,6 @@ export const en = {
     coverage: 'Serving communities across Syria',
     contactSoon: 'Contact details coming soon',
     copyright: '© {year} Properties in Syria. All rights reserved.',
-    languages: 'Arabic · English · German',
+    languages: 'Arabic · English · German · Turkish',
   },
 }

@@ -2,7 +2,12 @@ import { useCallback, useEffect, useState } from 'react'
 
 import { fetchManagementProperties } from '../api/management-property-api.js'
 
-export function useManagementProperties() {
+/**
+ * `status` narrows the list to one listing state — the review queue passes
+ * PENDING_REVIEW. It is a plain string, so a caller may inline the options
+ * object without memoising it.
+ */
+export function useManagementProperties({ status = '' } = {}) {
   const [page, setPage] = useState(1)
   const [requestVersion, setRequestVersion] = useState(0)
   const [state, setState] = useState({
@@ -15,7 +20,7 @@ export function useManagementProperties() {
   useEffect(() => {
     const controller = new AbortController()
 
-    fetchManagementProperties({ page, signal: controller.signal })
+    fetchManagementProperties({ page, signal: controller.signal, status })
       .then((response) => {
         setState({
           data: response.data,
@@ -36,7 +41,7 @@ export function useManagementProperties() {
       })
 
     return () => controller.abort()
-  }, [page, requestVersion])
+  }, [page, requestVersion, status])
 
   const retry = useCallback(() => {
     setState((current) => ({

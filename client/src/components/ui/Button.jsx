@@ -4,6 +4,11 @@ const variants = {
   secondary:
     'border border-line bg-action-secondary text-ink hover:border-input-line hover:bg-hover',
   quiet: 'text-ink hover:bg-hover',
+  // For the confirm side of a destructive decision only, so the colour keeps
+  // meaning something. The label takes the canvas colour rather than a fixed
+  // white: the error red is dark on the light theme and light on the dark one,
+  // and the canvas inverts with it, so the pair stays readable in both.
+  danger: 'bg-error text-canvas shadow-sm hover:opacity-90 disabled:bg-error/45',
 }
 
 /**

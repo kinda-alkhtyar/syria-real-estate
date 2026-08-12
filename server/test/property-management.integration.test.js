@@ -41,6 +41,10 @@ const validProperty = {
 }
 
 let records
+// The mock stores a listing through publicRecord, which mirrors the public
+// select and therefore drops rejectionReason. The submitted write is captured
+// so a test can assert the column the server intended to clear.
+let lastUpdateData
 
 function publicRecord(data) {
   return {
@@ -91,9 +95,12 @@ function createMockRepository() {
     },
     async findPropertyOwnership(id) {
       const record = records.get(id)
-      return record ? { id: record.id, ownerId: record.ownerId } : null
+      return record
+        ? { id: record.id, ownerId: record.ownerId, status: record.status }
+        : null
     },
     async updateProperty(id, data) {
+      lastUpdateData = data
       const record = publicRecord({ ...records.get(id), ...data, id })
       records.set(id, record)
       return record
@@ -116,6 +123,9 @@ function authenticate(request, _response, next) {
 }
 
 const trustOrigin = (_request, _response, next) => next()
+// Submitting a listing alerts a moderator on Telegram. That side channel has
+// its own suite; here it is stubbed so the tests never reach the network.
+const silentNotifier = { async notifyPendingReview() {} }
 let baseUrl
 let closeServer
 
@@ -126,6 +136,7 @@ before(async () => {
     '/api/v1/properties',
     createPropertyRouter({
       managementService: createPropertyManagementService({
+        notifier: silentNotifier,
         repository: createMockRepository(),
       }),
       authenticationMiddleware: authenticate,
@@ -150,6 +161,7 @@ after(async () => closeServer())
 
 beforeEach(() => {
   records = new Map()
+  lastUpdateData = undefined
 })
 
 async function request(
@@ -176,12 +188,13 @@ async function request(
   }
 }
 
-function seedOwnedProperty(ownerIdValue = ownerId) {
+function seedOwnedProperty(ownerIdValue = ownerId, overrides = {}) {
   const record = publicRecord({
     ...validProperty,
     id: propertyId,
     ownerId: ownerIdValue,
     slug: 'existing-property',
+    ...overrides,
   })
   records.set(record.id, record)
 }
@@ -293,8 +306,35 @@ test('returns a structured missing-property error', async () => {
   assert.equal(missing.body.error.code, 'PROPERTY_NOT_FOUND')
 })
 
+test('a listing created by an office owner is attached to that office', async () => {
+  let submitted
+  const service = createPropertyManagementService({
+    notifier: silentNotifier,
+    repository: {
+      findOfficeIdByOwner: async (id) =>
+        id === ownerId ? { id: 'coffice00000000000000001' } : null,
+      createProperty: async (data) => {
+        submitted = data
+        return publicRecord({ ...data, id: propertyId })
+      },
+    },
+  })
+
+  await service.createProperty(validProperty, { id: ownerId, role: 'OWNER' })
+  assert.equal(submitted.officeId, 'coffice00000000000000001')
+
+  await service.createProperty(validProperty, {
+    id: otherOwnerId,
+    role: 'OWNER',
+  })
+  // An owner without an office writes no officeId at all, leaving the column
+  // to its default rather than sending an explicit null.
+  assert.ok(!('officeId' in submitted))
+})
+
 test('maps a unique-slug violation onto a conflict error', async () => {
   const service = createPropertyManagementService({
+    notifier: silentNotifier,
     repository: {
       createProperty() {
         const error = new Error('Unique constraint')
@@ -354,4 +394,89 @@ test('archive and restore are idempotent lifecycle operations', async () => {
   assert.equal(restore.body.data.status, 'DRAFT')
   assert.equal(repeatedRestore.body.data.status, 'DRAFT')
   assert.ok(!JSON.stringify(repeatedRestore.body).includes('owner'))
+})
+
+test('an owner submission enters review instead of going live', async () => {
+  const response = await request('/api/v1/properties', {
+    body: validProperty,
+  })
+
+  assert.equal(response.status, 201)
+  assert.equal(response.body.data.status, 'PENDING_REVIEW')
+  assert.equal(records.get(propertyId).status, 'PENDING_REVIEW')
+})
+
+test('an administrator still publishes instantly', async () => {
+  const published = await request('/api/v1/properties', {
+    body: { ...validProperty, status: 'available' },
+    userId: adminId,
+    role: 'ADMIN',
+  })
+
+  assert.equal(published.status, 201)
+  assert.equal(published.body.data.status, 'AVAILABLE')
+})
+
+test('an owner cannot publish itself through a status write', async () => {
+  seedOwnedProperty()
+  // Absent from the owner create schema entirely: a new listing's state is not
+  // the owner's to choose.
+  const onCreate = await request('/api/v1/properties', {
+    body: { ...validProperty, status: 'draft' },
+  })
+  const published = await request(`/api/v1/properties/${propertyId}`, {
+    method: 'PATCH',
+    body: { status: 'available' },
+  })
+  const pending = await request(`/api/v1/properties/${propertyId}`, {
+    method: 'PATCH',
+    body: { status: 'pending_review' },
+  })
+  const rejected = await request(`/api/v1/properties/${propertyId}`, {
+    method: 'PATCH',
+    body: { status: 'rejected' },
+  })
+
+  for (const response of [onCreate, published, pending, rejected]) {
+    assert.equal(response.status, 400)
+    assert.equal(response.body.error.code, 'INVALID_REQUEST')
+  }
+  assert.equal(records.get(propertyId).status, 'DRAFT')
+})
+
+test('editing a rejected listing resubmits it and clears the reason', async () => {
+  seedOwnedProperty(ownerId, { status: 'REJECTED' })
+  const response = await request(`/api/v1/properties/${propertyId}`, {
+    method: 'PATCH',
+    body: { titleEn: 'Corrected family home' },
+  })
+
+  assert.equal(response.status, 200)
+  assert.equal(response.body.data.status, 'PENDING_REVIEW')
+  assert.equal(lastUpdateData.rejectionReason, null)
+})
+
+test('an explicit owner status on a rejected listing is honoured', async () => {
+  seedOwnedProperty(ownerId, { status: 'REJECTED' })
+  const response = await request(`/api/v1/properties/${propertyId}`, {
+    method: 'PATCH',
+    body: { status: 'archived' },
+  })
+
+  // Archiving a rejected listing is a decision, not a resubmission.
+  assert.equal(response.body.data.status, 'ARCHIVED')
+  assert.equal('rejectionReason' in lastUpdateData, false)
+})
+
+test('an administrator edit never resubmits a rejected listing', async () => {
+  seedOwnedProperty(otherOwnerId, { status: 'REJECTED' })
+  const response = await request(`/api/v1/properties/${propertyId}`, {
+    method: 'PATCH',
+    body: { city: 'Homs' },
+    userId: adminId,
+    role: 'ADMIN',
+  })
+
+  assert.equal(response.body.data.status, 'REJECTED')
+  assert.equal('status' in lastUpdateData, false)
 })

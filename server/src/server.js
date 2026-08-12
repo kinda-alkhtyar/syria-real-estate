@@ -1,10 +1,14 @@
 import app from './app.js'
-import env from './config/env.js'
+import env, { productionConfigurationWarnings } from './config/env.js'
 import prisma from './config/database.js'
 import { stackFrames } from './middleware/error.middleware.js'
 import logger from './observability/logger.js'
 import { createGracefulShutdown } from './utils/graceful-shutdown.js'
 import { createExpiredSessionCleanup } from './utils/session-cleanup.js'
+
+for (const code of productionConfigurationWarnings(env)) {
+  logger.warn('configuration_warning', { code, component: 'server' })
+}
 
 const httpServer = app.listen(env.port, () => {
   logger.info('server_started', { component: 'server', status: 200 })

@@ -30,6 +30,7 @@ export const propertyCreationOptions = Object.freeze({
     'damascus',
     'rif_dimashq',
     'aleppo',
+    'rif_aleppo',
     'latakia',
     'homs',
     'hama',
@@ -50,16 +51,14 @@ export const propertyCreationOptions = Object.freeze({
     'commercial',
     'office',
   ],
-  statuses: ['draft', 'available', 'reserved', 'sold', 'rented', 'archived'],
   transactions: ['buy', 'rent', 'stay'],
 })
 
-const requiredTextFields = [
-  'titleEn',
-  'titleAr',
-  'titleDe',
-  'city',
-]
+// The three localized titles are absent by design: the form writes the title of
+// the language being browsed, and the payload builder copies it into the other
+// two so the server contract — which requires all three — stays satisfied.
+const requiredTextFields = ['city', 'neighborhood']
+const localeSuffixes = Object.freeze({ ar: 'Ar', de: 'De', en: 'En' })
 const decimalFields = ['price', 'area']
 const optionalDecimalFields = ['latitude', 'longitude']
 const integerFields = ['bedrooms', 'bathrooms']
@@ -88,10 +87,51 @@ export function needsCountryCode(value) {
   return trimmed !== '' && !trimmed.startsWith('+')
 }
 
-export function validatePropertyCreation(values) {
+/**
+ * The description field written in a given locale, e.g. `ar` → `descriptionAr`.
+ * Returns an empty string for an unknown locale, which the callers read as
+ * "no localized description to require".
+ */
+export function descriptionFieldForLocale(localeCode) {
+  const suffix = localeSuffixes[localeCode]
+  return suffix ? `description${suffix}` : ''
+}
+
+/** The title field written in a given locale, e.g. `ar` → `titleAr`. */
+export function titleFieldForLocale(localeCode) {
+  const suffix = localeSuffixes[localeCode]
+  return suffix ? `title${suffix}` : ''
+}
+
+/**
+ * The form only ever shows the title and description of the language being
+ * browsed, so only those two are checked. The untouched descriptions stay blank
+ * and are omitted from the payload exactly as any blank optional field is; the
+ * untouched titles are filled in by `toPropertyCreationPayload`.
+ *
+ * `requireDescription` is false while editing: a blank description there means
+ * "leave the stored text alone", so demanding one would force an owner fixing a
+ * price to retype a description they never intended to change.
+ */
+export function validatePropertyCreation(
+  values,
+  { localeCode = '', requireDescription = true } = {},
+) {
   const errors = {}
   for (const field of requiredTextFields) {
     if (!values[field]?.trim()) errors[field] = 'required'
+  }
+  const titleField = titleFieldForLocale(localeCode)
+  if (titleField && !values[titleField]?.trim()) {
+    errors[titleField] = 'required'
+  }
+  const descriptionField = descriptionFieldForLocale(localeCode)
+  if (
+    requireDescription &&
+    descriptionField &&
+    !values[descriptionField]?.trim()
+  ) {
+    errors[descriptionField] = 'required'
   }
   for (const field of decimalFields) {
     const number = Number(values[field])
@@ -146,17 +186,47 @@ function optionalNumber(payload, values, field) {
   if (values[field] !== '') payload[field] = Number(values[field])
 }
 
-export function toPropertyCreationPayload(
-  values,
-  { includeFeatured = false } = {},
-) {
-  const payload = {
+/**
+ * The API requires a title in all three languages, but the form collects one.
+ *
+ * On create there is nothing else to send, so the written title is copied
+ * across: a new listing is never rejected and never stored with a blank title,
+ * and a viewer browsing an untranslated language reads the seller's own words
+ * rather than nothing. On edit the two languages that are not being written
+ * carry their stored values through untouched — copying there would silently
+ * overwrite translations the owner never saw.
+ */
+function localizedTitles(values, { copyActiveTitle, localeCode }) {
+  const stored = {
     titleEn: values.titleEn.trim(),
     titleAr: values.titleAr.trim(),
     titleDe: values.titleDe.trim(),
+  }
+  if (!copyActiveTitle) return stored
+  const titleField = titleFieldForLocale(localeCode)
+  const written = titleField ? stored[titleField] : ''
+  return written
+    ? { titleAr: written, titleDe: written, titleEn: written }
+    : stored
+}
+
+export function toPropertyCreationPayload(
+  values,
+  {
+    copyActiveTitle = false,
+    includeFeatured = false,
+    includeStatus = true,
+    localeCode = '',
+  } = {},
+) {
+  const payload = {
+    ...localizedTitles(values, { copyActiveTitle, localeCode }),
     transaction: values.transaction,
     propertyType: values.propertyType,
-    status: values.status,
+    // Omitted when an owner creates a listing: submission is what sets the
+    // status, and the OWNER create schema rejects the key outright rather than
+    // ignoring it.
+    ...(includeStatus && { status: values.status }),
     price: values.price.trim(),
     currency: values.currency,
     governorate: values.governorate,
@@ -169,6 +239,9 @@ export function toPropertyCreationPayload(
   // `featured` is administrator-only. The key is omitted entirely rather than
   // sent as false, because the OWNER API schema rejects any unknown key.
   if (includeFeatured) payload.featured = Boolean(values.featured)
+  // `district` is no longer collected by the form, but it stays here: a legacy
+  // listing that carries one sends it back unchanged, and a blank one is omitted
+  // — never sent as `null`, which is what would erase the stored value.
   for (const field of [
     'descriptionEn',
     'descriptionAr',
@@ -229,9 +302,9 @@ function optionValue(value) {
 /**
  * Maps a management list record onto form values.
  *
- * The management endpoint does not return descriptions, coordinates or
- * `featured`, so those keep their blank defaults. Blank optional fields are
- * omitted from the PATCH payload, which leaves the stored values untouched.
+ * The management endpoint does not return coordinates or `featured`, so those
+ * keep their blank defaults. Blank optional fields are omitted from the PATCH
+ * payload, which leaves the stored values untouched.
  */
 export function toPropertyFormValues(record) {
   return {
@@ -239,6 +312,9 @@ export function toPropertyFormValues(record) {
     titleEn: textValue(record.titleEn),
     titleAr: textValue(record.titleAr),
     titleDe: textValue(record.titleDe),
+    descriptionEn: textValue(record.descriptionEn),
+    descriptionAr: textValue(record.descriptionAr),
+    descriptionDe: textValue(record.descriptionDe),
     transaction: optionValue(record.transaction),
     propertyType: optionValue(record.propertyType),
     status: optionValue(record.status),

@@ -57,9 +57,17 @@ const managementPropertySelect = {
   titleEn: true,
   titleAr: true,
   titleDe: true,
+  // Unlike the public list, the dashboard list feeds the edit form: without the
+  // stored descriptions the form cannot pre-fill them.
+  descriptionEn: true,
+  descriptionAr: true,
+  descriptionDe: true,
   transaction: true,
   propertyType: true,
   status: true,
+  // Only the dashboard sees why a submission was turned down; the public select
+  // deliberately leaves it out.
+  rejectionReason: true,
   price: true,
   currency: true,
   governorate: true,
@@ -108,10 +116,12 @@ export function createPropertyRepository(database = prisma) {
       })
     },
 
+    // `status` travels with the ownership check because a write has to know
+    // whether it is editing a rejected listing, which resubmits it for review.
     findPropertyOwnership(id) {
       return database.property.findUnique({
         where: { id },
-        select: { id: true, ownerId: true },
+        select: { id: true, ownerId: true, status: true },
       })
     },
 
@@ -120,6 +130,48 @@ export function createPropertyRepository(database = prisma) {
         where: { id },
         data,
         select: publicPropertySelect,
+      })
+    },
+
+    // A hard delete, at any status. The PropertyImage rows go with the listing
+    // through the `onDelete: Cascade` on their propertyId foreign key, so they
+    // are never deleted by hand here; every storage path the listing owned —
+    // its images and its one video — is read inside the same transaction,
+    // because once the rows are gone nothing else records which objects they
+    // pointed at.
+    deleteProperty(id) {
+      return database.$transaction(async (transaction) => {
+        const images = await transaction.propertyImage.findMany({
+          where: { propertyId: id },
+          select: { storagePath: true },
+        })
+        const { videoStoragePath } = await transaction.property.delete({
+          where: { id },
+          select: { videoStoragePath: true },
+        })
+
+        return {
+          imageStoragePaths: images
+            .map(({ storagePath }) => storagePath)
+            .filter(Boolean),
+          videoStoragePath,
+        }
+      })
+    },
+
+    // An approval or a rejection only ever reports the moderation outcome, so
+    // it reads back the four fields the dashboard needs rather than a whole
+    // listing, and it is the one write that returns `rejectionReason`.
+    updatePropertyModeration(id, data) {
+      return database.property.update({
+        where: { id },
+        data,
+        select: {
+          id: true,
+          slug: true,
+          status: true,
+          rejectionReason: true,
+        },
       })
     },
 
@@ -161,9 +213,11 @@ export const {
   attachPropertyVideo,
   clearPropertyVideo,
   createProperty,
+  deleteProperty,
   findPropertyOwnership,
   findPropertyVideo,
   updateProperty,
+  updatePropertyModeration,
 } = managementRepository
 
 export async function findProperties({ where, orderBy, skip, take }) {

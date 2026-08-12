@@ -1,11 +1,19 @@
 import { randomUUID } from 'node:crypto'
 
+import propertyImageStorage, {
+  propertyVideoStorage,
+} from '../adapters/property-image-storage.adapter.js'
+import telegramNotifier from '../notifications/telegram-notifier.js'
+import logger from '../observability/logger.js'
+import { findOfficeIdByOwner } from '../repositories/office.repository.js'
 import {
   createProperty as createPropertyRecord,
+  deleteProperty as deletePropertyRecord,
   findProperties,
   findPropertyOwnership,
   findPropertyBySlug,
   updateProperty as updatePropertyRecord,
+  updatePropertyModeration as updatePropertyModerationRecord,
 } from '../repositories/property.repository.js'
 import { publicPropertyStatuses } from '../validation/property.schema.js'
 
@@ -132,13 +140,45 @@ function translateWriteError(error) {
   throw error
 }
 
+function serializeModeration(property) {
+  return {
+    id: property.id,
+    slug: property.slug,
+    status: property.status,
+    rejectionReason: property.rejectionReason ?? null,
+  }
+}
+
 export function createPropertyManagementService({
   repository = {
     createProperty: createPropertyRecord,
+    deleteProperty: deletePropertyRecord,
+    findOfficeIdByOwner,
     findPropertyOwnership,
     updateProperty: updatePropertyRecord,
+    updatePropertyModeration: updatePropertyModerationRecord,
   },
+  notifier = telegramNotifier,
+  storage = propertyImageStorage,
+  // Images and videos live in separate buckets, so each has its own adapter.
+  videoStorage = propertyVideoStorage,
+  log = logger,
 } = {}) {
+  /**
+   * Fire and forget. A listing entering review is worth an alert but is not
+   * worth a failed write, so the promise is dispatched and deliberately not
+   * awaited, and neither a rejection nor a broken notifier reaches the caller.
+   */
+  function notifyPendingReview(property) {
+    if (property?.status !== 'PENDING_REVIEW') return
+
+    try {
+      Promise.resolve(notifier?.notifyPendingReview?.(property)).catch(() => {})
+    } catch {
+      // A notifier that throws synchronously is still only a notifier.
+    }
+  }
+
   async function authorizeProperty(id, actor) {
     const property = await repository.findPropertyOwnership(id)
 
@@ -157,28 +197,110 @@ export function createPropertyManagementService({
         403,
       )
     }
+
+    return property
   }
 
   async function updateAuthorizedProperty(id, data, actor) {
-    await authorizeProperty(id, actor)
+    const current = await authorizeProperty(id, actor)
+    const resubmission = resubmissionFor(current, data, actor)
     try {
-      return serializeProperty(await repository.updateProperty(id, data))
+      const property = await repository.updateProperty(id, {
+        ...data,
+        ...resubmission,
+      })
+      // Only a resubmission alerts: an ordinary edit of a listing already in
+      // review must not send the moderator the same listing twice.
+      if (resubmission.status) notifyPendingReview(property)
+      return serializeProperty(property)
     } catch (error) {
       translateWriteError(error)
     }
   }
 
+  // Editing a rejected listing is how an owner answers the rejection, so the
+  // edit is the resubmission: the listing re-enters review and the stale reason
+  // is cleared. An administrator edits in place, and an owner who deliberately
+  // sends a status (archiving it, say) is taken at their word.
+  function resubmissionFor(current, data, actor) {
+    const resubmitting =
+      actor.role !== 'ADMIN' &&
+      current.status === 'REJECTED' &&
+      data.status === undefined
+
+    return resubmitting
+      ? { status: 'PENDING_REVIEW', rejectionReason: null }
+      : {}
+  }
+
+  /**
+   * Every object a deleted listing owned: its images, and the one video it may
+   * have carried. Best effort by design, and each object is attempted on its
+   * own — the rows are already committed as gone, so a failed removal has
+   * nothing left to compensate, and one unreachable object must not stop the
+   * rest from being cleaned up or turn the delete into a failure the caller
+   * would retry against a listing that no longer exists.
+   */
+  async function removeStoredMedia({
+    imageStoragePaths = [],
+    videoStoragePath = null,
+  }) {
+    const objects = [
+      ...imageStoragePaths.map((path) => ({
+        adapter: storage,
+        category: 'image',
+        path,
+      })),
+      ...(videoStoragePath
+        ? [{ adapter: videoStorage, category: 'video', path: videoStoragePath }]
+        : []),
+    ]
+
+    for (const { adapter, category, path } of objects) {
+      try {
+        await adapter.remove(path)
+      } catch (error) {
+        log.error('property_media_cleanup_failed', {
+          category,
+          code: error?.code ?? 'STORAGE_OPERATION_FAILED',
+          component: 'property-service',
+        })
+      }
+    }
+  }
+
+  async function moderate(id, data) {
+    // Reuses the ownership lookup purely as an existence check, so a missing
+    // listing is a 404 here as it is on every other management write.
+    await authorizeProperty(id, { role: 'ADMIN' })
+    return serializeModeration(
+      await repository.updatePropertyModeration(id, data),
+    )
+  }
+
   return {
     async createProperty(data, actor) {
       try {
+        // An owner who runs an office publishes under it by default, so the
+        // listing is attached at creation rather than left for a later pass.
+        // Optional call: a caller-supplied repository need not know about
+        // offices, and a listing without one is perfectly valid.
+        const office = await repository.findOfficeIdByOwner?.(actor.id)
+
         // The slug is never accepted from the caller. A UUID satisfies both the
         // public `/:slug` route pattern and the column's unique constraint
         // without leaking a guessable identifier for unpublished listings.
         const property = await repository.createProperty({
           ...data,
+          // An owner's listing enters review instead of going live; an
+          // administrator writes the status they submitted, or the column
+          // default, and so keeps publishing instantly.
+          ...(actor.role !== 'ADMIN' && { status: 'PENDING_REVIEW' }),
           ownerId: actor.id,
+          ...(office && { officeId: office.id }),
           slug: randomUUID(),
         })
+        notifyPendingReview(property)
         return serializeProperty(property)
       } catch (error) {
         translateWriteError(error)
@@ -187,6 +309,23 @@ export function createPropertyManagementService({
 
     updateProperty(id, data, actor) {
       return updateAuthorizedProperty(id, data, actor)
+    },
+
+    // Deleting is the owner's own decision at every status, published
+    // included: unlike archiving, it is not a moderated state change, so
+    // nothing here consults `status`.
+    async deleteProperty(id, actor) {
+      await authorizeProperty(id, actor)
+      await removeStoredMedia((await repository.deleteProperty(id)) ?? {})
+      return { id }
+    },
+
+    approveProperty(id) {
+      return moderate(id, { status: 'AVAILABLE', rejectionReason: null })
+    },
+
+    rejectProperty(id, reason) {
+      return moderate(id, { status: 'REJECTED', rejectionReason: reason })
     },
 
     archiveProperty(id, actor) {
@@ -202,8 +341,11 @@ export function createPropertyManagementService({
 const propertyManagementService = createPropertyManagementService()
 
 export const {
+  approveProperty,
   archiveProperty,
   createProperty,
+  deleteProperty,
+  rejectProperty,
   restoreProperty,
   updateProperty,
 } = propertyManagementService

@@ -163,7 +163,8 @@
 
 /* Latin locales use a Latin-only stack; Arabic-first families stay for ar. */
 :root:lang(en),
-:root:lang(de) {
+:root:lang(de),
+:root:lang(tr) {
   --font-sans: Inter, "Segoe UI", Tahoma, Arial, sans-serif;
   --font-display: Inter, "Segoe UI", Tahoma, Arial, sans-serif;
 }

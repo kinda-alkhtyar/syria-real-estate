@@ -14,6 +14,7 @@ import { ApiError } from '../api/api-client.js'
 import { ForbiddenState } from '../features/auth/components/AuthRouteState.jsx'
 import { toManagementPropertyModel } from '../features/management/adapters/to-management-property-model.js'
 import {
+  altFieldForLocale,
   deleteImage,
   reorderImages,
   setPrimaryImage,
@@ -23,11 +24,29 @@ import { useManagementProperty } from '../features/management/hooks/useManagemen
 import { useLocale } from '../hooks/useLocale.js'
 
 const acceptedTypes = 'image/jpeg,image/png,image/webp'
-const altTextFields = [
-  { code: 'en', name: 'altEn' },
-  { code: 'ar', name: 'altAr' },
-  { code: 'de', name: 'altDe' },
+
+// Writing direction and field suffix per interface language. The upload form
+// writes only the language being browsed, so this is a lookup, not a tab list.
+const languages = [
+  { code: 'en', direction: 'ltr', suffix: 'En' },
+  { code: 'ar', direction: 'rtl', suffix: 'Ar' },
+  { code: 'de', direction: 'ltr', suffix: 'De' },
 ]
+
+// An image is described once, in the language it was uploaded in, so the alt
+// text of another language would otherwise be empty. The active locale wins;
+// failing that the first translation that carries text.
+const altFallbackOrder = ['ar', 'en', 'de']
+
+function localizedAlt(image, localeCode) {
+  for (const code of [localeCode, ...altFallbackOrder]) {
+    const field = altFieldForLocale(code)
+    if (!field) continue
+    const value = image?.[field]
+    if (typeof value === 'string' && value.trim()) return value
+  }
+  return ''
+}
 
 // Server-side codes are surfaced as translated copy; the frontend never
 // re-implements the upload validation itself.
@@ -86,6 +105,9 @@ export default function PropertyImagesPage() {
   const [actionErrorKey, setActionErrorKey] = useState('')
   const [isBusy, setIsBusy] = useState(false)
   const formRef = useRef(null)
+  const contentLanguage =
+    languages.find((language) => language.code === locale.code) ?? languages[0]
+  const altField = altFieldForLocale(locale.code) || `alt${contentLanguage.suffix}`
 
   useEffect(() => {
     const previousTitle = document.title
@@ -123,12 +145,10 @@ export default function PropertyImagesPage() {
       return
     }
 
+    // Only the alt text of the language being browsed is sent; a blank one is
+    // dropped by the API module, exactly as before.
     const uploaded = await run(() =>
-      uploadImage(propertyId, file, {
-        altAr: data.get('altAr'),
-        altDe: data.get('altDe'),
-        altEn: data.get('altEn'),
-      }),
+      uploadImage(propertyId, file, { [altField]: data.get(altField) }),
     )
     if (uploaded) formRef.current?.reset()
   }
@@ -252,29 +272,22 @@ export default function PropertyImagesPage() {
                 />
               </div>
 
-              <fieldset className="grid gap-4 sm:grid-cols-3">
-                <legend className="mb-1.5 text-sm font-semibold text-ink">
+              {/* One alt text, in the language being browsed, labelled in it. */}
+              <div dir={contentLanguage.direction}>
+                <label
+                  className="mb-1.5 block text-sm font-semibold text-ink"
+                  htmlFor={altField}
+                >
                   {t('propertyImages.upload.altLabel')}
-                </legend>
-                {altTextFields.map(({ code, name }) => (
-                  <div key={name}>
-                    <label
-                      className="mb-1.5 block text-xs font-semibold text-muted"
-                      htmlFor={name}
-                    >
-                      {t(`languages.${code}`)}
-                    </label>
-                    <input
-                      className="min-h-12 w-full rounded-xl border border-input-line bg-input px-4 text-ink outline-none focus:border-focus focus:ring-3 focus:ring-focus/20"
-                      dir={code === 'ar' ? 'rtl' : 'ltr'}
-                      id={name}
-                      maxLength={500}
-                      name={name}
-                      type="text"
-                    />
-                  </div>
-                ))}
-              </fieldset>
+                </label>
+                <input
+                  className="min-h-12 w-full rounded-xl border border-input-line bg-input px-4 text-ink outline-none focus:border-focus focus:ring-3 focus:ring-focus/20"
+                  id={altField}
+                  maxLength={500}
+                  name={altField}
+                  type="text"
+                />
+              </div>
             </div>
 
             <div className="mt-5 flex justify-end border-t border-line pt-5">
@@ -308,7 +321,7 @@ export default function PropertyImagesPage() {
                 <li key={image.id}>
                   <article className="grid gap-4 rounded-2xl border border-line bg-elevated p-4 sm:grid-cols-[10rem_minmax(0,1fr)]">
                     <img
-                      alt={image.altEn ?? ''}
+                      alt={localizedAlt(image, locale.code)}
                       className="aspect-[4/3] w-full rounded-xl object-cover"
                       height={image.height ?? 720}
                       loading="lazy"

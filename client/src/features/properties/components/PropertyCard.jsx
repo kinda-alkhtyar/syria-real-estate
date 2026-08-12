@@ -1,4 +1,4 @@
-import { Bath, BedDouble, Heart, Maximize2, MapPin } from 'lucide-react'
+import { Bath, BedDouble, Heart, House, Maximize2, MapPin } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
 
 import Badge from '../../../components/home/ui/Badge.jsx'
@@ -83,15 +83,26 @@ export default function PropertyCard({
                 : 'aspect-[16/9]'
         }`}
       >
-        <img
-          alt={image.alt}
-          className="size-full object-cover transition-transform duration-slow group-hover:scale-[1.035] motion-reduce:transform-none motion-reduce:transition-none"
-          decoding="async"
-          height={image.height}
-          loading="lazy"
-          src={image.src}
-          width={image.width}
-        />
+        {/* A listing with no uploaded image has no src at all. Rendering the
+            img anyway would ask the browser to fetch the current page again
+            and leave a broken frame, so the card falls back to a branded
+            placeholder on the surface token. */}
+        {image.src ? (
+          <img
+            alt={image.alt}
+            className="size-full object-cover transition-transform duration-slow group-hover:scale-[1.035] motion-reduce:transform-none motion-reduce:transition-none"
+            decoding="async"
+            height={image.height}
+            loading="lazy"
+            src={image.src}
+            width={image.width}
+          />
+        ) : (
+          <div className="flex size-full items-center justify-center bg-surface text-muted">
+            <House aria-hidden="true" size={36} strokeWidth={1.5} />
+            <span className="sr-only">{image.alt}</span>
+          </div>
+        )}
         {showcase ? (
           <span
             className={`absolute start-4 top-4 inline-flex h-[34px] min-w-[80px] items-center justify-center whitespace-nowrap rounded-[8px] border px-[10px] text-[18px] font-medium leading-[24px] ${

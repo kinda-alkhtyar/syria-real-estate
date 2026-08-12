@@ -59,6 +59,7 @@ export type PropertyMinAggregateOutputType = {
   transaction: $Enums.TransactionType | null
   propertyType: $Enums.PropertyType | null
   status: $Enums.ListingStatus | null
+  rejectionReason: string | null
   price: runtime.Decimal | null
   currency: $Enums.Currency | null
   governorate: $Enums.Governorate | null
@@ -77,6 +78,7 @@ export type PropertyMinAggregateOutputType = {
   videoStoragePath: string | null
   videoMimeType: string | null
   videoSizeBytes: bigint | null
+  officeId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -94,6 +96,7 @@ export type PropertyMaxAggregateOutputType = {
   transaction: $Enums.TransactionType | null
   propertyType: $Enums.PropertyType | null
   status: $Enums.ListingStatus | null
+  rejectionReason: string | null
   price: runtime.Decimal | null
   currency: $Enums.Currency | null
   governorate: $Enums.Governorate | null
@@ -112,6 +115,7 @@ export type PropertyMaxAggregateOutputType = {
   videoStoragePath: string | null
   videoMimeType: string | null
   videoSizeBytes: bigint | null
+  officeId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -129,6 +133,7 @@ export type PropertyCountAggregateOutputType = {
   transaction: number
   propertyType: number
   status: number
+  rejectionReason: number
   price: number
   currency: number
   governorate: number
@@ -147,6 +152,7 @@ export type PropertyCountAggregateOutputType = {
   videoStoragePath: number
   videoMimeType: number
   videoSizeBytes: number
+  officeId: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -186,6 +192,7 @@ export type PropertyMinAggregateInputType = {
   transaction?: true
   propertyType?: true
   status?: true
+  rejectionReason?: true
   price?: true
   currency?: true
   governorate?: true
@@ -204,6 +211,7 @@ export type PropertyMinAggregateInputType = {
   videoStoragePath?: true
   videoMimeType?: true
   videoSizeBytes?: true
+  officeId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -221,6 +229,7 @@ export type PropertyMaxAggregateInputType = {
   transaction?: true
   propertyType?: true
   status?: true
+  rejectionReason?: true
   price?: true
   currency?: true
   governorate?: true
@@ -239,6 +248,7 @@ export type PropertyMaxAggregateInputType = {
   videoStoragePath?: true
   videoMimeType?: true
   videoSizeBytes?: true
+  officeId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -256,6 +266,7 @@ export type PropertyCountAggregateInputType = {
   transaction?: true
   propertyType?: true
   status?: true
+  rejectionReason?: true
   price?: true
   currency?: true
   governorate?: true
@@ -274,6 +285,7 @@ export type PropertyCountAggregateInputType = {
   videoStoragePath?: true
   videoMimeType?: true
   videoSizeBytes?: true
+  officeId?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -378,6 +390,7 @@ export type PropertyGroupByOutputType = {
   transaction: $Enums.TransactionType
   propertyType: $Enums.PropertyType
   status: $Enums.ListingStatus
+  rejectionReason: string | null
   price: runtime.Decimal
   currency: $Enums.Currency
   governorate: $Enums.Governorate
@@ -396,6 +409,7 @@ export type PropertyGroupByOutputType = {
   videoStoragePath: string | null
   videoMimeType: string | null
   videoSizeBytes: bigint | null
+  officeId: string | null
   createdAt: Date
   updatedAt: Date
   _count: PropertyCountAggregateOutputType | null
@@ -436,6 +450,7 @@ export type PropertyWhereInput = {
   transaction?: Prisma.EnumTransactionTypeFilter<"Property"> | $Enums.TransactionType
   propertyType?: Prisma.EnumPropertyTypeFilter<"Property"> | $Enums.PropertyType
   status?: Prisma.EnumListingStatusFilter<"Property"> | $Enums.ListingStatus
+  rejectionReason?: Prisma.StringNullableFilter<"Property"> | string | null
   price?: Prisma.DecimalFilter<"Property"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   currency?: Prisma.EnumCurrencyFilter<"Property"> | $Enums.Currency
   governorate?: Prisma.EnumGovernorateFilter<"Property"> | $Enums.Governorate
@@ -454,9 +469,11 @@ export type PropertyWhereInput = {
   videoStoragePath?: Prisma.StringNullableFilter<"Property"> | string | null
   videoMimeType?: Prisma.StringNullableFilter<"Property"> | string | null
   videoSizeBytes?: Prisma.BigIntNullableFilter<"Property"> | bigint | number | null
+  officeId?: Prisma.StringNullableFilter<"Property"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Property"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Property"> | Date | string
   owner?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  office?: Prisma.XOR<Prisma.OfficeNullableScalarRelationFilter, Prisma.OfficeWhereInput> | null
   images?: Prisma.PropertyImageListRelationFilter
 }
 
@@ -473,6 +490,7 @@ export type PropertyOrderByWithRelationInput = {
   transaction?: Prisma.SortOrder
   propertyType?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  rejectionReason?: Prisma.SortOrderInput | Prisma.SortOrder
   price?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   governorate?: Prisma.SortOrder
@@ -491,9 +509,11 @@ export type PropertyOrderByWithRelationInput = {
   videoStoragePath?: Prisma.SortOrderInput | Prisma.SortOrder
   videoMimeType?: Prisma.SortOrderInput | Prisma.SortOrder
   videoSizeBytes?: Prisma.SortOrderInput | Prisma.SortOrder
+  officeId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   owner?: Prisma.UserOrderByWithRelationInput
+  office?: Prisma.OfficeOrderByWithRelationInput
   images?: Prisma.PropertyImageOrderByRelationAggregateInput
 }
 
@@ -514,6 +534,7 @@ export type PropertyWhereUniqueInput = Prisma.AtLeast<{
   transaction?: Prisma.EnumTransactionTypeFilter<"Property"> | $Enums.TransactionType
   propertyType?: Prisma.EnumPropertyTypeFilter<"Property"> | $Enums.PropertyType
   status?: Prisma.EnumListingStatusFilter<"Property"> | $Enums.ListingStatus
+  rejectionReason?: Prisma.StringNullableFilter<"Property"> | string | null
   price?: Prisma.DecimalFilter<"Property"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   currency?: Prisma.EnumCurrencyFilter<"Property"> | $Enums.Currency
   governorate?: Prisma.EnumGovernorateFilter<"Property"> | $Enums.Governorate
@@ -531,9 +552,11 @@ export type PropertyWhereUniqueInput = Prisma.AtLeast<{
   videoUrl?: Prisma.StringNullableFilter<"Property"> | string | null
   videoMimeType?: Prisma.StringNullableFilter<"Property"> | string | null
   videoSizeBytes?: Prisma.BigIntNullableFilter<"Property"> | bigint | number | null
+  officeId?: Prisma.StringNullableFilter<"Property"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Property"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Property"> | Date | string
   owner?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  office?: Prisma.XOR<Prisma.OfficeNullableScalarRelationFilter, Prisma.OfficeWhereInput> | null
   images?: Prisma.PropertyImageListRelationFilter
 }, "id" | "slug" | "videoStoragePath">
 
@@ -550,6 +573,7 @@ export type PropertyOrderByWithAggregationInput = {
   transaction?: Prisma.SortOrder
   propertyType?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  rejectionReason?: Prisma.SortOrderInput | Prisma.SortOrder
   price?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   governorate?: Prisma.SortOrder
@@ -568,6 +592,7 @@ export type PropertyOrderByWithAggregationInput = {
   videoStoragePath?: Prisma.SortOrderInput | Prisma.SortOrder
   videoMimeType?: Prisma.SortOrderInput | Prisma.SortOrder
   videoSizeBytes?: Prisma.SortOrderInput | Prisma.SortOrder
+  officeId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.PropertyCountOrderByAggregateInput
@@ -593,6 +618,7 @@ export type PropertyScalarWhereWithAggregatesInput = {
   transaction?: Prisma.EnumTransactionTypeWithAggregatesFilter<"Property"> | $Enums.TransactionType
   propertyType?: Prisma.EnumPropertyTypeWithAggregatesFilter<"Property"> | $Enums.PropertyType
   status?: Prisma.EnumListingStatusWithAggregatesFilter<"Property"> | $Enums.ListingStatus
+  rejectionReason?: Prisma.StringNullableWithAggregatesFilter<"Property"> | string | null
   price?: Prisma.DecimalWithAggregatesFilter<"Property"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   currency?: Prisma.EnumCurrencyWithAggregatesFilter<"Property"> | $Enums.Currency
   governorate?: Prisma.EnumGovernorateWithAggregatesFilter<"Property"> | $Enums.Governorate
@@ -611,6 +637,7 @@ export type PropertyScalarWhereWithAggregatesInput = {
   videoStoragePath?: Prisma.StringNullableWithAggregatesFilter<"Property"> | string | null
   videoMimeType?: Prisma.StringNullableWithAggregatesFilter<"Property"> | string | null
   videoSizeBytes?: Prisma.BigIntNullableWithAggregatesFilter<"Property"> | bigint | number | null
+  officeId?: Prisma.StringNullableWithAggregatesFilter<"Property"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Property"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Property"> | Date | string
 }
@@ -627,6 +654,7 @@ export type PropertyCreateInput = {
   transaction: $Enums.TransactionType
   propertyType: $Enums.PropertyType
   status?: $Enums.ListingStatus
+  rejectionReason?: string | null
   price: runtime.Decimal | runtime.DecimalJsLike | number | string
   currency: $Enums.Currency
   governorate: $Enums.Governorate
@@ -648,6 +676,7 @@ export type PropertyCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   owner: Prisma.UserCreateNestedOneWithoutPropertiesInput
+  office?: Prisma.OfficeCreateNestedOneWithoutPropertiesInput
   images?: Prisma.PropertyImageCreateNestedManyWithoutPropertyInput
 }
 
@@ -664,6 +693,7 @@ export type PropertyUncheckedCreateInput = {
   transaction: $Enums.TransactionType
   propertyType: $Enums.PropertyType
   status?: $Enums.ListingStatus
+  rejectionReason?: string | null
   price: runtime.Decimal | runtime.DecimalJsLike | number | string
   currency: $Enums.Currency
   governorate: $Enums.Governorate
@@ -682,6 +712,7 @@ export type PropertyUncheckedCreateInput = {
   videoStoragePath?: string | null
   videoMimeType?: string | null
   videoSizeBytes?: bigint | number | null
+  officeId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   images?: Prisma.PropertyImageUncheckedCreateNestedManyWithoutPropertyInput
@@ -699,6 +730,7 @@ export type PropertyUpdateInput = {
   transaction?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   propertyType?: Prisma.EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
   status?: Prisma.EnumListingStatusFieldUpdateOperationsInput | $Enums.ListingStatus
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
   governorate?: Prisma.EnumGovernorateFieldUpdateOperationsInput | $Enums.Governorate
@@ -720,6 +752,7 @@ export type PropertyUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   owner?: Prisma.UserUpdateOneRequiredWithoutPropertiesNestedInput
+  office?: Prisma.OfficeUpdateOneWithoutPropertiesNestedInput
   images?: Prisma.PropertyImageUpdateManyWithoutPropertyNestedInput
 }
 
@@ -736,6 +769,7 @@ export type PropertyUncheckedUpdateInput = {
   transaction?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   propertyType?: Prisma.EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
   status?: Prisma.EnumListingStatusFieldUpdateOperationsInput | $Enums.ListingStatus
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
   governorate?: Prisma.EnumGovernorateFieldUpdateOperationsInput | $Enums.Governorate
@@ -754,6 +788,7 @@ export type PropertyUncheckedUpdateInput = {
   videoStoragePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   videoMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   videoSizeBytes?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  officeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   images?: Prisma.PropertyImageUncheckedUpdateManyWithoutPropertyNestedInput
@@ -772,6 +807,7 @@ export type PropertyCreateManyInput = {
   transaction: $Enums.TransactionType
   propertyType: $Enums.PropertyType
   status?: $Enums.ListingStatus
+  rejectionReason?: string | null
   price: runtime.Decimal | runtime.DecimalJsLike | number | string
   currency: $Enums.Currency
   governorate: $Enums.Governorate
@@ -790,6 +826,7 @@ export type PropertyCreateManyInput = {
   videoStoragePath?: string | null
   videoMimeType?: string | null
   videoSizeBytes?: bigint | number | null
+  officeId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -806,6 +843,7 @@ export type PropertyUpdateManyMutationInput = {
   transaction?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   propertyType?: Prisma.EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
   status?: Prisma.EnumListingStatusFieldUpdateOperationsInput | $Enums.ListingStatus
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
   governorate?: Prisma.EnumGovernorateFieldUpdateOperationsInput | $Enums.Governorate
@@ -841,6 +879,7 @@ export type PropertyUncheckedUpdateManyInput = {
   transaction?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   propertyType?: Prisma.EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
   status?: Prisma.EnumListingStatusFieldUpdateOperationsInput | $Enums.ListingStatus
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
   governorate?: Prisma.EnumGovernorateFieldUpdateOperationsInput | $Enums.Governorate
@@ -859,6 +898,7 @@ export type PropertyUncheckedUpdateManyInput = {
   videoStoragePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   videoMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   videoSizeBytes?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  officeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -886,6 +926,7 @@ export type PropertyCountOrderByAggregateInput = {
   transaction?: Prisma.SortOrder
   propertyType?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  rejectionReason?: Prisma.SortOrder
   price?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   governorate?: Prisma.SortOrder
@@ -904,6 +945,7 @@ export type PropertyCountOrderByAggregateInput = {
   videoStoragePath?: Prisma.SortOrder
   videoMimeType?: Prisma.SortOrder
   videoSizeBytes?: Prisma.SortOrder
+  officeId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -931,6 +973,7 @@ export type PropertyMaxOrderByAggregateInput = {
   transaction?: Prisma.SortOrder
   propertyType?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  rejectionReason?: Prisma.SortOrder
   price?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   governorate?: Prisma.SortOrder
@@ -949,6 +992,7 @@ export type PropertyMaxOrderByAggregateInput = {
   videoStoragePath?: Prisma.SortOrder
   videoMimeType?: Prisma.SortOrder
   videoSizeBytes?: Prisma.SortOrder
+  officeId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -966,6 +1010,7 @@ export type PropertyMinOrderByAggregateInput = {
   transaction?: Prisma.SortOrder
   propertyType?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  rejectionReason?: Prisma.SortOrder
   price?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   governorate?: Prisma.SortOrder
@@ -984,6 +1029,7 @@ export type PropertyMinOrderByAggregateInput = {
   videoStoragePath?: Prisma.SortOrder
   videoMimeType?: Prisma.SortOrder
   videoSizeBytes?: Prisma.SortOrder
+  officeId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -1097,6 +1143,48 @@ export type NullableBigIntFieldUpdateOperationsInput = {
   divide?: bigint | number
 }
 
+export type PropertyCreateNestedManyWithoutOfficeInput = {
+  create?: Prisma.XOR<Prisma.PropertyCreateWithoutOfficeInput, Prisma.PropertyUncheckedCreateWithoutOfficeInput> | Prisma.PropertyCreateWithoutOfficeInput[] | Prisma.PropertyUncheckedCreateWithoutOfficeInput[]
+  connectOrCreate?: Prisma.PropertyCreateOrConnectWithoutOfficeInput | Prisma.PropertyCreateOrConnectWithoutOfficeInput[]
+  createMany?: Prisma.PropertyCreateManyOfficeInputEnvelope
+  connect?: Prisma.PropertyWhereUniqueInput | Prisma.PropertyWhereUniqueInput[]
+}
+
+export type PropertyUncheckedCreateNestedManyWithoutOfficeInput = {
+  create?: Prisma.XOR<Prisma.PropertyCreateWithoutOfficeInput, Prisma.PropertyUncheckedCreateWithoutOfficeInput> | Prisma.PropertyCreateWithoutOfficeInput[] | Prisma.PropertyUncheckedCreateWithoutOfficeInput[]
+  connectOrCreate?: Prisma.PropertyCreateOrConnectWithoutOfficeInput | Prisma.PropertyCreateOrConnectWithoutOfficeInput[]
+  createMany?: Prisma.PropertyCreateManyOfficeInputEnvelope
+  connect?: Prisma.PropertyWhereUniqueInput | Prisma.PropertyWhereUniqueInput[]
+}
+
+export type PropertyUpdateManyWithoutOfficeNestedInput = {
+  create?: Prisma.XOR<Prisma.PropertyCreateWithoutOfficeInput, Prisma.PropertyUncheckedCreateWithoutOfficeInput> | Prisma.PropertyCreateWithoutOfficeInput[] | Prisma.PropertyUncheckedCreateWithoutOfficeInput[]
+  connectOrCreate?: Prisma.PropertyCreateOrConnectWithoutOfficeInput | Prisma.PropertyCreateOrConnectWithoutOfficeInput[]
+  upsert?: Prisma.PropertyUpsertWithWhereUniqueWithoutOfficeInput | Prisma.PropertyUpsertWithWhereUniqueWithoutOfficeInput[]
+  createMany?: Prisma.PropertyCreateManyOfficeInputEnvelope
+  set?: Prisma.PropertyWhereUniqueInput | Prisma.PropertyWhereUniqueInput[]
+  disconnect?: Prisma.PropertyWhereUniqueInput | Prisma.PropertyWhereUniqueInput[]
+  delete?: Prisma.PropertyWhereUniqueInput | Prisma.PropertyWhereUniqueInput[]
+  connect?: Prisma.PropertyWhereUniqueInput | Prisma.PropertyWhereUniqueInput[]
+  update?: Prisma.PropertyUpdateWithWhereUniqueWithoutOfficeInput | Prisma.PropertyUpdateWithWhereUniqueWithoutOfficeInput[]
+  updateMany?: Prisma.PropertyUpdateManyWithWhereWithoutOfficeInput | Prisma.PropertyUpdateManyWithWhereWithoutOfficeInput[]
+  deleteMany?: Prisma.PropertyScalarWhereInput | Prisma.PropertyScalarWhereInput[]
+}
+
+export type PropertyUncheckedUpdateManyWithoutOfficeNestedInput = {
+  create?: Prisma.XOR<Prisma.PropertyCreateWithoutOfficeInput, Prisma.PropertyUncheckedCreateWithoutOfficeInput> | Prisma.PropertyCreateWithoutOfficeInput[] | Prisma.PropertyUncheckedCreateWithoutOfficeInput[]
+  connectOrCreate?: Prisma.PropertyCreateOrConnectWithoutOfficeInput | Prisma.PropertyCreateOrConnectWithoutOfficeInput[]
+  upsert?: Prisma.PropertyUpsertWithWhereUniqueWithoutOfficeInput | Prisma.PropertyUpsertWithWhereUniqueWithoutOfficeInput[]
+  createMany?: Prisma.PropertyCreateManyOfficeInputEnvelope
+  set?: Prisma.PropertyWhereUniqueInput | Prisma.PropertyWhereUniqueInput[]
+  disconnect?: Prisma.PropertyWhereUniqueInput | Prisma.PropertyWhereUniqueInput[]
+  delete?: Prisma.PropertyWhereUniqueInput | Prisma.PropertyWhereUniqueInput[]
+  connect?: Prisma.PropertyWhereUniqueInput | Prisma.PropertyWhereUniqueInput[]
+  update?: Prisma.PropertyUpdateWithWhereUniqueWithoutOfficeInput | Prisma.PropertyUpdateWithWhereUniqueWithoutOfficeInput[]
+  updateMany?: Prisma.PropertyUpdateManyWithWhereWithoutOfficeInput | Prisma.PropertyUpdateManyWithWhereWithoutOfficeInput[]
+  deleteMany?: Prisma.PropertyScalarWhereInput | Prisma.PropertyScalarWhereInput[]
+}
+
 export type PropertyCreateNestedOneWithoutImagesInput = {
   create?: Prisma.XOR<Prisma.PropertyCreateWithoutImagesInput, Prisma.PropertyUncheckedCreateWithoutImagesInput>
   connectOrCreate?: Prisma.PropertyCreateOrConnectWithoutImagesInput
@@ -1123,6 +1211,7 @@ export type PropertyCreateWithoutOwnerInput = {
   transaction: $Enums.TransactionType
   propertyType: $Enums.PropertyType
   status?: $Enums.ListingStatus
+  rejectionReason?: string | null
   price: runtime.Decimal | runtime.DecimalJsLike | number | string
   currency: $Enums.Currency
   governorate: $Enums.Governorate
@@ -1143,6 +1232,7 @@ export type PropertyCreateWithoutOwnerInput = {
   videoSizeBytes?: bigint | number | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  office?: Prisma.OfficeCreateNestedOneWithoutPropertiesInput
   images?: Prisma.PropertyImageCreateNestedManyWithoutPropertyInput
 }
 
@@ -1158,6 +1248,7 @@ export type PropertyUncheckedCreateWithoutOwnerInput = {
   transaction: $Enums.TransactionType
   propertyType: $Enums.PropertyType
   status?: $Enums.ListingStatus
+  rejectionReason?: string | null
   price: runtime.Decimal | runtime.DecimalJsLike | number | string
   currency: $Enums.Currency
   governorate: $Enums.Governorate
@@ -1176,6 +1267,7 @@ export type PropertyUncheckedCreateWithoutOwnerInput = {
   videoStoragePath?: string | null
   videoMimeType?: string | null
   videoSizeBytes?: bigint | number | null
+  officeId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   images?: Prisma.PropertyImageUncheckedCreateNestedManyWithoutPropertyInput
@@ -1223,6 +1315,7 @@ export type PropertyScalarWhereInput = {
   transaction?: Prisma.EnumTransactionTypeFilter<"Property"> | $Enums.TransactionType
   propertyType?: Prisma.EnumPropertyTypeFilter<"Property"> | $Enums.PropertyType
   status?: Prisma.EnumListingStatusFilter<"Property"> | $Enums.ListingStatus
+  rejectionReason?: Prisma.StringNullableFilter<"Property"> | string | null
   price?: Prisma.DecimalFilter<"Property"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   currency?: Prisma.EnumCurrencyFilter<"Property"> | $Enums.Currency
   governorate?: Prisma.EnumGovernorateFilter<"Property"> | $Enums.Governorate
@@ -1241,11 +1334,12 @@ export type PropertyScalarWhereInput = {
   videoStoragePath?: Prisma.StringNullableFilter<"Property"> | string | null
   videoMimeType?: Prisma.StringNullableFilter<"Property"> | string | null
   videoSizeBytes?: Prisma.BigIntNullableFilter<"Property"> | bigint | number | null
+  officeId?: Prisma.StringNullableFilter<"Property"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Property"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Property"> | Date | string
 }
 
-export type PropertyCreateWithoutImagesInput = {
+export type PropertyCreateWithoutOfficeInput = {
   id?: string
   slug: string
   titleEn: string
@@ -1257,6 +1351,7 @@ export type PropertyCreateWithoutImagesInput = {
   transaction: $Enums.TransactionType
   propertyType: $Enums.PropertyType
   status?: $Enums.ListingStatus
+  rejectionReason?: string | null
   price: runtime.Decimal | runtime.DecimalJsLike | number | string
   currency: $Enums.Currency
   governorate: $Enums.Governorate
@@ -1278,9 +1373,10 @@ export type PropertyCreateWithoutImagesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   owner: Prisma.UserCreateNestedOneWithoutPropertiesInput
+  images?: Prisma.PropertyImageCreateNestedManyWithoutPropertyInput
 }
 
-export type PropertyUncheckedCreateWithoutImagesInput = {
+export type PropertyUncheckedCreateWithoutOfficeInput = {
   id?: string
   slug: string
   ownerId: string
@@ -1293,6 +1389,7 @@ export type PropertyUncheckedCreateWithoutImagesInput = {
   transaction: $Enums.TransactionType
   propertyType: $Enums.PropertyType
   status?: $Enums.ListingStatus
+  rejectionReason?: string | null
   price: runtime.Decimal | runtime.DecimalJsLike | number | string
   currency: $Enums.Currency
   governorate: $Enums.Governorate
@@ -1311,6 +1408,107 @@ export type PropertyUncheckedCreateWithoutImagesInput = {
   videoStoragePath?: string | null
   videoMimeType?: string | null
   videoSizeBytes?: bigint | number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  images?: Prisma.PropertyImageUncheckedCreateNestedManyWithoutPropertyInput
+}
+
+export type PropertyCreateOrConnectWithoutOfficeInput = {
+  where: Prisma.PropertyWhereUniqueInput
+  create: Prisma.XOR<Prisma.PropertyCreateWithoutOfficeInput, Prisma.PropertyUncheckedCreateWithoutOfficeInput>
+}
+
+export type PropertyCreateManyOfficeInputEnvelope = {
+  data: Prisma.PropertyCreateManyOfficeInput | Prisma.PropertyCreateManyOfficeInput[]
+  skipDuplicates?: boolean
+}
+
+export type PropertyUpsertWithWhereUniqueWithoutOfficeInput = {
+  where: Prisma.PropertyWhereUniqueInput
+  update: Prisma.XOR<Prisma.PropertyUpdateWithoutOfficeInput, Prisma.PropertyUncheckedUpdateWithoutOfficeInput>
+  create: Prisma.XOR<Prisma.PropertyCreateWithoutOfficeInput, Prisma.PropertyUncheckedCreateWithoutOfficeInput>
+}
+
+export type PropertyUpdateWithWhereUniqueWithoutOfficeInput = {
+  where: Prisma.PropertyWhereUniqueInput
+  data: Prisma.XOR<Prisma.PropertyUpdateWithoutOfficeInput, Prisma.PropertyUncheckedUpdateWithoutOfficeInput>
+}
+
+export type PropertyUpdateManyWithWhereWithoutOfficeInput = {
+  where: Prisma.PropertyScalarWhereInput
+  data: Prisma.XOR<Prisma.PropertyUpdateManyMutationInput, Prisma.PropertyUncheckedUpdateManyWithoutOfficeInput>
+}
+
+export type PropertyCreateWithoutImagesInput = {
+  id?: string
+  slug: string
+  titleEn: string
+  titleAr: string
+  titleDe: string
+  descriptionEn?: string | null
+  descriptionAr?: string | null
+  descriptionDe?: string | null
+  transaction: $Enums.TransactionType
+  propertyType: $Enums.PropertyType
+  status?: $Enums.ListingStatus
+  rejectionReason?: string | null
+  price: runtime.Decimal | runtime.DecimalJsLike | number | string
+  currency: $Enums.Currency
+  governorate: $Enums.Governorate
+  city: string
+  district?: string | null
+  neighborhood?: string | null
+  address?: string | null
+  bedrooms?: number | null
+  bathrooms?: number | null
+  area: runtime.Decimal | runtime.DecimalJsLike | number | string
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  whatsapp?: string | null
+  featured?: boolean
+  videoUrl?: string | null
+  videoStoragePath?: string | null
+  videoMimeType?: string | null
+  videoSizeBytes?: bigint | number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  owner: Prisma.UserCreateNestedOneWithoutPropertiesInput
+  office?: Prisma.OfficeCreateNestedOneWithoutPropertiesInput
+}
+
+export type PropertyUncheckedCreateWithoutImagesInput = {
+  id?: string
+  slug: string
+  ownerId: string
+  titleEn: string
+  titleAr: string
+  titleDe: string
+  descriptionEn?: string | null
+  descriptionAr?: string | null
+  descriptionDe?: string | null
+  transaction: $Enums.TransactionType
+  propertyType: $Enums.PropertyType
+  status?: $Enums.ListingStatus
+  rejectionReason?: string | null
+  price: runtime.Decimal | runtime.DecimalJsLike | number | string
+  currency: $Enums.Currency
+  governorate: $Enums.Governorate
+  city: string
+  district?: string | null
+  neighborhood?: string | null
+  address?: string | null
+  bedrooms?: number | null
+  bathrooms?: number | null
+  area: runtime.Decimal | runtime.DecimalJsLike | number | string
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  whatsapp?: string | null
+  featured?: boolean
+  videoUrl?: string | null
+  videoStoragePath?: string | null
+  videoMimeType?: string | null
+  videoSizeBytes?: bigint | number | null
+  officeId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1343,6 +1541,7 @@ export type PropertyUpdateWithoutImagesInput = {
   transaction?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   propertyType?: Prisma.EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
   status?: Prisma.EnumListingStatusFieldUpdateOperationsInput | $Enums.ListingStatus
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
   governorate?: Prisma.EnumGovernorateFieldUpdateOperationsInput | $Enums.Governorate
@@ -1364,6 +1563,7 @@ export type PropertyUpdateWithoutImagesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   owner?: Prisma.UserUpdateOneRequiredWithoutPropertiesNestedInput
+  office?: Prisma.OfficeUpdateOneWithoutPropertiesNestedInput
 }
 
 export type PropertyUncheckedUpdateWithoutImagesInput = {
@@ -1379,6 +1579,79 @@ export type PropertyUncheckedUpdateWithoutImagesInput = {
   transaction?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   propertyType?: Prisma.EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
   status?: Prisma.EnumListingStatusFieldUpdateOperationsInput | $Enums.ListingStatus
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+  governorate?: Prisma.EnumGovernorateFieldUpdateOperationsInput | $Enums.Governorate
+  city?: Prisma.StringFieldUpdateOperationsInput | string
+  district?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  neighborhood?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bedrooms?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bathrooms?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  area?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  videoStoragePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  videoMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  videoSizeBytes?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  officeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type PropertyCreateManyOwnerInput = {
+  id?: string
+  slug: string
+  titleEn: string
+  titleAr: string
+  titleDe: string
+  descriptionEn?: string | null
+  descriptionAr?: string | null
+  descriptionDe?: string | null
+  transaction: $Enums.TransactionType
+  propertyType: $Enums.PropertyType
+  status?: $Enums.ListingStatus
+  rejectionReason?: string | null
+  price: runtime.Decimal | runtime.DecimalJsLike | number | string
+  currency: $Enums.Currency
+  governorate: $Enums.Governorate
+  city: string
+  district?: string | null
+  neighborhood?: string | null
+  address?: string | null
+  bedrooms?: number | null
+  bathrooms?: number | null
+  area: runtime.Decimal | runtime.DecimalJsLike | number | string
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  whatsapp?: string | null
+  featured?: boolean
+  videoUrl?: string | null
+  videoStoragePath?: string | null
+  videoMimeType?: string | null
+  videoSizeBytes?: bigint | number | null
+  officeId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type PropertyUpdateWithoutOwnerInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  titleEn?: Prisma.StringFieldUpdateOperationsInput | string
+  titleAr?: Prisma.StringFieldUpdateOperationsInput | string
+  titleDe?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionDe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transaction?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+  propertyType?: Prisma.EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
+  status?: Prisma.EnumListingStatusFieldUpdateOperationsInput | $Enums.ListingStatus
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
   governorate?: Prisma.EnumGovernorateFieldUpdateOperationsInput | $Enums.Governorate
@@ -1399,11 +1672,87 @@ export type PropertyUncheckedUpdateWithoutImagesInput = {
   videoSizeBytes?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  office?: Prisma.OfficeUpdateOneWithoutPropertiesNestedInput
+  images?: Prisma.PropertyImageUpdateManyWithoutPropertyNestedInput
 }
 
-export type PropertyCreateManyOwnerInput = {
+export type PropertyUncheckedUpdateWithoutOwnerInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  titleEn?: Prisma.StringFieldUpdateOperationsInput | string
+  titleAr?: Prisma.StringFieldUpdateOperationsInput | string
+  titleDe?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionDe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transaction?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+  propertyType?: Prisma.EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
+  status?: Prisma.EnumListingStatusFieldUpdateOperationsInput | $Enums.ListingStatus
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+  governorate?: Prisma.EnumGovernorateFieldUpdateOperationsInput | $Enums.Governorate
+  city?: Prisma.StringFieldUpdateOperationsInput | string
+  district?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  neighborhood?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bedrooms?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bathrooms?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  area?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  videoStoragePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  videoMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  videoSizeBytes?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  officeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  images?: Prisma.PropertyImageUncheckedUpdateManyWithoutPropertyNestedInput
+}
+
+export type PropertyUncheckedUpdateManyWithoutOwnerInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  titleEn?: Prisma.StringFieldUpdateOperationsInput | string
+  titleAr?: Prisma.StringFieldUpdateOperationsInput | string
+  titleDe?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionDe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  transaction?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+  propertyType?: Prisma.EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
+  status?: Prisma.EnumListingStatusFieldUpdateOperationsInput | $Enums.ListingStatus
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+  governorate?: Prisma.EnumGovernorateFieldUpdateOperationsInput | $Enums.Governorate
+  city?: Prisma.StringFieldUpdateOperationsInput | string
+  district?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  neighborhood?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bedrooms?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bathrooms?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  area?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  whatsapp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  featured?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  videoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  videoStoragePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  videoMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  videoSizeBytes?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  officeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type PropertyCreateManyOfficeInput = {
   id?: string
   slug: string
+  ownerId: string
   titleEn: string
   titleAr: string
   titleDe: string
@@ -1413,6 +1762,7 @@ export type PropertyCreateManyOwnerInput = {
   transaction: $Enums.TransactionType
   propertyType: $Enums.PropertyType
   status?: $Enums.ListingStatus
+  rejectionReason?: string | null
   price: runtime.Decimal | runtime.DecimalJsLike | number | string
   currency: $Enums.Currency
   governorate: $Enums.Governorate
@@ -1435,7 +1785,7 @@ export type PropertyCreateManyOwnerInput = {
   updatedAt?: Date | string
 }
 
-export type PropertyUpdateWithoutOwnerInput = {
+export type PropertyUpdateWithoutOfficeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   titleEn?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1447,6 +1797,7 @@ export type PropertyUpdateWithoutOwnerInput = {
   transaction?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   propertyType?: Prisma.EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
   status?: Prisma.EnumListingStatusFieldUpdateOperationsInput | $Enums.ListingStatus
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
   governorate?: Prisma.EnumGovernorateFieldUpdateOperationsInput | $Enums.Governorate
@@ -1467,12 +1818,14 @@ export type PropertyUpdateWithoutOwnerInput = {
   videoSizeBytes?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  owner?: Prisma.UserUpdateOneRequiredWithoutPropertiesNestedInput
   images?: Prisma.PropertyImageUpdateManyWithoutPropertyNestedInput
 }
 
-export type PropertyUncheckedUpdateWithoutOwnerInput = {
+export type PropertyUncheckedUpdateWithoutOfficeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   titleEn?: Prisma.StringFieldUpdateOperationsInput | string
   titleAr?: Prisma.StringFieldUpdateOperationsInput | string
   titleDe?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1482,6 +1835,7 @@ export type PropertyUncheckedUpdateWithoutOwnerInput = {
   transaction?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   propertyType?: Prisma.EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
   status?: Prisma.EnumListingStatusFieldUpdateOperationsInput | $Enums.ListingStatus
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
   governorate?: Prisma.EnumGovernorateFieldUpdateOperationsInput | $Enums.Governorate
@@ -1505,9 +1859,10 @@ export type PropertyUncheckedUpdateWithoutOwnerInput = {
   images?: Prisma.PropertyImageUncheckedUpdateManyWithoutPropertyNestedInput
 }
 
-export type PropertyUncheckedUpdateManyWithoutOwnerInput = {
+export type PropertyUncheckedUpdateManyWithoutOfficeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerId?: Prisma.StringFieldUpdateOperationsInput | string
   titleEn?: Prisma.StringFieldUpdateOperationsInput | string
   titleAr?: Prisma.StringFieldUpdateOperationsInput | string
   titleDe?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1517,6 +1872,7 @@ export type PropertyUncheckedUpdateManyWithoutOwnerInput = {
   transaction?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   propertyType?: Prisma.EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
   status?: Prisma.EnumListingStatusFieldUpdateOperationsInput | $Enums.ListingStatus
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   price?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
   governorate?: Prisma.EnumGovernorateFieldUpdateOperationsInput | $Enums.Governorate
@@ -1583,6 +1939,7 @@ export type PropertySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   transaction?: boolean
   propertyType?: boolean
   status?: boolean
+  rejectionReason?: boolean
   price?: boolean
   currency?: boolean
   governorate?: boolean
@@ -1601,9 +1958,11 @@ export type PropertySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   videoStoragePath?: boolean
   videoMimeType?: boolean
   videoSizeBytes?: boolean
+  officeId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  office?: boolean | Prisma.Property$officeArgs<ExtArgs>
   images?: boolean | Prisma.Property$imagesArgs<ExtArgs>
   _count?: boolean | Prisma.PropertyCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["property"]>
@@ -1621,6 +1980,7 @@ export type PropertySelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   transaction?: boolean
   propertyType?: boolean
   status?: boolean
+  rejectionReason?: boolean
   price?: boolean
   currency?: boolean
   governorate?: boolean
@@ -1639,9 +1999,11 @@ export type PropertySelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   videoStoragePath?: boolean
   videoMimeType?: boolean
   videoSizeBytes?: boolean
+  officeId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  office?: boolean | Prisma.Property$officeArgs<ExtArgs>
 }, ExtArgs["result"]["property"]>
 
 export type PropertySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1657,6 +2019,7 @@ export type PropertySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   transaction?: boolean
   propertyType?: boolean
   status?: boolean
+  rejectionReason?: boolean
   price?: boolean
   currency?: boolean
   governorate?: boolean
@@ -1675,9 +2038,11 @@ export type PropertySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   videoStoragePath?: boolean
   videoMimeType?: boolean
   videoSizeBytes?: boolean
+  officeId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  office?: boolean | Prisma.Property$officeArgs<ExtArgs>
 }, ExtArgs["result"]["property"]>
 
 export type PropertySelectScalar = {
@@ -1693,6 +2058,7 @@ export type PropertySelectScalar = {
   transaction?: boolean
   propertyType?: boolean
   status?: boolean
+  rejectionReason?: boolean
   price?: boolean
   currency?: boolean
   governorate?: boolean
@@ -1711,27 +2077,32 @@ export type PropertySelectScalar = {
   videoStoragePath?: boolean
   videoMimeType?: boolean
   videoSizeBytes?: boolean
+  officeId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type PropertyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "slug" | "ownerId" | "titleEn" | "titleAr" | "titleDe" | "descriptionEn" | "descriptionAr" | "descriptionDe" | "transaction" | "propertyType" | "status" | "price" | "currency" | "governorate" | "city" | "district" | "neighborhood" | "address" | "bedrooms" | "bathrooms" | "area" | "latitude" | "longitude" | "whatsapp" | "featured" | "videoUrl" | "videoStoragePath" | "videoMimeType" | "videoSizeBytes" | "createdAt" | "updatedAt", ExtArgs["result"]["property"]>
+export type PropertyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "slug" | "ownerId" | "titleEn" | "titleAr" | "titleDe" | "descriptionEn" | "descriptionAr" | "descriptionDe" | "transaction" | "propertyType" | "status" | "rejectionReason" | "price" | "currency" | "governorate" | "city" | "district" | "neighborhood" | "address" | "bedrooms" | "bathrooms" | "area" | "latitude" | "longitude" | "whatsapp" | "featured" | "videoUrl" | "videoStoragePath" | "videoMimeType" | "videoSizeBytes" | "officeId" | "createdAt" | "updatedAt", ExtArgs["result"]["property"]>
 export type PropertyInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  office?: boolean | Prisma.Property$officeArgs<ExtArgs>
   images?: boolean | Prisma.Property$imagesArgs<ExtArgs>
   _count?: boolean | Prisma.PropertyCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type PropertyIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  office?: boolean | Prisma.Property$officeArgs<ExtArgs>
 }
 export type PropertyIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  office?: boolean | Prisma.Property$officeArgs<ExtArgs>
 }
 
 export type $PropertyPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Property"
   objects: {
     owner: Prisma.$UserPayload<ExtArgs>
+    office: Prisma.$OfficePayload<ExtArgs> | null
     images: Prisma.$PropertyImagePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -1747,6 +2118,7 @@ export type $PropertyPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     transaction: $Enums.TransactionType
     propertyType: $Enums.PropertyType
     status: $Enums.ListingStatus
+    rejectionReason: string | null
     price: runtime.Decimal
     currency: $Enums.Currency
     governorate: $Enums.Governorate
@@ -1765,6 +2137,7 @@ export type $PropertyPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     videoStoragePath: string | null
     videoMimeType: string | null
     videoSizeBytes: bigint | null
+    officeId: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["property"]>
@@ -2162,6 +2535,7 @@ readonly fields: PropertyFieldRefs;
 export interface Prisma__PropertyClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   owner<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  office<T extends Prisma.Property$officeArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Property$officeArgs<ExtArgs>>): Prisma.Prisma__OfficeClient<runtime.Types.Result.GetResult<Prisma.$OfficePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   images<T extends Prisma.Property$imagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Property$imagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PropertyImagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -2204,6 +2578,7 @@ export interface PropertyFieldRefs {
   readonly transaction: Prisma.FieldRef<"Property", 'TransactionType'>
   readonly propertyType: Prisma.FieldRef<"Property", 'PropertyType'>
   readonly status: Prisma.FieldRef<"Property", 'ListingStatus'>
+  readonly rejectionReason: Prisma.FieldRef<"Property", 'String'>
   readonly price: Prisma.FieldRef<"Property", 'Decimal'>
   readonly currency: Prisma.FieldRef<"Property", 'Currency'>
   readonly governorate: Prisma.FieldRef<"Property", 'Governorate'>
@@ -2222,6 +2597,7 @@ export interface PropertyFieldRefs {
   readonly videoStoragePath: Prisma.FieldRef<"Property", 'String'>
   readonly videoMimeType: Prisma.FieldRef<"Property", 'String'>
   readonly videoSizeBytes: Prisma.FieldRef<"Property", 'BigInt'>
+  readonly officeId: Prisma.FieldRef<"Property", 'String'>
   readonly createdAt: Prisma.FieldRef<"Property", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Property", 'DateTime'>
 }
@@ -2622,6 +2998,25 @@ export type PropertyDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inte
    * Limit how many Properties to delete.
    */
   limit?: number
+}
+
+/**
+ * Property.office
+ */
+export type Property$officeArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Office
+   */
+  select?: Prisma.OfficeSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Office
+   */
+  omit?: Prisma.OfficeOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OfficeInclude<ExtArgs> | null
+  where?: Prisma.OfficeWhereInput
 }
 
 /**

@@ -4,6 +4,7 @@ import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 
 import Button from '../components/ui/Button.jsx'
 import Container from '../components/ui/Container.jsx'
+import Logo from '../components/common/Logo.jsx'
 import { ApiError } from '../api/api-client.js'
 import GoogleSignInButton from '../features/auth/components/GoogleSignInButton.jsx'
 import { useAuth } from '../features/auth/hooks/useAuth.js'
@@ -88,9 +89,7 @@ export default function LoginPage() {
     <section className="py-12 sm:py-18">
       <Container>
         <div className="mx-auto max-w-md rounded-3xl border border-line bg-surface p-6 shadow-sm sm:p-8">
-          <p className="text-sm font-bold uppercase tracking-wide text-action">
-            {t('brand.name')}
-          </p>
+          <Logo className="mb-1" />
           <h1 className="mt-2 text-3xl font-bold text-ink">
             {t('auth.loginTitle')}
           </h1>

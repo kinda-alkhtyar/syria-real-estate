@@ -11,11 +11,14 @@ export const de = {
     ar: 'العربية',
     en: 'English',
     de: 'Deutsch',
+    tr: 'Türkçe',
   },
   theme: {
     light: 'Hell',
     dark: 'Dunkel',
     system: 'System',
+    toggleToDark: 'Zur dunklen Darstellung wechseln',
+    toggleToLight: 'Zur hellen Darstellung wechseln',
   },
   navigation: {
     home: 'Startseite',
@@ -75,11 +78,13 @@ export const de = {
   },
   accessibility: {
     resultsPagination: 'Seitennavigation der Immobilienergebnisse',
+    officesPagination: 'Seitennavigation der Büros',
     addToFavorites: '{title} zu Favoriten hinzufügen',
     removeFromFavorites: '{title} aus Favoriten entfernen',
     loadingProperty: 'Immobilie wird geladen',
     home: 'Startseite von Immobilien in Syrien',
     chooseLanguage: 'Sprache ändern',
+    languageMenu: 'Sprache ändern, aktuell: {language}',
     changeTheme: 'Darstellung ändern',
     primaryNavigation: 'Hauptnavigation',
     mobileNavigation: 'Mobile Navigation',
@@ -147,6 +152,8 @@ export const de = {
   },
   listingStatuses: {
     draft: 'Entwurf',
+    pending_review: 'In Prüfung',
+    rejected: 'Abgelehnt',
     available: 'Verfügbar',
     reserved: 'Reserviert',
     sold: 'Verkauft',
@@ -161,6 +168,11 @@ export const de = {
     navigation: {
       label: 'Dashboard-Navigation',
       overview: 'Dashboard',
+      review: 'Prüfung',
+      reviewBadgeLabel: {
+        one: '{count} Inserat wartet auf Prüfung',
+        other: '{count} Inserate warten auf Prüfung',
+      },
       create: 'Immobilie inserieren',
       browse: 'Immobilien durchsuchen',
     },
@@ -175,6 +187,11 @@ export const de = {
       sessionExpired: 'Ihre Sitzung ist möglicherweise abgelaufen. Bitte melden Sie sich erneut an.',
       retry: 'Erneut versuchen',
       noImage: 'Kein Immobilienbild verfügbar',
+      pendingNotice:
+        'Dieses Inserat wird von unserem Team geprüft und geht sofort nach der Freigabe online.',
+      rejectedNotice:
+        'Dieses Inserat wurde abgelehnt und ist nicht veröffentlicht.',
+      rejectionReasonLabel: 'Grund:',
       actionsLabel: 'Immobilienaktionen',
       pagination: 'Seiten der verwalteten Immobilien',
       fields: {
@@ -186,10 +203,12 @@ export const de = {
     },
     actions: {
       edit: 'Bearbeiten',
+      editAndResubmit: 'Bearbeiten und erneut einreichen',
       archive: 'Archivieren',
       restore: 'Wiederherstellen',
       images: 'Bilder verwalten',
       video: 'Video verwalten',
+      deleteLabel: '„{title}“ löschen',
     },
     confirmations: {
       archive:
@@ -197,10 +216,76 @@ export const de = {
       restore:
         'Diese Immobilie wiederherstellen? Sie kehrt in den Entwurfsstatus zurück.',
     },
+    delete: {
+      title: 'Diese Immobilie löschen',
+      description:
+        '„{title}“ wird dauerhaft entfernt, zusammen mit allen Bildern.',
+      warning: 'Dies kann nicht rückgängig gemacht werden.',
+      confirm: 'Endgültig löschen',
+      cancel: 'Abbrechen',
+    },
     actionFeedback: {
       network: 'Verbindung fehlgeschlagen. Bitte versuchen Sie es erneut.',
       unexpected:
         'Die Aktion konnte nicht abgeschlossen werden. Bitte versuchen Sie es erneut.',
+    },
+  },
+  review: {
+    eyebrow: 'Moderation',
+    title: 'Inserate prüfen',
+    description:
+      'Von Eigentümern eingereichte Inserate warten auf Ihre Entscheidung. Eine Freigabe veröffentlicht das Inserat sofort, eine Ablehnung geht mit Ihrer Begründung an den Eigentümer zurück.',
+    queue: {
+      listLabel: 'Inserate in Prüfung',
+      actionsLabel: 'Prüfaktionen',
+      pagination: 'Seiten der Prüfliste',
+      loading: 'Prüfliste wird geladen',
+      emptyTitle: 'Nichts wartet auf Prüfung',
+      emptyDescription:
+        'Neue Inserate erscheinen hier, sobald Eigentümer sie einreichen.',
+      errorTitle: 'Die Prüfliste konnte nicht geladen werden',
+      errorDescription: 'Bitte versuchen Sie erneut, die Prüfliste zu laden.',
+      submittedOn: 'Eingereicht am {date}',
+      total: {
+        one: '{count} Inserat wartet auf Prüfung',
+        other: '{count} Inserate warten auf Prüfung',
+      },
+      fields: {
+        governorate: 'Gouvernement',
+        type: 'Immobilientyp',
+        price: 'Preis',
+      },
+    },
+    actions: {
+      approve: 'Freigeben',
+      reject: 'Ablehnen',
+      cancel: 'Abbrechen',
+      openDetails: 'Details öffnen',
+    },
+    approve: {
+      title: 'Dieses Inserat freigeben',
+      description: '„{title}“ geht sofort nach der Freigabe online.',
+      confirm: 'Freigeben und veröffentlichen',
+    },
+    reject: {
+      title: 'Dieses Inserat ablehnen',
+      description:
+        '„{title}“ bleibt unveröffentlicht, und der Eigentümer liest Ihre Begründung.',
+      confirm: 'Ablehnung bestätigen',
+      reasonLabel: 'Grund für die Ablehnung',
+      reasonCounter: 'Noch {remaining} von {maximum} Zeichen',
+      validation: {
+        required: 'Bitte geben Sie einen Grund für die Ablehnung an.',
+        length: 'Der Grund darf höchstens {maximum} Zeichen lang sein.',
+        html: 'Der Grund darf die Zeichen < und > nicht enthalten.',
+      },
+    },
+    feedback: {
+      network: 'Verbindung fehlgeschlagen. Bitte versuchen Sie es erneut.',
+      missing:
+        'Dieses Inserat existiert nicht mehr. Bitte aktualisieren Sie die Liste.',
+      unexpected:
+        'Die Entscheidung konnte nicht abgeschlossen werden. Bitte versuchen Sie es erneut.',
     },
   },
   propertyCreate: {
@@ -208,8 +293,13 @@ export const de = {
     title: 'Immobilie inserieren',
     description:
       'Erstellen Sie zuerst den Immobilieneintrag. Bilder können in einer späteren Phase verwaltet werden.',
-    languageTabs: 'Sprachen der Immobilieninhalte',
     unsavedWarning: 'Sie haben ungespeicherte Änderungen.',
+    submitted: {
+      title: 'Ihr Inserat wurde eingereicht',
+      description:
+        'Es wird veröffentlicht, sobald unser Team es geprüft hat. Den Status verfolgen Sie auf der Seite Ihrer Inserate.',
+      action: 'Zu meinen Inseraten',
+    },
     leaveConfirmation: 'Diese Seite verlassen und ungespeicherte Änderungen verwerfen?',
     stepCounter: '{current} / {total}',
     stepProgress: 'Fortschritt der Immobilienerfassung',
@@ -286,9 +376,8 @@ export const de = {
       propertyType: 'Immobilientyp',
       governorate: 'Gouvernorat',
       city: 'Stadt',
-      district: 'Bezirk',
       neighborhood: 'Stadtviertel',
-      address: 'Adresse',
+      address: 'Genaue Adresse',
       latitude: 'Breitengrad (Kartenkoordinate)',
       longitude: 'Längengrad (Kartenkoordinate)',
       price: 'Preis',
@@ -488,6 +577,7 @@ export const de = {
     damascus: 'Damaskus',
     rifDimashq: 'Umland von Damaskus',
     aleppo: 'Aleppo',
+    rifAleppo: 'Umland Aleppo',
     latakia: 'Latakia',
     homs: 'Homs',
     hama: 'Hama',
@@ -514,16 +604,190 @@ export const de = {
     language: 'Sprache',
     profile: 'Profil',
     myProperties: 'Meine Immobilien',
-    settings: 'Einstellungen',
-    help: 'Hilfe',
-    comingSoon:
-      'Diese Funktion wird gerade entwickelt und ist bald verfügbar.',
+    profileTitle: 'Profil',
+    profileDescription:
+      'Prüfen Sie Ihre Daten, ändern Sie Ihr Passwort und erreichen Sie Ihre Anzeigen und Ihr Büro an einem Ort.',
+    details: {
+      title: 'Meine Daten',
+      description: 'Der Name und die Kontaktnummern, unter denen man Sie erreicht.',
+      name: 'Name',
+      email: 'E-Mail-Adresse',
+      phone: 'Telefonnummer',
+      whatsapp: 'WhatsApp-Nummer',
+      empty: 'Nicht angegeben',
+      emailLocked:
+        'Ihre E-Mail-Adresse identifiziert das Konto und kann nicht geändert werden.',
+      edit: 'Daten bearbeiten',
+    },
+    security: {
+      title: 'Sicherheit',
+      description: 'Ändern Sie Ihr Passwort, ohne sich erneut anzumelden.',
+      changePassword: 'Passwort ändern',
+    },
+    listings: {
+      title: 'Meine Anzeigen',
+    },
+    office: {
+      title: 'Mein Büro',
+      loading: 'Ihr Büro wird geladen…',
+    },
+    editDialog: {
+      title: 'Meine Daten bearbeiten',
+      description:
+        'Aktualisieren Sie Namen und Kontaktnummern. Die E-Mail-Adresse dient nur der Ansicht.',
+      save: 'Änderungen speichern',
+      saving: 'Wird gespeichert…',
+      cancel: 'Abbrechen',
+    },
+    passwordDialog: {
+      title: 'Passwort ändern',
+      description:
+        'Geben Sie Ihr aktuelles Passwort ein und danach das neue zweimal.',
+      current: 'Aktuelles Passwort',
+      new: 'Neues Passwort',
+      confirm: 'Neues Passwort bestätigen',
+      hint: 'Mindestens {minimum} Zeichen, und anders als Ihr aktuelles Passwort.',
+      submit: 'Passwort aktualisieren',
+      submitting: 'Wird aktualisiert…',
+    },
+    errors: {
+      nameRequired: 'Ein Name ist erforderlich.',
+      nameTooLong: 'Der Name darf höchstens {maximum} Zeichen lang sein.',
+      noHtml: 'Der Text darf keine HTML-Tags enthalten.',
+      contactNumber:
+        'Geben Sie eine gültige Nummer mit 6 bis 15 Ziffern ein, optional mit + am Anfang.',
+      currentRequired: 'Geben Sie Ihr aktuelles Passwort ein.',
+      passwordTooShort:
+        'Das neue Passwort muss mindestens {minimum} Zeichen haben.',
+      passwordSame:
+        'Das neue Passwort muss sich vom aktuellen unterscheiden.',
+      passwordMismatch: 'Die beiden Passwörter stimmen nicht überein.',
+    },
+    feedback: {
+      loading: 'Ihre Daten werden geladen…',
+      loadError: 'Ihre Daten konnten nicht geladen werden.',
+      retry: 'Erneut versuchen',
+      profileSaved: 'Ihre Daten wurden gespeichert.',
+      passwordChanged:
+        'Ihr Passwort wurde aktualisiert, und diese Sitzung bleibt angemeldet.',
+      saveError:
+        'Die Änderungen konnten nicht gespeichert werden. Bitte erneut versuchen.',
+      invalidCurrentPassword: 'Das aktuelle Passwort ist nicht korrekt.',
+      passwordUnavailable:
+        'Dieses Konto meldet sich mit Google an und hat kein Passwort.',
+      rateLimited: 'Zu viele Versuche. Bitte versuchen Sie es später erneut.',
+      sessionExpired:
+        'Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an.',
+    },
   },
   offices: {
-    badge: 'Demnächst',
     title: 'Immobilienbüros',
     description:
-      'Wir arbeiten an Büroseiten, damit Sie alle Inserate eines Büros an einem Ort durchsuchen können.',
+      'Durchsuchen Sie die Büros auf Dar Syria und alle Inserate, die sie anbieten.',
+    loading: 'Büros werden geladen',
+    mine: {
+      label: 'Mein Büro',
+      createTitle: 'Büro hinzufügen',
+      createDescription:
+        'Veröffentlichen Sie eine Büroseite — Ihre bestehenden Inserate werden ihr automatisch zugeordnet.',
+      createAction: 'Büro hinzufügen',
+      editAction: 'Bearbeiten',
+      viewAction: 'Ansehen',
+    },
+    count: {
+      one: '{count} Immobilie',
+      other: '{count} Immobilien',
+    },
+    empty: {
+      title: 'Noch keine Büros',
+      description:
+        'Die ersten Büros erscheinen hier, sobald sie ihre Seiten veröffentlichen.',
+    },
+    error: {
+      title: 'Büros konnten nicht geladen werden',
+      description: 'Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.',
+      action: 'Erneut versuchen',
+    },
+    details: {
+      loading: 'Büro wird geladen',
+      back: 'Alle Büros',
+      call: 'Anrufen',
+      whatsapp: 'WhatsApp',
+      whatsappMessage: 'Hallo, ich habe Ihr Büro auf Dar Syria gefunden.',
+      notFound: {
+        title: 'Büro nicht gefunden',
+        description:
+          'Dieses Büro wurde möglicherweise entfernt, oder der Link ist falsch.',
+        action: 'Zurück zu den Büros',
+      },
+      properties: {
+        title: 'Inserate dieses Büros',
+        empty: {
+          title: 'Noch keine Inserate',
+          description:
+            'Dieses Büro hat noch keine Immobilie veröffentlicht.',
+        },
+      },
+    },
+  },
+  officeForm: {
+    createTitle: 'Büro hinzufügen',
+    createDescription:
+      'Schreiben Sie den Namen in der Sprache, die Sie gerade nutzen; die anderen Sprachen übernehmen ihn, bis Sie sie übersetzen.',
+    editTitle: 'Büro bearbeiten',
+    editDescription:
+      'Die Änderungen gelten für die gerade genutzte Sprache. Die übrigen Übersetzungen bleiben unverändert.',
+    localizedField: '{field} ({language})',
+    fields: {
+      name: 'Büroname',
+      description: 'Über das Büro',
+      governorate: 'Gouvernement',
+      city: 'Stadt',
+      phone: 'Telefonnummer',
+      whatsapp: 'WhatsApp-Nummer',
+    },
+    hints: {
+      name: 'Gilt für alle drei Sprachen, bis Sie jede einzeln bearbeiten.',
+    },
+    actions: {
+      create: 'Büro erstellen',
+      save: 'Änderungen speichern',
+      saving: 'Wird gespeichert…',
+      cancel: 'Abbrechen',
+    },
+    delete: {
+      zoneTitle: 'Gefahrenbereich',
+      zoneDescription:
+        'Das Schließen des Büros entfernt seine öffentliche Seite dauerhaft. Ihre Immobilien sind davon nicht betroffen.',
+      action: 'Büro löschen',
+      title: 'Dieses Büro löschen',
+      description:
+        '„{name}“ wird mit seiner öffentlichen Seite dauerhaft entfernt.',
+      warning: 'Dies kann nicht rückgängig gemacht werden.',
+      propertiesNotice:
+        'Ihre Immobilien werden nicht gelöscht — sie bleiben veröffentlicht, nur ohne Verknüpfung mit einem Büro.',
+      confirm: 'Büro endgültig löschen',
+      cancel: 'Abbrechen',
+      feedback: {
+        network: 'Verbindung nicht möglich. Bitte erneut versuchen.',
+        unexpected:
+          'Das Büro konnte nicht gelöscht werden. Bitte erneut versuchen.',
+      },
+    },
+    errors: {
+      nameRequired: 'Geben Sie den Büronamen ein.',
+      nameTooLong: 'Der Name ist zu lang.',
+      descriptionTooLong: 'Die Beschreibung ist zu lang.',
+      cityTooLong: 'Der Stadtname ist zu lang.',
+      contactNumber: 'Geben Sie eine gültige Nummer mit 6 bis 15 Ziffern ein.',
+      noHtml: 'Der Text darf die Zeichen < und > nicht enthalten.',
+    },
+    feedback: {
+      alreadyExists: 'Dieses Konto hat bereits ein Büro.',
+      validation: 'Prüfen Sie die markierten Felder und versuchen Sie es erneut.',
+      network: 'Die Verbindung ist fehlgeschlagen. Versuchen Sie es erneut.',
+      unexpected: 'Das Büro konnte nicht gespeichert werden. Versuchen Sie es erneut.',
+    },
   },
   homepage: {
     mobile: {
@@ -754,6 +1018,6 @@ export const de = {
     coverage: 'Für Gemeinschaften in ganz Syrien',
     contactSoon: 'Kontaktdaten folgen in Kürze',
     copyright: '© {year} Immobilien in Syrien. Alle Rechte vorbehalten.',
-    languages: 'Arabisch · Englisch · Deutsch',
+    languages: 'Arabisch · Englisch · Deutsch · Türkisch',
   },
 }

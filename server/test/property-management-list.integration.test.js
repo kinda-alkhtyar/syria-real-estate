@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import { after, before, test } from 'node:test'
 
 import express from 'express'
@@ -28,6 +29,7 @@ function record({
   ownerId: propertyOwnerId,
   slug,
   status,
+  rejectionReason = null,
   transaction = 'BUY',
   propertyType = 'HOUSE',
   governorate = 'DAMASCUS',
@@ -42,9 +44,13 @@ function record({
     titleEn: `${slug} English`,
     titleAr: `${slug} Arabic`,
     titleDe: `${slug} German`,
+    descriptionEn: `${slug} English description`,
+    descriptionAr: `${slug} Arabic description`,
+    descriptionDe: null,
     transaction,
     propertyType,
     status,
+    rejectionReason,
     governorate,
     city: 'Damascus',
     district: null,
@@ -83,6 +89,21 @@ const records = [
     slug: 'owner-draft',
     status: 'DRAFT',
     createdAt: '2026-01-01T00:00:00.000Z',
+  }),
+  record({
+    id: '40000000-0000-4000-8000-000000000004',
+    ownerId,
+    slug: 'owner-pending',
+    status: 'PENDING_REVIEW',
+    createdAt: '2026-01-15T00:00:00.000Z',
+  }),
+  record({
+    id: '40000000-0000-4000-8000-000000000005',
+    ownerId,
+    slug: 'owner-rejected',
+    status: 'REJECTED',
+    rejectionReason: 'The photographs do not show the advertised property.',
+    createdAt: '2026-01-20T00:00:00.000Z',
   }),
   record({
     id: '40000000-0000-4000-8000-000000000002',
@@ -196,9 +217,19 @@ async function request(
   )
   return {
     status: response.status,
+    headers: response.headers,
     body: await response.json(),
   }
 }
+
+test('never lets a shared cache keep a dashboard response', async () => {
+  const response = await request()
+
+  assert.equal(response.status, 200)
+  assert.equal(response.headers.get('cache-control'), 'no-store')
+  // Caches that ignore no-store must at least key on the session cookie.
+  assert.match(response.headers.get('vary') ?? '', /Cookie/i)
+})
 
 test('returns structured 401 unauthenticated and 403 for USER', async () => {
   const unauthenticated = await request('', { userId: null })
@@ -219,12 +250,56 @@ test('OWNER receives only owned properties including draft and archived', async 
   assert.equal(response.status, 200)
   assert.deepEqual(
     response.body.data.map(({ slug }) => slug),
-    ['owner-draft', 'owner-archived'],
+    ['owner-draft', 'owner-pending', 'owner-rejected', 'owner-archived'],
   )
   assert.deepEqual(
     response.body.data.map(({ status }) => status),
-    ['DRAFT', 'ARCHIVED'],
+    ['DRAFT', 'PENDING_REVIEW', 'REJECTED', 'ARCHIVED'],
   )
+})
+
+test('an owner sees the moderator note on a rejected listing only', async () => {
+  const response = await request('?sort=oldest')
+  const byStatus = Object.fromEntries(
+    response.body.data.map((property) => [
+      property.status,
+      property.rejectionReason,
+    ]),
+  )
+
+  assert.equal(
+    byStatus.REJECTED,
+    'The photographs do not show the advertised property.',
+  )
+  assert.equal(byStatus.PENDING_REVIEW, null)
+  assert.equal(byStatus.DRAFT, null)
+})
+
+// The dashboard badge is the paginated total, so it has to be right even when
+// the caller asks for a single page of the queue.
+test('the review queue is filterable and its total drives the badge', async () => {
+  const queue = await request('?status=pending_review&pageSize=1', {
+    userId: adminId,
+    role: 'ADMIN',
+  })
+
+  assert.equal(queue.status, 200)
+  assert.deepEqual(
+    queue.body.data.map(({ slug }) => slug),
+    ['owner-pending'],
+  )
+  assert.equal(queue.body.meta.total, 1)
+  assert.equal(queue.body.meta.totalPages, 1)
+})
+
+test('an owner queue is scoped to that owner', async () => {
+  const owned = await request('?status=pending_review')
+  const other = await request('?status=pending_review', {
+    userId: otherOwnerId,
+  })
+
+  assert.equal(owned.body.meta.total, 1)
+  assert.equal(other.body.meta.total, 0)
 })
 
 test('ADMIN receives every manageable property', async () => {
@@ -234,8 +309,8 @@ test('ADMIN receives every manageable property', async () => {
   })
 
   assert.equal(response.status, 200)
-  assert.equal(response.body.data.length, 3)
-  assert.equal(response.body.meta.total, 3)
+  assert.equal(response.body.data.length, 5)
+  assert.equal(response.body.meta.total, 5)
 })
 
 test('supports filtering, deterministic sorting, and pagination', async () => {
@@ -275,9 +350,17 @@ test('returns only dashboard-safe property and image fields', async () => {
     'titleEn',
     'titleAr',
     'titleDe',
+    // Exposed to the dashboard on purpose: the edit form pre-fills the
+    // description of the language being written.
+    'descriptionEn',
+    'descriptionAr',
+    'descriptionDe',
     'transaction',
     'propertyType',
     'status',
+    // Read by the dashboard next to the status so a rejected owner is told
+    // what to change.
+    'rejectionReason',
     'governorate',
     'city',
     'district',
@@ -304,6 +387,34 @@ test('returns only dashboard-safe property and image fields', async () => {
     'storagePath',
   ]) {
     assert.ok(!serialized.includes(privateField))
+  }
+  // The stored descriptions travel as written, with an unwritten one as null.
+  assert.equal(property.descriptionEn, 'owner-draft English description')
+  assert.equal(property.descriptionAr, 'owner-draft Arabic description')
+  assert.equal(property.descriptionDe, null)
+})
+
+// The select is private to the repository and bound to the Prisma singleton, so
+// the column list is asserted at the source: a serializer that reads a column
+// the query never selected would silently return undefined.
+test('selects the stored descriptions for the management list', () => {
+  const source = readFileSync(
+    new URL('../src/repositories/property.repository.js', import.meta.url),
+    'utf8',
+  )
+  const select = source.slice(
+    source.indexOf('const managementPropertySelect'),
+    source.indexOf('const propertyVideoSelect'),
+  )
+
+  for (const column of [
+    'descriptionEn',
+    'descriptionAr',
+    'descriptionDe',
+    'status',
+    'rejectionReason',
+  ]) {
+    assert.match(select, new RegExp(`\\b${column}: true`))
   }
 })
 
