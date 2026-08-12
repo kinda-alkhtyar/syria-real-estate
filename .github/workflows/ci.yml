@@ -56,6 +56,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # The lockfile was written on Windows, so it carries only the win32
+      # rolldown binding. npm's optional-dependency handling leaves the Linux
+      # one out of `npm ci`, and Vite cannot build without it.
+      - name: Install rolldown native binding
+        run: npm install "@rolldown/binding-linux-x64-gnu@$(node -p "require('rolldown/package.json').version")" --no-save
+
       - name: Lint
         run: npm run lint:client
 
