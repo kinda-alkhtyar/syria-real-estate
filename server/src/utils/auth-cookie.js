@@ -33,7 +33,15 @@ export function createAuthCookieManager({
   const baseOptions = Object.freeze({
     httpOnly: true,
     secure,
-    sameSite: 'lax',
+    // The browser treats the deployed client and this API as separate sites,
+    // so a `Lax` cookie is withheld from the client's fetch calls and every
+    // authenticated request reads as signed out. `None` is only legal
+    // alongside `Secure`, which the `secure` default above pins to this same
+    // production condition. Development stays on `Lax`: it runs over plain
+    // HTTP, where a `None` cookie is rejected outright.
+    // This does not weaken CSRF cover, which never came from SameSite here —
+    // `requireAllowedOrigin` guards every write route.
+    sameSite: env.nodeEnv === 'production' ? 'none' : 'lax',
     path: '/',
   })
 
