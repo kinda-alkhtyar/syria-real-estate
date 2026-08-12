@@ -1,0 +1,10 @@
+version: 2
+
+updates:
+  # One entry covers the whole install: the workspaces share a single root
+  # lockfile, so client and server dependencies are both picked up here.
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5

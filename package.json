@@ -12,6 +12,10 @@
     "build:client": "npm run build --workspace client",
     "lint:client": "npm run lint --workspace client",
     "preview:client": "npm run preview --workspace client",
-    "start:server": "npm run start --workspace server"
+    "start:server": "npm run start --workspace server",
+    "build:server": "npm run build --workspace server",
+    "test:client": "npm run test --workspace client",
+    "test:server": "npm run test --workspace server",
+    "test:mutations": "npm run test:mutations --workspace server"
   }
 }

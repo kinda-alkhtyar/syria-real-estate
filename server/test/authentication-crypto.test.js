@@ -48,3 +48,45 @@ test('generates 256-bit cookie-safe tokens and deterministic SHA-256 hashes', ()
     false,
   )
 })
+
+test('refuses to hash anything that is not a non-empty string', () => {
+  const message = 'Session token must be a non-empty string.'
+
+  // The empty string is the case that matters: it is falsy but still a string,
+  // so a guard joined with `&&` instead of `||` would hash it happily.
+  assert.throws(() => hashSessionToken(''), { name: 'TypeError', message })
+  assert.throws(() => hashSessionToken(null), { name: 'TypeError', message })
+  assert.throws(
+    () => hashSessionToken(undefined),
+    { name: 'TypeError', message },
+  )
+  assert.throws(
+    () => hashSessionToken(Buffer.from('token')),
+    { name: 'TypeError', message },
+  )
+})
+
+test('compares session token hashes only as fully anchored 64-character hex', () => {
+  const hash = hashSessionToken(generateSessionToken())
+  const other = hashSessionToken(generateSessionToken())
+
+  // The hex alphabet is case-insensitive, so an equal hash in either case is
+  // still equal.
+  assert.equal(sessionTokenHashesEqual(hash.toUpperCase(), hash), true)
+  assert.equal(sessionTokenHashesEqual(hash, other), false)
+
+  // Both anchors carry weight: an unanchored pattern would accept a hash
+  // carrying a prefix or a suffix and compare the 64 characters it found.
+  assert.equal(sessionTokenHashesEqual(`z${hash}`, hash), false)
+  assert.equal(sessionTokenHashesEqual(`${hash}z`, hash), false)
+  assert.equal(sessionTokenHashesEqual(hash, `${hash}z`), false)
+  assert.equal(sessionTokenHashesEqual(hash.slice(0, 63), hash), false)
+  assert.equal(sessionTokenHashesEqual(`${hash.slice(0, 63)}g`, hash), false)
+
+  // A String object stringifies to a valid hash and would pass a pattern test,
+  // so the `typeof` guards are what keep a non-primitive out.
+  assert.equal(sessionTokenHashesEqual(new String(hash), hash), false)
+  assert.equal(sessionTokenHashesEqual(hash, new String(hash)), false)
+  assert.equal(sessionTokenHashesEqual(null, hash), false)
+  assert.equal(sessionTokenHashesEqual(hash, undefined), false)
+})

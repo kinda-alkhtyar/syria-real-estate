@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# Mutation testing sandbox and report output
+.stryker-tmp
+reports
+
 # Environment variables
 .env
 .env.*
