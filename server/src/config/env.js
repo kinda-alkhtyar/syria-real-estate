@@ -25,6 +25,9 @@ const environmentSchema = z.object({
   // deployment without a bot behaves exactly as it did before.
   TELEGRAM_BOT_TOKEN: z.string().trim().default(''),
   TELEGRAM_CHAT_ID: z.string().trim().default(''),
+  // Optional: error monitoring stays switched off until a DSN is set, and an
+  // empty value keeps the SDK unloaded rather than merely silent.
+  SENTRY_DSN: z.string().trim().default(''),
 })
 
 /**
@@ -71,6 +74,7 @@ export function parseApplicationEnvironment(environment) {
     googleClientId: result.data.GOOGLE_CLIENT_ID,
     telegramBotToken: result.data.TELEGRAM_BOT_TOKEN,
     telegramChatId: result.data.TELEGRAM_CHAT_ID,
+    sentryDsn: result.data.SENTRY_DSN,
   })
 }
 

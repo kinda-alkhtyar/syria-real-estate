@@ -1,3 +1,4 @@
+import errorReporter from '../observability/error-reporter.js'
 import logger from '../observability/logger.js'
 import operationalMetrics from '../observability/metrics.js'
 
@@ -66,6 +67,7 @@ export function categorizeError(error, statusCode) {
 export function createErrorMiddleware({
   log = logger,
   metrics = operationalMetrics,
+  reporter = errorReporter,
 } = {}) {
   return function errorMiddleware(error, request, response, next) {
     if (response.headersSent) {
@@ -130,6 +132,21 @@ export function createErrorMiddleware({
     }
 
     log.error('request_failed', fields)
+
+    // After the log line, never instead of it: the JSON log stays the record of
+    // record, and monitoring is a copy that a deployment may switch off. Server
+    // errors only — a 4xx is the API refusing a request as designed, and
+    // routing those to an incident tool would bury the failures that matter.
+    if (isServerError) {
+      reporter.captureException(error, {
+        category,
+        code,
+        method: request.method,
+        requestId: request.id,
+        route: fields.route,
+        status: statusCode,
+      })
+    }
 
     response.status(statusCode).json({
       error: {

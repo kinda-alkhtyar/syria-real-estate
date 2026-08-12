@@ -2,6 +2,7 @@ import app from './app.js'
 import env, { productionConfigurationWarnings } from './config/env.js'
 import prisma from './config/database.js'
 import { stackFrames } from './middleware/error.middleware.js'
+import errorReporter from './observability/error-reporter.js'
 import logger from './observability/logger.js'
 import { createGracefulShutdown } from './utils/graceful-shutdown.js'
 import { createExpiredSessionCleanup } from './utils/session-cleanup.js'
@@ -9,6 +10,10 @@ import { createExpiredSessionCleanup } from './utils/session-cleanup.js'
 for (const code of productionConfigurationWarnings(env)) {
   logger.warn('configuration_warning', { code, component: 'server' })
 }
+
+// No-op unless SENTRY_DSN is set. Awaited before the port opens so the first
+// request cannot fail before reporting is live.
+await errorReporter.initialize()
 
 const httpServer = app.listen(env.port, () => {
   logger.info('server_started', { component: 'server', status: 200 })
@@ -63,6 +68,15 @@ function handleFatal(event, error) {
     signal: event,
     stack: stackFrames(error),
     status: 500,
+  })
+  // After the log line, and before the drain: the shutdown below keeps the
+  // process alive while connections finish, and that window is what gives the
+  // event time to leave. Synchronous by design — awaiting a flush here would
+  // put a monitoring backend on the path of an already-failing shutdown.
+  errorReporter.captureException(error, {
+    component: 'server',
+    level: 'fatal',
+    signal: event,
   })
   sessionCleanup.stop()
   if (!shutdown(event, { failed: true })) process.exit(1)

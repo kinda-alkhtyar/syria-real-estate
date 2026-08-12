@@ -1,0 +1,11 @@
+-- CreateIndex
+-- The office profile page reads one office's published listings newest-first,
+-- and the office list counts the same rows per office. "Property_officeId_idx"
+-- serves the lookup but stops there: the status filter is applied to every row
+-- it returns, and the ordering is a sort on top of that. Carrying both columns
+-- lets the detail page walk the index already ordered, and lets the per-office
+-- count on the list stay index-only.
+--
+-- "Property_officeId_idx" is left in place: it backs the officeId foreign key,
+-- and this index is not a substitute for that role.
+CREATE INDEX "Property_officeId_status_createdAt_idx" ON "Property"("officeId", "status", "createdAt");

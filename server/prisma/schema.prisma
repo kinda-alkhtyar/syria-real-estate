@@ -154,6 +154,10 @@ model Property {
   images           PropertyImage[]
 
   @@index([officeId])
+  // Serves the office profile page — one office's published listings, newest
+  // first — and the per-office count on the office list. @@index([officeId])
+  // stays: it is what backs the foreign key.
+  @@index([officeId, status, createdAt])
   @@index([ownerId])
   @@index([ownerId, updatedAt])
   @@index([status, createdAt])
