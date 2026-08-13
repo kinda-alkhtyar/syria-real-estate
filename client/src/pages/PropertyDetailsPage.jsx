@@ -23,6 +23,7 @@ import PropertyDetailsState from '../features/properties/components/PropertyDeta
 import PropertyGallery from '../features/properties/components/PropertyGallery.jsx'
 import PropertyInformation from '../features/properties/components/PropertyInformation.jsx'
 import SimilarProperties from '../features/properties/components/SimilarProperties.jsx'
+import { propertyLocationLabel } from '../features/properties/adapters/from-property-api.js'
 import {
   toCallHref,
   toWhatsappHref,
@@ -146,7 +147,7 @@ export default function PropertyDetailsPage() {
     property.price.currency,
     locale.code,
   )}${property.price.periodKey ? ` ${t(property.price.periodKey)}` : ''}`
-  const locationLabel = property.location ?? t(property.locationKey)
+  const locationLabel = propertyLocationLabel(property, t)
   const floors = property.information?.floors
   const favoriteLabel = t(
     favorite
@@ -360,7 +361,7 @@ export default function PropertyDetailsPage() {
               </div>
               <p className="mt-3 flex items-center gap-2 text-muted">
                 <MapPin aria-hidden="true" size={18} />
-                {property.location ?? t(property.locationKey)}
+                {locationLabel}
               </p>
               <p className="mt-5 text-3xl font-bold lg:text-2xl lg:font-semibold">
                 {formatCurrency(

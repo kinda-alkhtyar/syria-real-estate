@@ -1,3 +1,4 @@
+import { governorateLabel } from '../../../constants/governorate-keys.js'
 import { propertyCatalog } from '../catalog/property-catalog.js'
 
 const transactionTypes = {
@@ -42,14 +43,34 @@ function asNumber(value) {
   return Number.isFinite(number) ? number : undefined
 }
 
-function locationText(property) {
+/**
+ * The free-text parts of an address, narrowest first. The governorate is
+ * deliberately absent: it is an enum, and only a caller holding the message
+ * catalogue can name it in the language being read.
+ */
+function locationParts(property) {
+  return [property.neighborhood, property.district, property.city].filter(
+    Boolean,
+  )
+}
+
+/**
+ * The location line as displayed. An editorial listing carries an authored line
+ * that is already translated; every other listing is composed from what the
+ * owner typed plus the governorate resolved through the catalogue, the same way
+ * the management list composes it. A part that only repeats the governorate — a
+ * Damascus listing whose city is also Damascus — is dropped instead of printed
+ * twice.
+ */
+export function propertyLocationLabel(listing, t) {
+  if (listing.locationKey) return t(listing.locationKey)
+
   return [
-    property.neighborhood,
-    property.district,
-    property.city,
-    property.governorate,
+    ...(listing.locationParts ?? []),
+    governorateLabel(listing.governorateValue, t),
   ]
     .filter(Boolean)
+    .filter((part, index, all) => all.indexOf(part) === index)
     .join(', ')
 }
 
@@ -135,8 +156,11 @@ export function fromPropertyApi(property, localeCode) {
     images: images.length > 0 ? images : [image],
     title: localizedValue(property, 'title', localeCode),
     description: localizedWithFallback(property, 'description', localeCode),
-    location: editorial ? undefined : locationText(property),
+    locationParts: editorial ? undefined : locationParts(property),
     locationKey: editorial?.locationKey,
+    // The raw enum, kept alongside the slug form above: `governorate` is the
+    // value filters and URLs use, while the message keys derive from the enum.
+    governorateValue: property.governorate,
     transactionType:
       transactionTypes[property.transaction] ??
       property.transaction.toLowerCase(),

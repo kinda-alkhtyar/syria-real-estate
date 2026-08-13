@@ -3,6 +3,7 @@ import {
   formatCurrency,
   formatNumber,
 } from '../utils/property-formatters.js'
+import { propertyLocationLabel } from './from-property-api.js'
 
 const factDefinitions = [
   { key: 'bedrooms', type: 'bedrooms' },
@@ -56,7 +57,7 @@ export function toPropertyCardModel(listing, localeCode, t) {
     transactionType: listing.transactionType,
     propertyType: listing.propertyType,
     title,
-    location: listing.location ?? t(listing.locationKey),
+    location: propertyLocationLabel(listing, t),
     price: `${formatCurrency(
       listing.price.amount,
       listing.price.currency,
