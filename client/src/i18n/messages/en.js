@@ -573,6 +573,7 @@ export const en = {
     description:
       'Discover options across the leading cities and governorates of Syria',
     cardAction: 'Browse available properties',
+    cardImageAlt: 'Properties in {city}',
   },
   account: {
     guest: 'Guest',

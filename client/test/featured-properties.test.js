@@ -154,7 +154,7 @@ test('a listing published after the flagged ones still reaches the rail', () => 
   )
 })
 
-test('the rail stops at four cards however much is published', () => {
+test('the rail stops at two full rows however much is published', () => {
   const many = Array.from({ length: 9 }, (unusedValue, index) => ({
     ...apiListings[2],
     id: `listing-${index}`,
@@ -162,12 +162,26 @@ test('the rail stops at four cards however much is published', () => {
   }))
   const featured = selectFeaturedProperties([...apiListings, ...many])
 
-  assert.equal(featuredLimit, 4)
+  assert.equal(featuredLimit, 8)
   assert.equal(featured.length, featuredLimit)
 })
 
+test('the flagged listings still lead once the rail runs two rows deep', () => {
+  const many = Array.from({ length: 9 }, (unusedValue, index) => ({
+    ...apiListings[2],
+    id: `listing-${index}`,
+    publishedAt: `2026-07-0${index + 1}`,
+  }))
+  const featured = selectFeaturedProperties([...many, ...apiListings])
+
+  assert.deepEqual(featured.slice(0, 2).map((listing) => listing.id), [
+    'villa-in-yaafour-33ab',
+    'shop-in-mazzeh-7f21',
+  ])
+})
+
 test('a promoted listing is never repeated by the filler', () => {
-  const featured = selectFeaturedProperties(apiListings, 4)
+  const featured = selectFeaturedProperties(apiListings)
   const ids = featured.map((listing) => listing.id)
 
   assert.equal(new Set(ids).size, ids.length)

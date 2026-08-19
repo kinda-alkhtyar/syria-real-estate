@@ -12,6 +12,10 @@ import {
 import { useLocale } from '../../../hooks/useLocale.js'
 import SectionTitle from '../ui/SectionTitle.jsx'
 
+// One full row of placeholders: the cap is what may arrive, not what is
+// promised, so a loading state that reserved eight would mostly overstate.
+const skeletonCount = 4
+
 /**
  * Presents a curated, responsive sample of property listings.
  */
@@ -44,10 +48,10 @@ export default function FeaturedProperties() {
         {status === 'loading' ? (
           <div
             aria-label={t('results.loading')}
-            className="mt-10 grid gap-6 md:grid-cols-2 md:[&>*:nth-child(3):last-child]:col-span-2 md:[&>*:nth-child(3):last-child]:w-[calc(50%-0.75rem)] md:[&>*:nth-child(3):last-child]:justify-self-center xl:mt-[92px]! xl:grid-cols-[repeat(3,400px)]! xl:justify-start xl:gap-[20px]! xl:[&>*:nth-child(3):last-child]:col-span-1 xl:[&>*:nth-child(3):last-child]:w-auto xl:[&>*:nth-child(3):last-child]:justify-self-stretch"
+            className="mt-10 grid gap-6 md:grid-cols-2 md:[&>*:nth-child(3):last-child]:col-span-2 md:[&>*:nth-child(3):last-child]:w-[calc(50%-0.75rem)] md:[&>*:nth-child(3):last-child]:justify-self-center xl:mt-[92px]! xl:grid-cols-4! xl:gap-[20px]! xl:[&>*:nth-child(3):last-child]:col-span-1 xl:[&>*:nth-child(3):last-child]:w-auto xl:[&>*:nth-child(3):last-child]:justify-self-stretch"
             role="status"
           >
-            {Array.from({ length: featuredLimit }, (unusedValue, index) => (
+            {Array.from({ length: skeletonCount }, (unusedValue, index) => (
               <PropertyCardSkeleton key={index} />
             ))}
           </div>
@@ -59,7 +63,7 @@ export default function FeaturedProperties() {
               </p>
             )}
             {cards.length > 0 ? (
-              <div className="mt-10 grid gap-6 md:grid-cols-2 md:[&>*:nth-child(3):last-child]:col-span-2 md:[&>*:nth-child(3):last-child]:w-[calc(50%-0.75rem)] md:[&>*:nth-child(3):last-child]:justify-self-center xl:mt-[92px]! xl:grid-cols-[repeat(3,400px)]! xl:justify-start xl:gap-[20px]! xl:[&>*:nth-child(3):last-child]:col-span-1 xl:[&>*:nth-child(3):last-child]:w-auto xl:[&>*:nth-child(3):last-child]:justify-self-stretch">
+              <div className="mt-10 grid gap-6 md:grid-cols-2 md:[&>*:nth-child(3):last-child]:col-span-2 md:[&>*:nth-child(3):last-child]:w-[calc(50%-0.75rem)] md:[&>*:nth-child(3):last-child]:justify-self-center xl:mt-[92px]! xl:grid-cols-4! xl:gap-[20px]! xl:[&>*:nth-child(3):last-child]:col-span-1 xl:[&>*:nth-child(3):last-child]:w-auto xl:[&>*:nth-child(3):last-child]:justify-self-stretch">
                 {cards.map((card) => (
                   <PropertyCard key={card.id} showcase {...card} />
                 ))}

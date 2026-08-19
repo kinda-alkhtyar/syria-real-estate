@@ -578,6 +578,7 @@ export const tr = {
     description:
       "Suriye'nin önde gelen şehirlerinde ve illerinde seçenekleri keşfedin",
     cardAction: 'Mevcut ilanlara göz at',
+    cardImageAlt: '{city} bölgesindeki ilanlar',
   },
   account: {
     guest: 'Misafir',

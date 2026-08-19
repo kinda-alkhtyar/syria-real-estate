@@ -596,6 +596,7 @@ export const de = {
     description:
       'Entdecken Sie Angebote in den wichtigsten Städten und Gouvernoraten Syriens',
     cardAction: 'Verfügbare Immobilien ansehen',
+    cardImageAlt: 'Immobilien in {city}',
   },
   account: {
     guest: 'Gast',

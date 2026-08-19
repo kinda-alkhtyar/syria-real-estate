@@ -1,6 +1,6 @@
 import { featuredPropertyIds } from '../catalog/property-catalog.js'
 
-export const featuredLimit = 4
+export const featuredLimit = 8
 
 function byNewestFirst(source) {
   return [...source].sort(

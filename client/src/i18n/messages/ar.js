@@ -575,6 +575,7 @@ export const ar = {
     description:
       'اكتشف خيارات متنوعة في أبرز المدن والمحافظات السورية',
     cardAction: 'تصفّح العقارات المتاحة',
+    cardImageAlt: 'عقارات في {city}',
   },
   account: {
     guest: 'زائر',
