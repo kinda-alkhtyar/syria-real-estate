@@ -11,6 +11,7 @@ import { FavoritesContext } from '../src/features/favorites/favorites-context.js
 import { propertyCatalog } from '../src/features/properties/catalog/property-catalog.js'
 import { PropertiesContext } from '../src/features/properties/context/properties-context.js'
 import FeaturedProperties from '../src/components/home/sections/FeaturedProperties.jsx'
+import PropertyCard from '../src/features/properties/components/PropertyCard.jsx'
 import {
   featuredLimit,
   selectFeaturedProperties,
@@ -216,4 +217,81 @@ test('an empty source renders the empty state rather than throwing', () => {
   )
 
   assert.ok(markup.includes(emptyState))
+})
+
+const cardProps = {
+  id: 'villa-in-yaafour-33ab',
+  image: { src: '/b.jpg', alt: 'Villa', width: 960, height: 720 },
+  listingType: 'For sale',
+  title: 'A title long enough to want a second line and then some more',
+  location: 'Yaafour, Rif Dimashq',
+  price: '$320,000',
+  href: '/properties/villa-in-yaafour-33ab',
+  facts: [
+    { type: 'bedrooms', label: 'Bedrooms', value: '5' },
+    { type: 'bathrooms', label: 'Bathrooms', value: '4' },
+    { type: 'area', label: 'Area', value: '400 m²' },
+  ],
+  favoriteLabel: 'Save',
+  favoriteRemoveLabel: 'Unsave',
+  transactionType: 'buy',
+}
+
+function renderCard(extraProps) {
+  return renderToStaticMarkup(
+    createElement(
+      MemoryRouter,
+      null,
+      createElement(
+        LocaleContext.Provider,
+        { value: localeValue('ar') },
+        createElement(
+          FavoritesContext.Provider,
+          {
+            value: {
+              favorites: [],
+              isFavorite: () => false,
+              toggleFavorite() {},
+            },
+          },
+          createElement(PropertyCard, { ...cardProps, ...extraProps }),
+        ),
+      ),
+    ),
+  )
+}
+
+/** The classes that make the rail compact, all of them `xl`-only. */
+const compactingClasses = [
+  'xl:h-[190px]',
+  'xl:line-clamp-2',
+  'xl:whitespace-nowrap',
+  'xl:mt-auto',
+  'xl:p-[16px]',
+]
+
+test('the showcase card compacts itself at xl and nowhere below it', () => {
+  const markup = renderCard({ showcase: true })
+
+  for (const className of compactingClasses) {
+    assert.ok(markup.includes(className), `${className} is missing`)
+  }
+  assert.ok(!markup.includes('xl:min-h-[520px]'))
+  assert.ok(!markup.includes('xl:min-h-[270px]'))
+  assert.ok(markup.includes('aspect-[16/9]'))
+})
+
+test('a search-result card is untouched by the rail treatment', () => {
+  const markup = renderCard({})
+
+  for (const className of compactingClasses) {
+    assert.ok(!markup.includes(className), `${className} leaked into results`)
+  }
+})
+
+test('a compact search-result card keeps its own image height', () => {
+  const markup = renderCard({ compact: true })
+
+  assert.ok(markup.includes('xl:h-40'))
+  assert.ok(!markup.includes('xl:h-[190px]'))
 })

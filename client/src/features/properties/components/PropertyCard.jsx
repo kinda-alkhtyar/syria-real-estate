@@ -68,14 +68,14 @@ export default function PropertyCard({
     <article
       className={`group relative flex min-w-0 flex-col overflow-hidden transition-[transform,box-shadow] duration-standard hover:-translate-y-0.5 focus-within:shadow-[var(--shadow-md)] motion-reduce:transform-none motion-reduce:transition-none ${
         showcase
-          ? 'rounded-[16px] border border-home-card-border bg-home-panel shadow-[0px_8px_28px_0px_rgba(18,36,59,0.08)] hover:shadow-[0px_12px_32px_0px_rgba(18,36,59,0.14)] xl:min-h-[520px]'
+          ? 'rounded-[16px] border border-home-card-border bg-home-panel shadow-[0px_8px_28px_0px_rgba(18,36,59,0.08)] hover:shadow-[0px_12px_32px_0px_rgba(18,36,59,0.14)]'
           : 'rounded-lg border border-line bg-elevated shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-md)]'
       }`}
     >
       <div
         className={`relative overflow-hidden bg-skeleton ${
           showcase
-            ? 'aspect-[16/9] xl:aspect-auto xl:h-[250px]'
+            ? 'aspect-[16/9] xl:aspect-auto xl:h-[190px]'
             : featured
               ? 'aspect-[16/9] lg:h-[26.25rem] lg:aspect-auto'
               : compact
@@ -147,7 +147,7 @@ export default function PropertyCard({
       <div
         className={`flex flex-1 flex-col ${
           showcase
-            ? 'gap-[10px] p-[20px] xl:min-h-[270px]'
+            ? 'gap-[10px] p-[20px] xl:gap-[8px] xl:p-[16px]'
             : compact
               ? 'min-h-0 p-3 sm:p-5'
               : 'min-h-0 p-3 sm:min-h-48 sm:p-5'
@@ -156,7 +156,7 @@ export default function PropertyCard({
         <div
           className={`flex min-w-0 items-center gap-1.5 ${
             showcase
-              ? 'text-[18px] font-normal leading-[22px] text-home-muted'
+              ? 'text-[18px] font-normal leading-[22px] text-home-muted xl:text-[16px] xl:leading-[20px]'
               : 'text-xs text-muted sm:text-sm'
           }`}
         >
@@ -167,7 +167,10 @@ export default function PropertyCard({
               size={16}
             />
           )}
-          <span className={showcase ? 'min-w-0' : 'truncate'} title={location}>
+          <span
+            className={showcase ? 'min-w-0 xl:truncate' : 'truncate'}
+            title={location}
+          >
             {location}
           </span>
         </div>
@@ -175,7 +178,7 @@ export default function PropertyCard({
         <h3
           className={
             showcase
-              ? 'text-[20px] font-semibold leading-[32px] text-home-heading'
+              ? 'text-[20px] font-semibold leading-[32px] text-home-heading xl:line-clamp-2 xl:min-h-[56px] xl:text-[18px] xl:leading-[28px]'
               : 'mt-2 line-clamp-2 text-sm font-semibold leading-5 tracking-[-0.025em] text-ink sm:mt-3 sm:line-clamp-none sm:text-xl sm:leading-snug'
           }
         >
@@ -191,7 +194,7 @@ export default function PropertyCard({
         <p
           className={
             showcase
-              ? 'text-[20px] font-semibold leading-[30px] text-home-gold'
+              ? 'text-[20px] font-semibold leading-[30px] text-home-gold xl:whitespace-nowrap xl:text-[18px] xl:leading-[26px]'
               : 'mt-1.5 text-base font-bold text-ink sm:mt-2 sm:text-lg sm:font-semibold'
           }
         >
@@ -202,7 +205,7 @@ export default function PropertyCard({
           <dl
             className={`flex flex-wrap ${
               showcase
-                ? 'w-full items-center justify-center gap-x-3 gap-y-[10px] p-[10px] text-[18px] font-normal leading-[22px] text-home-muted'
+                ? 'w-full items-center justify-center gap-x-3 gap-y-[10px] p-[10px] text-[18px] font-normal leading-[22px] text-home-muted xl:mt-auto xl:gap-x-2 xl:p-0 xl:pt-[8px] xl:text-[15px] xl:leading-[20px]'
                 : 'mt-auto gap-x-3 gap-y-1.5 border-t border-line pt-3 text-xs text-muted sm:gap-x-4 sm:gap-y-2 sm:pt-4 sm:text-sm'
             }`}
           >

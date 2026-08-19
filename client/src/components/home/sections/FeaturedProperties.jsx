@@ -30,7 +30,7 @@ export default function FeaturedProperties() {
   return (
     <section
       aria-labelledby="featured-properties-title"
-      className="bg-canvas py-14 sm:py-18 xl:min-h-[850px]! xl:py-0 xl:pt-[80px]! xl:pb-[110px]!"
+      className="bg-canvas py-14 sm:py-18 xl:py-0 xl:pt-[80px]! xl:pb-[110px]!"
       id="featured"
     >
       <Container className="xl:w-[min(1280px,calc(100%-160px))]! xl:px-0!">
