@@ -1,15 +1,15 @@
 import Button from '../../ui/Button.jsx'
 import Container from '../../ui/Container.jsx'
 import { toPropertyCardModel } from '../../../features/properties/adapters/to-property-card-model.js'
-import {
-  featuredPropertyIds,
-  propertyCatalog,
-} from '../../../features/properties/catalog/property-catalog.js'
+import { propertyCatalog } from '../../../features/properties/catalog/property-catalog.js'
 import PropertyCard from '../../../features/properties/components/PropertyCard.jsx'
 import PropertyCardSkeleton from '../../../features/properties/components/PropertyCardSkeleton.jsx'
 import { useProperties } from '../../../features/properties/hooks/useProperties.js'
+import { selectFeaturedProperties } from '../../../features/properties/utils/select-featured-properties.js'
 import { useLocale } from '../../../hooks/useLocale.js'
 import SectionTitle from '../ui/SectionTitle.jsx'
+
+const featuredCount = 3
 
 /**
  * Presents a curated, responsive sample of property listings.
@@ -18,9 +18,9 @@ export default function FeaturedProperties() {
   const { locale, t } = useLocale()
   const { properties, status } = useProperties()
   const source = status === 'error' ? propertyCatalog : properties
-  const cards = source
-    .filter((listing) => featuredPropertyIds.includes(listing.id))
-    .map((listing) => toPropertyCardModel(listing, locale.code, t))
+  const cards = selectFeaturedProperties(source, featuredCount).map((listing) =>
+    toPropertyCardModel(listing, locale.code, t),
+  )
 
   return (
     <section
@@ -46,8 +46,8 @@ export default function FeaturedProperties() {
             className="mt-10 grid gap-6 md:grid-cols-2 md:[&>*:nth-child(3):last-child]:col-span-2 md:[&>*:nth-child(3):last-child]:w-[calc(50%-0.75rem)] md:[&>*:nth-child(3):last-child]:justify-self-center xl:mt-[92px]! xl:grid-cols-[repeat(3,400px)]! xl:justify-start xl:gap-[20px]! xl:[&>*:nth-child(3):last-child]:col-span-1 xl:[&>*:nth-child(3):last-child]:w-auto xl:[&>*:nth-child(3):last-child]:justify-self-stretch"
             role="status"
           >
-            {featuredPropertyIds.slice(0, 3).map((id) => (
-              <PropertyCardSkeleton key={id} />
+            {Array.from({ length: featuredCount }, (unusedValue, index) => (
+              <PropertyCardSkeleton key={index} />
             ))}
           </div>
         ) : (
@@ -59,7 +59,7 @@ export default function FeaturedProperties() {
             )}
             {cards.length > 0 ? (
               <div className="mt-10 grid gap-6 md:grid-cols-2 md:[&>*:nth-child(3):last-child]:col-span-2 md:[&>*:nth-child(3):last-child]:w-[calc(50%-0.75rem)] md:[&>*:nth-child(3):last-child]:justify-self-center xl:mt-[92px]! xl:grid-cols-[repeat(3,400px)]! xl:justify-start xl:gap-[20px]! xl:[&>*:nth-child(3):last-child]:col-span-1 xl:[&>*:nth-child(3):last-child]:w-auto xl:[&>*:nth-child(3):last-child]:justify-self-stretch">
-                {cards.slice(0, 3).map((card) => (
+                {cards.map((card) => (
                   <PropertyCard key={card.id} showcase {...card} />
                 ))}
               </div>

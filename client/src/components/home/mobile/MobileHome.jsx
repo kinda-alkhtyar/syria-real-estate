@@ -16,6 +16,7 @@ import { syrianGovernorates } from '../../../constants/syrian-governorates.js'
 import { toPropertyCardModel } from '../../../features/properties/adapters/to-property-card-model.js'
 import { propertyCatalog } from '../../../features/properties/catalog/property-catalog.js'
 import { useProperties } from '../../../features/properties/hooks/useProperties.js'
+import { selectFeaturedProperties } from '../../../features/properties/utils/select-featured-properties.js'
 import { propertyTypes } from '../../../features/property-search/constants/property-types.js'
 import { useFavorites } from '../../../hooks/useFavorites.js'
 import { useLocale } from '../../../hooks/useLocale.js'
@@ -282,13 +283,7 @@ export default function MobileHome() {
     (first, second) =>
       new Date(second.publishedAt ?? 0) - new Date(first.publishedAt ?? 0),
   )
-  // `featured` is an existing API flag. Newest listings stand in only while no
-  // listing carries the flag, so the rail is never empty.
-  const flagged = byNewest.filter((listing) => listing.featured)
-  const featured = (flagged.length > 0 ? flagged : byNewest).slice(
-    0,
-    featuredCount,
-  )
+  const featured = selectFeaturedProperties(source, featuredCount)
   const latest = byNewest.slice(0, latestCount)
   const toCard = (listing) => toPropertyCardModel(listing, locale.code, t)
 
