@@ -11,7 +11,10 @@ import { FavoritesContext } from '../src/features/favorites/favorites-context.js
 import { propertyCatalog } from '../src/features/properties/catalog/property-catalog.js'
 import { PropertiesContext } from '../src/features/properties/context/properties-context.js'
 import FeaturedProperties from '../src/components/home/sections/FeaturedProperties.jsx'
-import { selectFeaturedProperties } from '../src/features/properties/utils/select-featured-properties.js'
+import {
+  featuredLimit,
+  selectFeaturedProperties,
+} from '../src/features/properties/utils/select-featured-properties.js'
 import { messages } from '../src/i18n/messages/index.js'
 import { translate } from '../src/i18n/translate.js'
 
@@ -118,13 +121,56 @@ test('the desktop featured section renders API listings, not only catalogue ids'
   assert.ok(!markup.includes(emptyState))
 })
 
-test('the flagged listings win over the merely newest ones', () => {
-  const featured = selectFeaturedProperties(apiListings, 3)
+test('the flagged listings lead and the newest ones fill the rest', () => {
+  const featured = selectFeaturedProperties(apiListings)
 
   assert.deepEqual(
     featured.map((listing) => listing.id),
-    ['villa-in-yaafour-33ab', 'shop-in-mazzeh-7f21'],
+    [
+      'villa-in-yaafour-33ab',
+      'shop-in-mazzeh-7f21',
+      'studio-in-tartus-91cd',
+    ],
   )
+})
+
+test('a listing published after the flagged ones still reaches the rail', () => {
+  const justPublished = {
+    ...apiListings[2],
+    id: 'loft-in-aleppo-04ef',
+    title: 'Loft in Aleppo',
+    publishedAt: '2026-08-18',
+  }
+  const featured = selectFeaturedProperties([...apiListings, justPublished])
+
+  assert.deepEqual(
+    featured.map((listing) => listing.id),
+    [
+      'villa-in-yaafour-33ab',
+      'shop-in-mazzeh-7f21',
+      'loft-in-aleppo-04ef',
+      'studio-in-tartus-91cd',
+    ],
+  )
+})
+
+test('the rail stops at four cards however much is published', () => {
+  const many = Array.from({ length: 9 }, (unusedValue, index) => ({
+    ...apiListings[2],
+    id: `listing-${index}`,
+    publishedAt: `2026-07-0${index + 1}`,
+  }))
+  const featured = selectFeaturedProperties([...apiListings, ...many])
+
+  assert.equal(featuredLimit, 4)
+  assert.equal(featured.length, featuredLimit)
+})
+
+test('a promoted listing is never repeated by the filler', () => {
+  const featured = selectFeaturedProperties(apiListings, 4)
+  const ids = featured.map((listing) => listing.id)
+
+  assert.equal(new Set(ids).size, ids.length)
 })
 
 test('nothing flagged falls back to the newest listings', () => {

@@ -1,5 +1,7 @@
 import { featuredPropertyIds } from '../catalog/property-catalog.js'
 
+export const featuredLimit = 4
+
 function byNewestFirst(source) {
   return [...source].sort(
     (first, second) =>
@@ -8,21 +10,28 @@ function byNewestFirst(source) {
 }
 
 /**
- * The listings a homepage rail should showcase, newest first.
+ * The listings promoted on the homepage: the flagged ones, then whatever was
+ * published most recently.
  *
- * `featured` is the API flag and wins whenever any listing carries it. The
- * curated catalogue ids stand in for the bundled sample data, which predates
- * the flag, and the newest listings stand in last so the rail is never empty.
+ * `featured` is the API flag. It decides the order rather than the whole rail,
+ * so a freshly published listing is seen while only a couple of listings carry
+ * the flag. The curated catalogue ids stand in as the flag for the bundled
+ * sample data, which predates it.
+ *
+ * `publishedAt` is the adapter's name for the API's `createdAt`, so the filler
+ * is newest-first in the sense the API means.
  */
-export function selectFeaturedProperties(source, limit) {
+export function selectFeaturedProperties(source, limit = featuredLimit) {
   const newest = byNewestFirst(source)
   const flagged = newest.filter((listing) => listing.featured)
-  if (flagged.length > 0) return flagged.slice(0, limit)
+  const promoted =
+    flagged.length > 0
+      ? flagged
+      : newest.filter((listing) => featuredPropertyIds.includes(listing.id))
+  const promotedIds = new Set(promoted.map((listing) => listing.id))
 
-  const curated = newest.filter((listing) =>
-    featuredPropertyIds.includes(listing.id),
-  )
-  if (curated.length > 0) return curated.slice(0, limit)
-
-  return newest.slice(0, limit)
+  return [
+    ...promoted,
+    ...newest.filter((listing) => !promotedIds.has(listing.id)),
+  ].slice(0, limit)
 }
