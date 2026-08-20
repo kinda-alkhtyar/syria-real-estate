@@ -9,6 +9,7 @@ import propertyImageProcessor, {
   maximumImageBytes,
   maximumImagesPerProperty,
 } from '../utils/property-image.js'
+import propertyMediaUrls from './property-media-url.service.js'
 
 function imageError(code, message, statusCode) {
   const error = new Error(message)
@@ -38,6 +39,7 @@ export function createPropertyImageService({
   imageRepository = propertyImageRepository,
   storage = propertyImageStorage,
   processor = propertyImageProcessor,
+  mediaUrls = propertyMediaUrls,
   createId = randomUUID,
 } = {}) {
   async function authorizeProperty(propertyId, actor) {
@@ -59,6 +61,20 @@ export function createPropertyImageService({
     return property
   }
 
+  /**
+   * The stored `url` is the permanent public link to the object. It is only
+   * handed out for a listing a visitor could already open; for anything else —
+   * a draft, a submission under review, a rejected listing — the media service
+   * answers with a URL that expires.
+   */
+  async function serializeImages(status, images) {
+    const urls = await mediaUrls.forImages(status, images)
+    return images.map((image, index) => ({
+      ...serializeImage(image),
+      url: urls[index],
+    }))
+  }
+
   async function compensateUpload(storagePath) {
     try {
       await storage.remove(storagePath)
@@ -72,7 +88,7 @@ export function createPropertyImageService({
   }
 
   async function reorder(propertyId, imageIds, actor) {
-    await authorizeProperty(propertyId, actor)
+    const property = await authorizeProperty(propertyId, actor)
     const result = await imageRepository.reorder(propertyId, imageIds)
     if (result.invalidSet) {
       throw imageError(
@@ -81,14 +97,14 @@ export function createPropertyImageService({
         400,
       )
     }
-    return result.images.map(serializeImage)
+    return serializeImages(property.status, result.images)
   }
 
   return {
     authorizeProperty,
 
     async uploadImage(propertyId, file, altText, actor) {
-      await authorizeProperty(propertyId, actor)
+      const property = await authorizeProperty(propertyId, actor)
       if (
         (await imageRepository.countPropertyImages(propertyId)) >=
         maximumImagesPerProperty
@@ -131,7 +147,8 @@ export function createPropertyImageService({
           409,
         )
       }
-      return serializeImage(result.image)
+      const [image] = await serializeImages(property.status, [result.image])
+      return image
     },
 
     reorderImages(propertyId, imageIds, actor) {
@@ -139,7 +156,7 @@ export function createPropertyImageService({
     },
 
     async setPrimaryImage(propertyId, imageId, actor) {
-      await authorizeProperty(propertyId, actor)
+      const property = await authorizeProperty(propertyId, actor)
       const images = await imageRepository.listImages(propertyId)
       if (!images.some(({ id }) => id === imageId)) {
         throw imageError(
@@ -160,7 +177,7 @@ export function createPropertyImageService({
           409,
         )
       }
-      return result.images.map(serializeImage)
+      return serializeImages(property.status, result.images)
     },
 
     async deleteImage(propertyId, imageId, actor) {

@@ -12,12 +12,14 @@ const [
   { requireRole },
   { createManagementRouter },
   { createPropertyManagementListService },
+  { createPropertyMediaUrls },
 ] = await Promise.all([
   import('../src/controllers/property-management.controller.js'),
   import('../src/middleware/error.middleware.js'),
   import('../src/middleware/authentication.middleware.js'),
   import('../src/routes/management.routes.js'),
   import('../src/services/property-management-list.service.js'),
+  import('../src/services/property-media-url.service.js'),
 ])
 
 const ownerId = '11111111-1111-4111-8111-111111111111'
@@ -158,6 +160,23 @@ const repository = {
   },
 }
 
+// The dashboard is the only surface that renders unpublished listings, so it is
+// the only one that needs their media signed. The real resolver runs over a
+// stubbed bucket so the published/unpublished decision under test is the real
+// one; `signedBatches` records what each page asked Storage to sign.
+const signedBatches = []
+const signingStorage = {
+  async createSignedUrls(paths, expiresInSeconds) {
+    signedBatches.push({ paths: [...paths], expiresInSeconds })
+    return new Map(paths.map((path) => [path, `https://signed.example/${path}`]))
+  },
+}
+const mediaUrls = createPropertyMediaUrls({
+  imageStorage: signingStorage,
+  videoStorage: signingStorage,
+  log: { error: () => {} },
+})
+
 function authenticate(request, _response, next) {
   const id = request.get('X-Test-User')
   const role = request.get('X-Test-Role')
@@ -176,7 +195,7 @@ let baseUrl
 let closeServer
 
 before(async () => {
-  const service = createPropertyManagementListService({ repository })
+  const service = createPropertyManagementListService({ mediaUrls, repository })
   const controller = createPropertyManagementListController({ service })
   const app = express()
   app.use(
@@ -428,4 +447,53 @@ test('rejects invalid and ownership-related query parameters', async () => {
   assert.equal(invalid.body.error.code, 'INVALID_REQUEST')
   assert.equal(ownership.status, 400)
   assert.equal(ownership.body.error.code, 'INVALID_REQUEST')
+})
+
+test('an administrator opens draft media through a signed URL', async () => {
+  signedBatches.length = 0
+  const response = await request('?sort=oldest', {
+    userId: adminId,
+    role: 'ADMIN',
+  })
+
+  assert.equal(response.status, 200)
+  const byStatus = new Map(
+    response.body.data.map((property) => [property.status, property]),
+  )
+
+  for (const status of ['DRAFT', 'PENDING_REVIEW', 'REJECTED', 'ARCHIVED']) {
+    const [image] = byStatus.get(status).images
+    assert.match(image.url, /^https:\/\/signed\.example\/private\//)
+    // The permanent public link is exactly what must not be handed out here.
+    assert.ok(!image.url.startsWith('https://images.example/'))
+  }
+
+  // A published listing keeps its public URL, so the CDN goes on serving it
+  // from one stable cache key.
+  assert.equal(
+    byStatus.get('AVAILABLE').images[0].url,
+    'https://images.example/other-available.webp',
+  )
+
+  // One batch per bucket for the whole page, and the published listing is not
+  // part of it.
+  const [images] = signedBatches
+  assert.equal(images.expiresInSeconds, 3600)
+  assert.ok(!images.paths.includes('private/other-available'))
+})
+
+test('the storage path behind a signed URL never reaches the client', async () => {
+  const response = await request('?sort=oldest', {
+    userId: adminId,
+    role: 'ADMIN',
+  })
+
+  assert.equal(response.status, 200)
+  for (const property of response.body.data) {
+    assert.ok(!Object.hasOwn(property, 'storagePath'))
+    assert.ok(!Object.hasOwn(property, 'videoStoragePath'))
+    for (const image of property.images) {
+      assert.ok(!Object.hasOwn(image, 'storagePath'))
+    }
+  }
 })

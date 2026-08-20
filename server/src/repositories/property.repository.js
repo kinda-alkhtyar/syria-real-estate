@@ -35,6 +35,7 @@ const publicPropertySelect = {
     select: {
       id: true,
       url: true,
+      storagePath: true,
       altEn: true,
       altAr: true,
       altDe: true,
@@ -83,6 +84,7 @@ const managementPropertySelect = {
   bathrooms: true,
   area: true,
   whatsapp: true,
+  videoStoragePath: true,
   videoUrl: true,
   videoMimeType: true,
   videoSizeBytes: true,
@@ -93,6 +95,7 @@ const managementPropertySelect = {
     select: {
       id: true,
       url: true,
+      storagePath: true,
       altEn: true,
       altAr: true,
       altDe: true,

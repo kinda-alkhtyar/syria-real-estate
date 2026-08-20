@@ -17,6 +17,7 @@ import {
 } from '../repositories/property.repository.js'
 import { publicPropertyStatuses } from '../validation/property.schema.js'
 import listingTranslator from './listing-translation.service.js'
+import propertyMediaUrls from './property-media-url.service.js'
 
 const publicStatusSet = new Set(publicPropertyStatuses)
 
@@ -42,6 +43,15 @@ const sortOrders = {
 
 function serializeDecimal(value) {
   return value === null ? null : value.toString()
+}
+
+// `storagePath` is selected so an unpublished listing's media can be signed.
+// It names an object inside a private-by-intent bucket and never belongs in a
+// response, so every serialized image drops it here, once, for every caller.
+function serializeImage(image) {
+  const serialized = { ...image }
+  delete serialized.storagePath
+  return serialized
 }
 
 export function serializeProperty(property) {
@@ -75,7 +85,7 @@ export function serializeProperty(property) {
     featured: property.featured,
     createdAt: property.createdAt,
     updatedAt: property.updatedAt,
-    images: property.images,
+    images: property.images?.map(serializeImage) ?? property.images,
   }
 }
 
@@ -218,6 +228,7 @@ export function createPropertyManagementService({
   storage = propertyImageStorage,
   // Images and videos live in separate buckets, so each has its own adapter.
   videoStorage = propertyVideoStorage,
+  mediaUrls = propertyMediaUrls,
   log = logger,
 } = {}) {
   /**
@@ -257,6 +268,30 @@ export function createPropertyManagementService({
     return property
   }
 
+  /**
+   * A management write answers with the listing it just wrote, at whatever
+   * status that listing now holds — a draft, or a submission still under
+   * review. Those are exactly the listings whose media must not be handed out
+   * as permanent public links, so the URLs are resolved through the media
+   * service rather than taken from the stored column.
+   */
+  async function serializeWithMedia(property) {
+    const serialized = serializeProperty(property)
+    const urls = await mediaUrls.forImages(
+      property.status,
+      property.images ?? [],
+    )
+
+    return {
+      ...serialized,
+      images:
+        serialized.images?.map((image, index) => ({
+          ...image,
+          url: urls[index],
+        })) ?? serialized.images,
+    }
+  }
+
   async function updateAuthorizedProperty(id, data, actor) {
     const current = await authorizeProperty(id, actor)
     assertOwnerStatusTransition(current, data.status, actor)
@@ -269,7 +304,7 @@ export function createPropertyManagementService({
       // Only a resubmission alerts: an ordinary edit of a listing already in
       // review must not send the moderator the same listing twice.
       if (resubmission.status) notifyPendingReview(property)
-      return serializeProperty(property)
+      return await serializeWithMedia(property)
     } catch (error) {
       translateWriteError(error)
     }
@@ -367,7 +402,7 @@ export function createPropertyManagementService({
           slug: randomUUID(),
         })
         notifyPendingReview(property)
-        return serializeProperty(property)
+        return await serializeWithMedia(property)
       } catch (error) {
         translateWriteError(error)
       }

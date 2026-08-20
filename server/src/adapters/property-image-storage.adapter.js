@@ -126,6 +126,33 @@ export function createPropertyImageStorageAdapter({
       return { url: data.publicUrl }
     },
 
+    /**
+     * Time-limited URLs for objects that must not be handed out as permanent
+     * public links. Signed in one batch because a dashboard page asks for every
+     * image of every listing it renders, and one round trip per image would
+     * dominate the response.
+     *
+     * Returns a Map from storage path to URL. A path the service could not sign
+     * is simply absent: the caller decides what a missing URL means, and for
+     * unpublished media that decision is to show nothing rather than to fall
+     * back to the permanent public link.
+     */
+    async createSignedUrls(storagePaths, expiresInSeconds) {
+      const paths = [...new Set(storagePaths)].filter(Boolean)
+      if (paths.length === 0) return new Map()
+
+      const { data, error } = await withTransientRetry(() =>
+        storage.createSignedUrls(paths, expiresInSeconds),
+      )
+      if (error || !data) throw operationError()
+
+      return new Map(
+        data
+          .filter((entry) => !entry.error && entry.path && entry.signedUrl)
+          .map((entry) => [entry.path, entry.signedUrl]),
+      )
+    },
+
     async download(storagePath) {
       const { data, error } = await storage.download(storagePath)
       if (error || !data) throw operationError()
@@ -195,6 +222,9 @@ export const propertyVideoStorage = {
   upload(...args) {
     return getPropertyVideoStorageAdapter().upload(...args)
   },
+  createSignedUrls(...args) {
+    return getPropertyVideoStorageAdapter().createSignedUrls(...args)
+  },
   download(...args) {
     return getPropertyVideoStorageAdapter().download(...args)
   },
@@ -206,6 +236,9 @@ export const propertyVideoStorage = {
 export default {
   upload(...args) {
     return getPropertyImageStorageAdapter().upload(...args)
+  },
+  createSignedUrls(...args) {
+    return getPropertyImageStorageAdapter().createSignedUrls(...args)
   },
   download(...args) {
     return getPropertyImageStorageAdapter().download(...args)

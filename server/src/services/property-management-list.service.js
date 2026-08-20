@@ -1,4 +1,5 @@
 import { findManageableProperties } from '../repositories/property.repository.js'
+import propertyMediaUrls from './property-media-url.service.js'
 
 const sortOrders = {
   newest: [{ createdAt: 'desc' }, { id: 'asc' }],
@@ -13,7 +14,7 @@ function serializeDecimal(value) {
   return value === null ? null : value.toString()
 }
 
-function serializeManagementProperty(property) {
+function serializeManagementProperty(property, media) {
   return {
     id: property.id,
     slug: property.slug,
@@ -44,7 +45,7 @@ function serializeManagementProperty(property) {
     bathrooms: property.bathrooms,
     area: serializeDecimal(property.area),
     whatsapp: property.whatsapp ?? null,
-    videoUrl: property.videoUrl ?? null,
+    videoUrl: media.videoUrl(property.status, property),
     videoMimeType: property.videoMimeType ?? null,
     // BigInt is not JSON-serializable; a video size always fits in a Number.
     videoSizeBytes:
@@ -53,7 +54,10 @@ function serializeManagementProperty(property) {
     updatedAt: property.updatedAt,
     images: property.images.map((image) => ({
       id: image.id,
-      url: image.url,
+      // The dashboard is the one place unpublished listings are displayed, so
+      // it is the one place their media has to be reachable without the
+      // objects being world-readable.
+      url: media.imageUrl(property.status, image),
       altEn: image.altEn,
       altAr: image.altAr,
       altDe: image.altDe,
@@ -65,6 +69,7 @@ function serializeManagementProperty(property) {
 }
 
 export function createPropertyManagementListService({
+  mediaUrls = propertyMediaUrls,
   repository = { findManageableProperties },
 } = {}) {
   return {
@@ -92,8 +97,12 @@ export function createPropertyManagementListService({
         take: pageSize,
       })
 
+      // One signing call per bucket for the whole page, however many listings
+      // it holds; a published listing contributes nothing to sign.
+      const media = await mediaUrls.forProperties(items)
+
       return {
-        data: items.map(serializeManagementProperty),
+        data: items.map((item) => serializeManagementProperty(item, media)),
         meta: {
           page,
           pageSize,

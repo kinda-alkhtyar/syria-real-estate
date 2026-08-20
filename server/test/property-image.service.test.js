@@ -3,9 +3,11 @@ import { test } from 'node:test'
 
 process.env.CORS_ORIGINS = 'https://client.example'
 
-const { createPropertyImageService } = await import(
-  '../src/services/property-image.service.js'
-)
+const [{ createPropertyImageService }, { createPropertyMediaUrls }] =
+  await Promise.all([
+    import('../src/services/property-image.service.js'),
+    import('../src/services/property-media-url.service.js'),
+  ])
 
 const owner = {
   id: '11111111-1111-4111-8111-111111111111',
@@ -34,18 +36,32 @@ function savedImage(overrides = {}) {
   }
 }
 
-function createMocks(overrides = {}) {
+function createMocks({ status = 'AVAILABLE', ...overrides } = {}) {
   const calls = {
     creates: [],
     uploads: [],
     removes: [],
     downloads: [],
+    signings: [],
   }
   const propertyRepository = {
     async findPropertyOwnership() {
-      return { id: propertyId, ownerId: owner.id }
+      return { id: propertyId, ownerId: owner.id, status }
     },
   }
+  // The real resolver over a stubbed bucket, so the published/unpublished
+  // decision under test is the one the server actually makes.
+  const mediaUrls = createPropertyMediaUrls({
+    log: { error: () => {} },
+    imageStorage: {
+      async createSignedUrls(paths, expiresInSeconds) {
+        calls.signings.push({ paths: [...paths], expiresInSeconds })
+        return new Map(
+          paths.map((path) => [path, `https://signed.example/${path}`]),
+        )
+      },
+    },
+  })
   const imageRepository = {
     async countPropertyImages() {
       return 0
@@ -99,6 +115,7 @@ function createMocks(overrides = {}) {
   const dependencies = {
     propertyRepository,
     imageRepository,
+    mediaUrls,
     storage,
     processor,
     createId: () => '55555555-5555-4555-8555-555555555555',
@@ -127,6 +144,49 @@ test('owner uploads to an owned property with safe metadata', async () => {
   assert.match(calls.uploads[0], new RegExp(`^properties/${propertyId}/`))
   assert.ok(!Object.hasOwn(image, 'storagePath'))
   assert.ok(!Object.hasOwn(image, 'propertyId'))
+})
+
+test('an upload to a listing under review answers with a signed URL', async () => {
+  for (const status of ['DRAFT', 'PENDING_REVIEW', 'REJECTED']) {
+    const { calls, service } = createMocks({ status })
+    const image = await service.uploadImage(
+      propertyId,
+      { buffer: Buffer.from('source'), mimetype: 'image/jpeg' },
+      {},
+      owner,
+    )
+
+    assert.equal(
+      image.url,
+      `https://signed.example/properties/${propertyId}/55555555-5555-4555-8555-555555555555.webp`,
+    )
+    assert.equal(calls.signings.at(-1).expiresInSeconds, 3600)
+    assert.ok(!Object.hasOwn(image, 'storagePath'))
+  }
+})
+
+test('an upload to a published listing keeps the public URL unsigned', async () => {
+  const { calls, service } = createMocks({ status: 'AVAILABLE' })
+  const image = await service.uploadImage(
+    propertyId,
+    { buffer: Buffer.from('source'), mimetype: 'image/jpeg' },
+    {},
+    owner,
+  )
+
+  assert.equal(image.url, 'https://public.example/image.webp')
+  assert.deepEqual(calls.signings, [])
+})
+
+test('reordering a draft returns signed URLs for every image', async () => {
+  const { service } = createMocks({ status: 'DRAFT' })
+  const images = await service.reorderImages(propertyId, [imageId], owner)
+
+  assert.equal(images.length, 1)
+  assert.match(images[0].url, /^https:\/\/signed\.example\//)
+
+  const primary = await service.setPrimaryImage(propertyId, imageId, owner)
+  assert.match(primary[0].url, /^https:\/\/signed\.example\//)
 })
 
 test('denies non-owner while allowing ADMIN ownership override', async () => {

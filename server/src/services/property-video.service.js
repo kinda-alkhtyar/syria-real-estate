@@ -13,6 +13,7 @@ import {
 import propertyVideoValidator, {
   videoHeaderBytes,
 } from '../utils/property-video.js'
+import propertyMediaUrls from './property-media-url.service.js'
 
 async function readHeader(filePath, byteCount) {
   const handle = await open(filePath, 'r')
@@ -43,6 +44,7 @@ export function createPropertyVideoService({
     findPropertyOwnership,
     findPropertyVideo,
   },
+  mediaUrls = propertyMediaUrls,
   storage = propertyVideoStorage,
   validator = propertyVideoValidator,
 } = {}) {
@@ -91,7 +93,7 @@ export function createPropertyVideoService({
     async uploadVideo(propertyId, file, actor) {
       // The upload already sits in a temp file; it is removed on every path.
       try {
-        await authorizeProperty(propertyId, actor)
+        const property = await authorizeProperty(propertyId, actor)
 
         const existing = await repository.findPropertyVideo(propertyId)
         if (existing?.videoStoragePath) throw videoExistsError()
@@ -128,7 +130,12 @@ export function createPropertyVideoService({
         }
 
         return {
-          url,
+          // A listing a visitor cannot open yet answers with a URL that
+          // expires instead of the permanent public link to the object.
+          url: await mediaUrls.forVideo(property.status, {
+            videoUrl: url,
+            videoStoragePath: storagePath,
+          }),
           mimeType: video.mimeType,
           sizeBytes: Number(video.sizeBytes),
         }
