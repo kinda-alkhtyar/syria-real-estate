@@ -2,6 +2,12 @@
 @import "./tokens.css";
 @import "./reset.css";
 
+/* Tailwind's built-in `dark:` variant is media-query based by default, which is
+   exactly the second theme mechanism this app must not have. Rebinding it to
+   the `dark` class keeps every dark style — tokens and utilities alike — on the
+   single class-based system driven by the pre-paint script in index.html. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   /* Approved Figma desktop layout needs 1280px content + 80px side gutters.
      Declared in rem so it sorts after the built-in rem breakpoints. */

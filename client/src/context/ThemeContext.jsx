@@ -2,81 +2,101 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import {
   ThemeContext,
+  resolveTheme,
+  storedThemes,
   themeModes,
   themeStorageKey,
 } from './theme-context.js'
+
+/* Dark is expressed as one thing only: this class on <html>. */
+const darkClassName = 'dark'
+const colorSchemeQuery = '(prefers-color-scheme: dark)'
 
 function isThemeMode(value) {
   return themeModes.includes(value)
 }
 
+function readStoredTheme() {
+  try {
+    const storedTheme = window.localStorage.getItem(themeStorageKey)
+    return storedThemes.includes(storedTheme) ? storedTheme : null
+  } catch {
+    // Storage can be unavailable in privacy-restricted environments.
+    return null
+  }
+}
+
+function writeStoredTheme(theme) {
+  try {
+    if (theme === 'system') {
+      window.localStorage.removeItem(themeStorageKey)
+      return
+    }
+
+    window.localStorage.setItem(themeStorageKey, theme)
+  } catch {
+    // The selected mode still works for this session when storage is blocked.
+  }
+}
+
+function systemPrefersDark() {
+  return window.matchMedia(colorSchemeQuery).matches
+}
+
 function getSystemTheme() {
-  return window.matchMedia('(prefers-color-scheme: dark)').matches
-    ? 'dark'
-    : 'light'
+  return systemPrefersDark() ? 'dark' : 'light'
 }
 
-function getInitialTheme() {
-  const initializedTheme = document.documentElement.dataset.themeMode
-  return isThemeMode(initializedTheme) ? initializedTheme : 'system'
-}
-
-function applyTheme(theme) {
-  const resolvedTheme = theme === 'system' ? getSystemTheme() : theme
-  const root = document.documentElement
-
-  root.dataset.theme = resolvedTheme
-  root.dataset.themeMode = theme
-
-  return resolvedTheme
+function applyTheme(resolvedTheme) {
+  document.documentElement.classList.toggle(
+    darkClassName,
+    resolvedTheme === 'dark',
+  )
 }
 
 export function ThemeProvider({ children }) {
-  const [theme, setThemeState] = useState(getInitialTheme)
-  const [systemTheme, setSystemTheme] = useState(
-    () => document.documentElement.dataset.theme ?? getSystemTheme(),
-  )
-  const resolvedTheme = theme === 'system' ? systemTheme : theme
+  // The pre-paint script already resolved this exact value; re-deriving it from
+  // the same inputs keeps React in sync without a second source of truth.
+  const [theme, setThemeState] = useState(() => readStoredTheme() ?? 'system')
+  const [systemTheme, setSystemTheme] = useState(getSystemTheme)
+
+  const resolvedTheme = resolveTheme(theme, systemTheme === 'dark')
 
   const setTheme = useCallback((nextTheme) => {
     if (!isThemeMode(nextTheme)) {
       return
     }
 
+    writeStoredTheme(nextTheme)
+
     if (nextTheme === 'system') {
       setSystemTheme(getSystemTheme())
     }
 
-    applyTheme(nextTheme)
     setThemeState(nextTheme)
   }, [])
 
   useEffect(() => {
-    applyTheme(theme)
+    applyTheme(resolvedTheme)
+  }, [resolvedTheme])
 
-    try {
-      window.localStorage.setItem(themeStorageKey, theme)
-    } catch {
-      // The selected mode still works for this session when storage is blocked.
-    }
-
+  useEffect(() => {
+    // The system preference is followed only while no choice is stored, so a
+    // manual pick can never be overridden by the device switching appearance.
     if (theme !== 'system') {
       return undefined
     }
 
-    const colorSchemeQuery = window.matchMedia(
-      '(prefers-color-scheme: dark)',
-    )
+    const mediaQuery = window.matchMedia(colorSchemeQuery)
 
     function handleSystemThemeChange() {
-      const nextSystemTheme = getSystemTheme()
-      setSystemTheme(nextSystemTheme)
-      applyTheme('system')
+      setSystemTheme(mediaQuery.matches ? 'dark' : 'light')
     }
 
-    colorSchemeQuery.addEventListener('change', handleSystemThemeChange)
+    handleSystemThemeChange()
+    mediaQuery.addEventListener('change', handleSystemThemeChange)
     return () =>
-      colorSchemeQuery.removeEventListener('change', handleSystemThemeChange)
+      mediaQuery.removeEventListener('change', handleSystemThemeChange)
   }, [theme])
 
   const value = useMemo(

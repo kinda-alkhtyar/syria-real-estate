@@ -7,6 +7,10 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <meta name="theme-color" content="#12243B" />
+    <!-- Declares that the page paints its own light and dark appearance, so
+         browsers with a forced dark mode (Samsung Internet, Chrome) never
+         auto-invert the palette into a second, unbranded rendering. -->
+    <meta name="color-scheme" content="light dark" />
     <!-- `viewport-fit=cover` is what makes env(safe-area-inset-*) resolve to the
          real notch/home-indicator insets used by the fixed bottom bar. -->
     <meta
@@ -36,28 +40,32 @@
           // Storage can be unavailable in privacy-restricted environments.
         }
 
+        /* The single theme mechanism: a stored choice wins, otherwise the
+           system preference decides, and the result is written as the `dark`
+           class on <html> before the first paint. Nothing else — no media
+           query in CSS, no second palette — may set the appearance. */
         const storageKey = 'dar-syria-theme'
-        const validThemes = ['light', 'dark', 'system']
-        let preference = 'system'
+        let storedTheme = null
 
         try {
           const storedPreference = localStorage.getItem(storageKey)
-          if (validThemes.includes(storedPreference)) {
-            preference = storedPreference
+          if (storedPreference === 'light' || storedPreference === 'dark') {
+            storedTheme = storedPreference
           }
         } catch {
           // Storage can be unavailable in privacy-restricted environments.
         }
 
         const resolvedTheme =
-          preference === 'system'
-            ? matchMedia('(prefers-color-scheme: dark)').matches
-              ? 'dark'
-              : 'light'
-            : preference
+          storedTheme ??
+          (matchMedia('(prefers-color-scheme: dark)').matches
+            ? 'dark'
+            : 'light')
 
-        document.documentElement.dataset.theme = resolvedTheme
-        document.documentElement.dataset.themeMode = preference
+        document.documentElement.classList.toggle(
+          'dark',
+          resolvedTheme === 'dark',
+        )
       })()
     </script>
     <title>Properties in Syria | Property for Sale and Rent in Syria</title>
