@@ -43,9 +43,20 @@ const arabicListing = {
   titleAr: 'شقة مفروشة في دمشق',
   titleEn: 'شقة مفروشة في دمشق',
   titleDe: 'شقة مفروشة في دمشق',
+  // Turkish arrived with a nullable column, so an untranslated listing carries
+  // null here rather than the Arabic repeated.
+  titleTr: null,
   descriptionAr: 'شقة واسعة قرب المركز.',
   descriptionEn: 'شقة واسعة قرب المركز.',
   descriptionDe: 'شقة واسعة قرب المركز.',
+  descriptionTr: null,
+}
+
+// Distinct text per language, so a test can tell which pair produced a field.
+const byLanguage = {
+  'ar|en': 'English text',
+  'ar|de': 'Deutscher Text',
+  'ar|tr': 'Turkce metin',
 }
 
 const longArabicText = 'كلمة '.repeat(200).trim()
@@ -61,7 +72,7 @@ const storedDecimals = {
 
 test('translates the Arabic title and description into English and German', async () => {
   const { calls, fetch } = recordingFetch((langpair) =>
-    jsonResponse(langpair === 'ar|en' ? 'English text' : 'Deutscher Text'),
+    jsonResponse(byLanguage[langpair]),
   )
   const translator = createListingTranslator({
     fetchImplementation: fetch,
@@ -75,10 +86,12 @@ test('translates the Arabic title and description into English and German', asyn
     descriptionEn: 'English text',
     titleDe: 'Deutscher Text',
     descriptionDe: 'Deutscher Text',
+    titleTr: 'Turkce metin',
+    descriptionTr: 'Turkce metin',
   })
   assert.deepEqual(
     calls.map((call) => call.langpair),
-    ['ar|en', 'ar|en', 'ar|de', 'ar|de'],
+    ['ar|en', 'ar|en', 'ar|de', 'ar|de', 'ar|tr', 'ar|tr'],
   )
   assert.equal(calls[0].q, arabicListing.titleAr)
   // Every request shares one deadline, so a slow language cannot extend it.
@@ -102,10 +115,17 @@ test('keeps English and German text the owner wrote themselves', async () => {
   assert.equal(overrides.descriptionDe, undefined)
   assert.equal(overrides.titleDe, 'Translated')
   assert.equal(overrides.descriptionEn, 'Translated')
-  // Only the two fields left as repeated Arabic reach the endpoint.
+  assert.equal(overrides.titleTr, 'Translated')
+  assert.equal(overrides.descriptionTr, 'Translated')
+  // Only the fields left empty or as repeated Arabic reach the endpoint.
   assert.deepEqual(
-    calls.map((call) => call.q),
-    [arabicListing.descriptionAr, arabicListing.titleAr],
+    calls.map((call) => `${call.langpair} ${call.q}`),
+    [
+      `ar|en ${arabicListing.descriptionAr}`,
+      `ar|de ${arabicListing.titleAr}`,
+      `ar|tr ${arabicListing.titleAr}`,
+      `ar|tr ${arabicListing.descriptionAr}`,
+    ],
   )
 })
 
@@ -189,10 +209,11 @@ test('leaves a description too long for the free endpoint untranslated', async (
   assert.deepEqual(overrides, {
     titleEn: 'Translated',
     titleDe: 'Translated',
+    titleTr: 'Translated',
   })
   assert.deepEqual(
     calls.map((call) => call.langpair),
-    ['ar|en', 'ar|de'],
+    ['ar|en', 'ar|de', 'ar|tr'],
   )
 })
 
@@ -222,7 +243,7 @@ test('splits text over the byte limit and rejoins the translated segments', asyn
     overrides.titleEn,
     segments.map((segment, index) => `part${index + 1}`).join(' '),
   )
-  assert.equal(calls.length, segments.length * 2)
+  assert.equal(calls.length, segments.length * 3)
   assert.ok(calls[0].q.length < longArabicText.length)
 })
 
@@ -262,9 +283,11 @@ test('createProperty stores the translated columns', async () => {
     translator: createListingTranslator({
       fetchImplementation: async (url) =>
         jsonResponse(
-          new URL(url).searchParams.get('langpair') === 'ar|en'
-            ? 'Furnished flat in Damascus'
-            : 'Moeblierte Wohnung in Damaskus',
+          {
+            'ar|en': 'Furnished flat in Damascus',
+            'ar|de': 'Moeblierte Wohnung in Damaskus',
+            'ar|tr': 'Sam da mobilyali daire',
+          }[new URL(url).searchParams.get('langpair')],
         ),
       log: silentLog,
     }),
@@ -275,6 +298,7 @@ test('createProperty stores the translated columns', async () => {
 
   assert.equal(written.titleEn, 'Furnished flat in Damascus')
   assert.equal(written.titleDe, 'Moeblierte Wohnung in Damaskus')
+  assert.equal(written.titleTr, 'Sam da mobilyali daire')
   assert.equal(written.titleAr, arabicListing.titleAr)
   assert.equal(written.status, 'PENDING_REVIEW')
 })
@@ -305,4 +329,79 @@ test('createProperty still writes the listing when translation fails', async () 
 
   assert.equal(created.titleEn, arabicListing.titleAr)
   assert.equal(written.titleDe, arabicListing.titleAr)
+  // Turkish has no Arabic to fall back to in the column, so it stays null and
+  // the reader falls back to titleAr instead.
+  assert.equal(created.titleTr, null)
+})
+
+test('fills the empty Turkish columns without touching the Arabic source', async () => {
+  const { calls, fetch } = recordingFetch((langpair) =>
+    jsonResponse(byLanguage[langpair]),
+  )
+  const translator = createListingTranslator({
+    fetchImplementation: fetch,
+    log: silentLog,
+  })
+
+  const overrides = await translator.translateListingFields({
+    ...arabicListing,
+    titleEn: 'Furnished flat in Damascus',
+    titleDe: 'Moeblierte Wohnung in Damaskus',
+    descriptionEn: 'A spacious flat near the centre.',
+    descriptionDe: 'Eine geraeumige Wohnung.',
+  })
+
+  assert.deepEqual(overrides, {
+    titleTr: 'Turkce metin',
+    descriptionTr: 'Turkce metin',
+  })
+  assert.deepEqual(
+    calls.map((call) => call.langpair),
+    ['ar|tr', 'ar|tr'],
+  )
+  assert.deepEqual(
+    calls.map((call) => call.q),
+    [arabicListing.titleAr, arabicListing.descriptionAr],
+  )
+})
+
+test('leaves a Turkish column an earlier pass already filled', async () => {
+  const { calls, fetch } = recordingFetch((langpair) =>
+    jsonResponse(byLanguage[langpair]),
+  )
+  const translator = createListingTranslator({
+    fetchImplementation: fetch,
+    log: silentLog,
+  })
+
+  const overrides = await translator.translateListingFields({
+    ...arabicListing,
+    titleTr: 'Sam da mobilyali daire',
+    descriptionTr: 'Merkeze yakin genis daire.',
+  })
+
+  assert.equal(overrides.titleTr, undefined)
+  assert.equal(overrides.descriptionTr, undefined)
+  assert.equal(
+    calls.some((call) => call.langpair === 'ar|tr'),
+    false,
+  )
+})
+
+test('a failing Turkish request leaves the other languages translated', async () => {
+  const { fetch } = recordingFetch((langpair) => {
+    if (langpair === 'ar|tr') throw new Error('network down')
+    return jsonResponse(byLanguage[langpair])
+  })
+  const translator = createListingTranslator({
+    fetchImplementation: fetch,
+    log: silentLog,
+  })
+
+  assert.deepEqual(await translator.translateListingFields(arabicListing), {
+    titleEn: 'English text',
+    descriptionEn: 'English text',
+    titleDe: 'Deutscher Text',
+    descriptionDe: 'Deutscher Text',
+  })
 })

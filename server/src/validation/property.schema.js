@@ -285,9 +285,14 @@ const propertyFields = {
   titleEn: requiredText(200),
   titleAr: requiredText(200),
   titleDe: requiredText(200),
+  // Turkish is nullable where the other three are required: the column arrived
+  // after the create form did, so a submission that omits it is filled by the
+  // translator rather than rejected.
+  titleTr: nullableText(200),
   descriptionEn: nullableText(20_000),
   descriptionAr: nullableText(20_000),
   descriptionDe: nullableText(20_000),
+  descriptionTr: nullableText(20_000),
   transaction: enumValue(transactionTypes),
   propertyType: enumValue(propertyTypes),
   price: decimalSchema({

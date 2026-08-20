@@ -53,9 +53,11 @@ export type PropertyMinAggregateOutputType = {
   titleEn: string | null
   titleAr: string | null
   titleDe: string | null
+  titleTr: string | null
   descriptionEn: string | null
   descriptionAr: string | null
   descriptionDe: string | null
+  descriptionTr: string | null
   transaction: $Enums.TransactionType | null
   propertyType: $Enums.PropertyType | null
   status: $Enums.ListingStatus | null
@@ -90,9 +92,11 @@ export type PropertyMaxAggregateOutputType = {
   titleEn: string | null
   titleAr: string | null
   titleDe: string | null
+  titleTr: string | null
   descriptionEn: string | null
   descriptionAr: string | null
   descriptionDe: string | null
+  descriptionTr: string | null
   transaction: $Enums.TransactionType | null
   propertyType: $Enums.PropertyType | null
   status: $Enums.ListingStatus | null
@@ -127,9 +131,11 @@ export type PropertyCountAggregateOutputType = {
   titleEn: number
   titleAr: number
   titleDe: number
+  titleTr: number
   descriptionEn: number
   descriptionAr: number
   descriptionDe: number
+  descriptionTr: number
   transaction: number
   propertyType: number
   status: number
@@ -186,9 +192,11 @@ export type PropertyMinAggregateInputType = {
   titleEn?: true
   titleAr?: true
   titleDe?: true
+  titleTr?: true
   descriptionEn?: true
   descriptionAr?: true
   descriptionDe?: true
+  descriptionTr?: true
   transaction?: true
   propertyType?: true
   status?: true
@@ -223,9 +231,11 @@ export type PropertyMaxAggregateInputType = {
   titleEn?: true
   titleAr?: true
   titleDe?: true
+  titleTr?: true
   descriptionEn?: true
   descriptionAr?: true
   descriptionDe?: true
+  descriptionTr?: true
   transaction?: true
   propertyType?: true
   status?: true
@@ -260,9 +270,11 @@ export type PropertyCountAggregateInputType = {
   titleEn?: true
   titleAr?: true
   titleDe?: true
+  titleTr?: true
   descriptionEn?: true
   descriptionAr?: true
   descriptionDe?: true
+  descriptionTr?: true
   transaction?: true
   propertyType?: true
   status?: true
@@ -384,9 +396,11 @@ export type PropertyGroupByOutputType = {
   titleEn: string
   titleAr: string
   titleDe: string
+  titleTr: string | null
   descriptionEn: string | null
   descriptionAr: string | null
   descriptionDe: string | null
+  descriptionTr: string | null
   transaction: $Enums.TransactionType
   propertyType: $Enums.PropertyType
   status: $Enums.ListingStatus
@@ -444,9 +458,11 @@ export type PropertyWhereInput = {
   titleEn?: Prisma.StringFilter<"Property"> | string
   titleAr?: Prisma.StringFilter<"Property"> | string
   titleDe?: Prisma.StringFilter<"Property"> | string
+  titleTr?: Prisma.StringNullableFilter<"Property"> | string | null
   descriptionEn?: Prisma.StringNullableFilter<"Property"> | string | null
   descriptionAr?: Prisma.StringNullableFilter<"Property"> | string | null
   descriptionDe?: Prisma.StringNullableFilter<"Property"> | string | null
+  descriptionTr?: Prisma.StringNullableFilter<"Property"> | string | null
   transaction?: Prisma.EnumTransactionTypeFilter<"Property"> | $Enums.TransactionType
   propertyType?: Prisma.EnumPropertyTypeFilter<"Property"> | $Enums.PropertyType
   status?: Prisma.EnumListingStatusFilter<"Property"> | $Enums.ListingStatus
@@ -484,9 +500,11 @@ export type PropertyOrderByWithRelationInput = {
   titleEn?: Prisma.SortOrder
   titleAr?: Prisma.SortOrder
   titleDe?: Prisma.SortOrder
+  titleTr?: Prisma.SortOrderInput | Prisma.SortOrder
   descriptionEn?: Prisma.SortOrderInput | Prisma.SortOrder
   descriptionAr?: Prisma.SortOrderInput | Prisma.SortOrder
   descriptionDe?: Prisma.SortOrderInput | Prisma.SortOrder
+  descriptionTr?: Prisma.SortOrderInput | Prisma.SortOrder
   transaction?: Prisma.SortOrder
   propertyType?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -528,9 +546,11 @@ export type PropertyWhereUniqueInput = Prisma.AtLeast<{
   titleEn?: Prisma.StringFilter<"Property"> | string
   titleAr?: Prisma.StringFilter<"Property"> | string
   titleDe?: Prisma.StringFilter<"Property"> | string
+  titleTr?: Prisma.StringNullableFilter<"Property"> | string | null
   descriptionEn?: Prisma.StringNullableFilter<"Property"> | string | null
   descriptionAr?: Prisma.StringNullableFilter<"Property"> | string | null
   descriptionDe?: Prisma.StringNullableFilter<"Property"> | string | null
+  descriptionTr?: Prisma.StringNullableFilter<"Property"> | string | null
   transaction?: Prisma.EnumTransactionTypeFilter<"Property"> | $Enums.TransactionType
   propertyType?: Prisma.EnumPropertyTypeFilter<"Property"> | $Enums.PropertyType
   status?: Prisma.EnumListingStatusFilter<"Property"> | $Enums.ListingStatus
@@ -567,9 +587,11 @@ export type PropertyOrderByWithAggregationInput = {
   titleEn?: Prisma.SortOrder
   titleAr?: Prisma.SortOrder
   titleDe?: Prisma.SortOrder
+  titleTr?: Prisma.SortOrderInput | Prisma.SortOrder
   descriptionEn?: Prisma.SortOrderInput | Prisma.SortOrder
   descriptionAr?: Prisma.SortOrderInput | Prisma.SortOrder
   descriptionDe?: Prisma.SortOrderInput | Prisma.SortOrder
+  descriptionTr?: Prisma.SortOrderInput | Prisma.SortOrder
   transaction?: Prisma.SortOrder
   propertyType?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -612,9 +634,11 @@ export type PropertyScalarWhereWithAggregatesInput = {
   titleEn?: Prisma.StringWithAggregatesFilter<"Property"> | string
   titleAr?: Prisma.StringWithAggregatesFilter<"Property"> | string
   titleDe?: Prisma.StringWithAggregatesFilter<"Property"> | string
+  titleTr?: Prisma.StringNullableWithAggregatesFilter<"Property"> | string | null
   descriptionEn?: Prisma.StringNullableWithAggregatesFilter<"Property"> | string | null
   descriptionAr?: Prisma.StringNullableWithAggregatesFilter<"Property"> | string | null
   descriptionDe?: Prisma.StringNullableWithAggregatesFilter<"Property"> | string | null
+  descriptionTr?: Prisma.StringNullableWithAggregatesFilter<"Property"> | string | null
   transaction?: Prisma.EnumTransactionTypeWithAggregatesFilter<"Property"> | $Enums.TransactionType
   propertyType?: Prisma.EnumPropertyTypeWithAggregatesFilter<"Property"> | $Enums.PropertyType
   status?: Prisma.EnumListingStatusWithAggregatesFilter<"Property"> | $Enums.ListingStatus
@@ -648,9 +672,11 @@ export type PropertyCreateInput = {
   titleEn: string
   titleAr: string
   titleDe: string
+  titleTr?: string | null
   descriptionEn?: string | null
   descriptionAr?: string | null
   descriptionDe?: string | null
+  descriptionTr?: string | null
   transaction: $Enums.TransactionType
   propertyType: $Enums.PropertyType
   status?: $Enums.ListingStatus
@@ -687,9 +713,11 @@ export type PropertyUncheckedCreateInput = {
   titleEn: string
   titleAr: string
   titleDe: string
+  titleTr?: string | null
   descriptionEn?: string | null
   descriptionAr?: string | null
   descriptionDe?: string | null
+  descriptionTr?: string | null
   transaction: $Enums.TransactionType
   propertyType: $Enums.PropertyType
   status?: $Enums.ListingStatus
@@ -724,9 +752,11 @@ export type PropertyUpdateInput = {
   titleEn?: Prisma.StringFieldUpdateOperationsInput | string
   titleAr?: Prisma.StringFieldUpdateOperationsInput | string
   titleDe?: Prisma.StringFieldUpdateOperationsInput | string
+  titleTr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   descriptionEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   descriptionAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   descriptionDe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionTr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   transaction?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   propertyType?: Prisma.EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
   status?: Prisma.EnumListingStatusFieldUpdateOperationsInput | $Enums.ListingStatus
@@ -763,9 +793,11 @@ export type PropertyUncheckedUpdateInput = {
   titleEn?: Prisma.StringFieldUpdateOperationsInput | string
   titleAr?: Prisma.StringFieldUpdateOperationsInput | string
   titleDe?: Prisma.StringFieldUpdateOperationsInput | string
+  titleTr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   descriptionEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   descriptionAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   descriptionDe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionTr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   transaction?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   propertyType?: Prisma.EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
   status?: Prisma.EnumListingStatusFieldUpdateOperationsInput | $Enums.ListingStatus
@@ -801,9 +833,11 @@ export type PropertyCreateManyInput = {
   titleEn: string
   titleAr: string
   titleDe: string
+  titleTr?: string | null
   descriptionEn?: string | null
   descriptionAr?: string | null
   descriptionDe?: string | null
+  descriptionTr?: string | null
   transaction: $Enums.TransactionType
   propertyType: $Enums.PropertyType
   status?: $Enums.ListingStatus
@@ -837,9 +871,11 @@ export type PropertyUpdateManyMutationInput = {
   titleEn?: Prisma.StringFieldUpdateOperationsInput | string
   titleAr?: Prisma.StringFieldUpdateOperationsInput | string
   titleDe?: Prisma.StringFieldUpdateOperationsInput | string
+  titleTr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   descriptionEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   descriptionAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   descriptionDe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionTr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   transaction?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   propertyType?: Prisma.EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
   status?: Prisma.EnumListingStatusFieldUpdateOperationsInput | $Enums.ListingStatus
@@ -873,9 +909,11 @@ export type PropertyUncheckedUpdateManyInput = {
   titleEn?: Prisma.StringFieldUpdateOperationsInput | string
   titleAr?: Prisma.StringFieldUpdateOperationsInput | string
   titleDe?: Prisma.StringFieldUpdateOperationsInput | string
+  titleTr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   descriptionEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   descriptionAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   descriptionDe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionTr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   transaction?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   propertyType?: Prisma.EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
   status?: Prisma.EnumListingStatusFieldUpdateOperationsInput | $Enums.ListingStatus
@@ -920,9 +958,11 @@ export type PropertyCountOrderByAggregateInput = {
   titleEn?: Prisma.SortOrder
   titleAr?: Prisma.SortOrder
   titleDe?: Prisma.SortOrder
+  titleTr?: Prisma.SortOrder
   descriptionEn?: Prisma.SortOrder
   descriptionAr?: Prisma.SortOrder
   descriptionDe?: Prisma.SortOrder
+  descriptionTr?: Prisma.SortOrder
   transaction?: Prisma.SortOrder
   propertyType?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -967,9 +1007,11 @@ export type PropertyMaxOrderByAggregateInput = {
   titleEn?: Prisma.SortOrder
   titleAr?: Prisma.SortOrder
   titleDe?: Prisma.SortOrder
+  titleTr?: Prisma.SortOrder
   descriptionEn?: Prisma.SortOrder
   descriptionAr?: Prisma.SortOrder
   descriptionDe?: Prisma.SortOrder
+  descriptionTr?: Prisma.SortOrder
   transaction?: Prisma.SortOrder
   propertyType?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -1004,9 +1046,11 @@ export type PropertyMinOrderByAggregateInput = {
   titleEn?: Prisma.SortOrder
   titleAr?: Prisma.SortOrder
   titleDe?: Prisma.SortOrder
+  titleTr?: Prisma.SortOrder
   descriptionEn?: Prisma.SortOrder
   descriptionAr?: Prisma.SortOrder
   descriptionDe?: Prisma.SortOrder
+  descriptionTr?: Prisma.SortOrder
   transaction?: Prisma.SortOrder
   propertyType?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -1205,9 +1249,11 @@ export type PropertyCreateWithoutOwnerInput = {
   titleEn: string
   titleAr: string
   titleDe: string
+  titleTr?: string | null
   descriptionEn?: string | null
   descriptionAr?: string | null
   descriptionDe?: string | null
+  descriptionTr?: string | null
   transaction: $Enums.TransactionType
   propertyType: $Enums.PropertyType
   status?: $Enums.ListingStatus
@@ -1242,9 +1288,11 @@ export type PropertyUncheckedCreateWithoutOwnerInput = {
   titleEn: string
   titleAr: string
   titleDe: string
+  titleTr?: string | null
   descriptionEn?: string | null
   descriptionAr?: string | null
   descriptionDe?: string | null
+  descriptionTr?: string | null
   transaction: $Enums.TransactionType
   propertyType: $Enums.PropertyType
   status?: $Enums.ListingStatus
@@ -1309,9 +1357,11 @@ export type PropertyScalarWhereInput = {
   titleEn?: Prisma.StringFilter<"Property"> | string
   titleAr?: Prisma.StringFilter<"Property"> | string
   titleDe?: Prisma.StringFilter<"Property"> | string
+  titleTr?: Prisma.StringNullableFilter<"Property"> | string | null
   descriptionEn?: Prisma.StringNullableFilter<"Property"> | string | null
   descriptionAr?: Prisma.StringNullableFilter<"Property"> | string | null
   descriptionDe?: Prisma.StringNullableFilter<"Property"> | string | null
+  descriptionTr?: Prisma.StringNullableFilter<"Property"> | string | null
   transaction?: Prisma.EnumTransactionTypeFilter<"Property"> | $Enums.TransactionType
   propertyType?: Prisma.EnumPropertyTypeFilter<"Property"> | $Enums.PropertyType
   status?: Prisma.EnumListingStatusFilter<"Property"> | $Enums.ListingStatus
@@ -1345,9 +1395,11 @@ export type PropertyCreateWithoutOfficeInput = {
   titleEn: string
   titleAr: string
   titleDe: string
+  titleTr?: string | null
   descriptionEn?: string | null
   descriptionAr?: string | null
   descriptionDe?: string | null
+  descriptionTr?: string | null
   transaction: $Enums.TransactionType
   propertyType: $Enums.PropertyType
   status?: $Enums.ListingStatus
@@ -1383,9 +1435,11 @@ export type PropertyUncheckedCreateWithoutOfficeInput = {
   titleEn: string
   titleAr: string
   titleDe: string
+  titleTr?: string | null
   descriptionEn?: string | null
   descriptionAr?: string | null
   descriptionDe?: string | null
+  descriptionTr?: string | null
   transaction: $Enums.TransactionType
   propertyType: $Enums.PropertyType
   status?: $Enums.ListingStatus
@@ -1445,9 +1499,11 @@ export type PropertyCreateWithoutImagesInput = {
   titleEn: string
   titleAr: string
   titleDe: string
+  titleTr?: string | null
   descriptionEn?: string | null
   descriptionAr?: string | null
   descriptionDe?: string | null
+  descriptionTr?: string | null
   transaction: $Enums.TransactionType
   propertyType: $Enums.PropertyType
   status?: $Enums.ListingStatus
@@ -1483,9 +1539,11 @@ export type PropertyUncheckedCreateWithoutImagesInput = {
   titleEn: string
   titleAr: string
   titleDe: string
+  titleTr?: string | null
   descriptionEn?: string | null
   descriptionAr?: string | null
   descriptionDe?: string | null
+  descriptionTr?: string | null
   transaction: $Enums.TransactionType
   propertyType: $Enums.PropertyType
   status?: $Enums.ListingStatus
@@ -1535,9 +1593,11 @@ export type PropertyUpdateWithoutImagesInput = {
   titleEn?: Prisma.StringFieldUpdateOperationsInput | string
   titleAr?: Prisma.StringFieldUpdateOperationsInput | string
   titleDe?: Prisma.StringFieldUpdateOperationsInput | string
+  titleTr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   descriptionEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   descriptionAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   descriptionDe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionTr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   transaction?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   propertyType?: Prisma.EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
   status?: Prisma.EnumListingStatusFieldUpdateOperationsInput | $Enums.ListingStatus
@@ -1573,9 +1633,11 @@ export type PropertyUncheckedUpdateWithoutImagesInput = {
   titleEn?: Prisma.StringFieldUpdateOperationsInput | string
   titleAr?: Prisma.StringFieldUpdateOperationsInput | string
   titleDe?: Prisma.StringFieldUpdateOperationsInput | string
+  titleTr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   descriptionEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   descriptionAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   descriptionDe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionTr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   transaction?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   propertyType?: Prisma.EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
   status?: Prisma.EnumListingStatusFieldUpdateOperationsInput | $Enums.ListingStatus
@@ -1609,9 +1671,11 @@ export type PropertyCreateManyOwnerInput = {
   titleEn: string
   titleAr: string
   titleDe: string
+  titleTr?: string | null
   descriptionEn?: string | null
   descriptionAr?: string | null
   descriptionDe?: string | null
+  descriptionTr?: string | null
   transaction: $Enums.TransactionType
   propertyType: $Enums.PropertyType
   status?: $Enums.ListingStatus
@@ -1645,9 +1709,11 @@ export type PropertyUpdateWithoutOwnerInput = {
   titleEn?: Prisma.StringFieldUpdateOperationsInput | string
   titleAr?: Prisma.StringFieldUpdateOperationsInput | string
   titleDe?: Prisma.StringFieldUpdateOperationsInput | string
+  titleTr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   descriptionEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   descriptionAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   descriptionDe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionTr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   transaction?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   propertyType?: Prisma.EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
   status?: Prisma.EnumListingStatusFieldUpdateOperationsInput | $Enums.ListingStatus
@@ -1682,9 +1748,11 @@ export type PropertyUncheckedUpdateWithoutOwnerInput = {
   titleEn?: Prisma.StringFieldUpdateOperationsInput | string
   titleAr?: Prisma.StringFieldUpdateOperationsInput | string
   titleDe?: Prisma.StringFieldUpdateOperationsInput | string
+  titleTr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   descriptionEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   descriptionAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   descriptionDe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionTr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   transaction?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   propertyType?: Prisma.EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
   status?: Prisma.EnumListingStatusFieldUpdateOperationsInput | $Enums.ListingStatus
@@ -1719,9 +1787,11 @@ export type PropertyUncheckedUpdateManyWithoutOwnerInput = {
   titleEn?: Prisma.StringFieldUpdateOperationsInput | string
   titleAr?: Prisma.StringFieldUpdateOperationsInput | string
   titleDe?: Prisma.StringFieldUpdateOperationsInput | string
+  titleTr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   descriptionEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   descriptionAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   descriptionDe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionTr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   transaction?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   propertyType?: Prisma.EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
   status?: Prisma.EnumListingStatusFieldUpdateOperationsInput | $Enums.ListingStatus
@@ -1756,9 +1826,11 @@ export type PropertyCreateManyOfficeInput = {
   titleEn: string
   titleAr: string
   titleDe: string
+  titleTr?: string | null
   descriptionEn?: string | null
   descriptionAr?: string | null
   descriptionDe?: string | null
+  descriptionTr?: string | null
   transaction: $Enums.TransactionType
   propertyType: $Enums.PropertyType
   status?: $Enums.ListingStatus
@@ -1791,9 +1863,11 @@ export type PropertyUpdateWithoutOfficeInput = {
   titleEn?: Prisma.StringFieldUpdateOperationsInput | string
   titleAr?: Prisma.StringFieldUpdateOperationsInput | string
   titleDe?: Prisma.StringFieldUpdateOperationsInput | string
+  titleTr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   descriptionEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   descriptionAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   descriptionDe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionTr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   transaction?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   propertyType?: Prisma.EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
   status?: Prisma.EnumListingStatusFieldUpdateOperationsInput | $Enums.ListingStatus
@@ -1829,9 +1903,11 @@ export type PropertyUncheckedUpdateWithoutOfficeInput = {
   titleEn?: Prisma.StringFieldUpdateOperationsInput | string
   titleAr?: Prisma.StringFieldUpdateOperationsInput | string
   titleDe?: Prisma.StringFieldUpdateOperationsInput | string
+  titleTr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   descriptionEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   descriptionAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   descriptionDe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionTr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   transaction?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   propertyType?: Prisma.EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
   status?: Prisma.EnumListingStatusFieldUpdateOperationsInput | $Enums.ListingStatus
@@ -1866,9 +1942,11 @@ export type PropertyUncheckedUpdateManyWithoutOfficeInput = {
   titleEn?: Prisma.StringFieldUpdateOperationsInput | string
   titleAr?: Prisma.StringFieldUpdateOperationsInput | string
   titleDe?: Prisma.StringFieldUpdateOperationsInput | string
+  titleTr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   descriptionEn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   descriptionAr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   descriptionDe?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionTr?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   transaction?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
   propertyType?: Prisma.EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
   status?: Prisma.EnumListingStatusFieldUpdateOperationsInput | $Enums.ListingStatus
@@ -1933,9 +2011,11 @@ export type PropertySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   titleEn?: boolean
   titleAr?: boolean
   titleDe?: boolean
+  titleTr?: boolean
   descriptionEn?: boolean
   descriptionAr?: boolean
   descriptionDe?: boolean
+  descriptionTr?: boolean
   transaction?: boolean
   propertyType?: boolean
   status?: boolean
@@ -1974,9 +2054,11 @@ export type PropertySelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   titleEn?: boolean
   titleAr?: boolean
   titleDe?: boolean
+  titleTr?: boolean
   descriptionEn?: boolean
   descriptionAr?: boolean
   descriptionDe?: boolean
+  descriptionTr?: boolean
   transaction?: boolean
   propertyType?: boolean
   status?: boolean
@@ -2013,9 +2095,11 @@ export type PropertySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   titleEn?: boolean
   titleAr?: boolean
   titleDe?: boolean
+  titleTr?: boolean
   descriptionEn?: boolean
   descriptionAr?: boolean
   descriptionDe?: boolean
+  descriptionTr?: boolean
   transaction?: boolean
   propertyType?: boolean
   status?: boolean
@@ -2052,9 +2136,11 @@ export type PropertySelectScalar = {
   titleEn?: boolean
   titleAr?: boolean
   titleDe?: boolean
+  titleTr?: boolean
   descriptionEn?: boolean
   descriptionAr?: boolean
   descriptionDe?: boolean
+  descriptionTr?: boolean
   transaction?: boolean
   propertyType?: boolean
   status?: boolean
@@ -2082,7 +2168,7 @@ export type PropertySelectScalar = {
   updatedAt?: boolean
 }
 
-export type PropertyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "slug" | "ownerId" | "titleEn" | "titleAr" | "titleDe" | "descriptionEn" | "descriptionAr" | "descriptionDe" | "transaction" | "propertyType" | "status" | "rejectionReason" | "price" | "currency" | "governorate" | "city" | "district" | "neighborhood" | "address" | "bedrooms" | "bathrooms" | "area" | "latitude" | "longitude" | "whatsapp" | "featured" | "videoUrl" | "videoStoragePath" | "videoMimeType" | "videoSizeBytes" | "officeId" | "createdAt" | "updatedAt", ExtArgs["result"]["property"]>
+export type PropertyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "slug" | "ownerId" | "titleEn" | "titleAr" | "titleDe" | "titleTr" | "descriptionEn" | "descriptionAr" | "descriptionDe" | "descriptionTr" | "transaction" | "propertyType" | "status" | "rejectionReason" | "price" | "currency" | "governorate" | "city" | "district" | "neighborhood" | "address" | "bedrooms" | "bathrooms" | "area" | "latitude" | "longitude" | "whatsapp" | "featured" | "videoUrl" | "videoStoragePath" | "videoMimeType" | "videoSizeBytes" | "officeId" | "createdAt" | "updatedAt", ExtArgs["result"]["property"]>
 export type PropertyInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   office?: boolean | Prisma.Property$officeArgs<ExtArgs>
@@ -2112,9 +2198,11 @@ export type $PropertyPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     titleEn: string
     titleAr: string
     titleDe: string
+    titleTr: string | null
     descriptionEn: string | null
     descriptionAr: string | null
     descriptionDe: string | null
+    descriptionTr: string | null
     transaction: $Enums.TransactionType
     propertyType: $Enums.PropertyType
     status: $Enums.ListingStatus
@@ -2572,9 +2660,11 @@ export interface PropertyFieldRefs {
   readonly titleEn: Prisma.FieldRef<"Property", 'String'>
   readonly titleAr: Prisma.FieldRef<"Property", 'String'>
   readonly titleDe: Prisma.FieldRef<"Property", 'String'>
+  readonly titleTr: Prisma.FieldRef<"Property", 'String'>
   readonly descriptionEn: Prisma.FieldRef<"Property", 'String'>
   readonly descriptionAr: Prisma.FieldRef<"Property", 'String'>
   readonly descriptionDe: Prisma.FieldRef<"Property", 'String'>
+  readonly descriptionTr: Prisma.FieldRef<"Property", 'String'>
   readonly transaction: Prisma.FieldRef<"Property", 'TransactionType'>
   readonly propertyType: Prisma.FieldRef<"Property", 'PropertyType'>
   readonly status: Prisma.FieldRef<"Property", 'ListingStatus'>

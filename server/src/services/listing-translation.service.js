@@ -24,6 +24,7 @@ const warningMarker = 'MYMEMORY WARNING'
 const targetLanguages = [
   { code: 'en', title: 'titleEn', description: 'descriptionEn' },
   { code: 'de', title: 'titleDe', description: 'descriptionDe' },
+  { code: 'tr', title: 'titleTr', description: 'descriptionTr' },
 ]
 
 const encoder = new TextEncoder()

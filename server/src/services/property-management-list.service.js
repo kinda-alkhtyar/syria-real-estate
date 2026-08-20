@@ -20,11 +20,13 @@ function serializeManagementProperty(property) {
     titleEn: property.titleEn,
     titleAr: property.titleAr,
     titleDe: property.titleDe,
+    titleTr: property.titleTr ?? null,
     // Exposed to the dashboard on purpose, like `whatsapp`: the edit form
     // pre-fills the description of the language being written.
     descriptionEn: property.descriptionEn ?? null,
     descriptionAr: property.descriptionAr ?? null,
     descriptionDe: property.descriptionDe ?? null,
+    descriptionTr: property.descriptionTr ?? null,
     transaction: property.transaction,
     propertyType: property.propertyType,
     status: property.status,

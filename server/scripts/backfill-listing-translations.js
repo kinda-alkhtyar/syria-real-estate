@@ -27,8 +27,10 @@ const defaultDelayMs = 1200
 const translatableFields = [
   { source: 'titleAr', target: 'titleEn' },
   { source: 'titleAr', target: 'titleDe' },
+  { source: 'titleAr', target: 'titleTr' },
   { source: 'descriptionAr', target: 'descriptionEn' },
   { source: 'descriptionAr', target: 'descriptionDe' },
+  { source: 'descriptionAr', target: 'descriptionTr' },
 ]
 
 const selection = {
@@ -37,9 +39,11 @@ const selection = {
   titleAr: true,
   titleEn: true,
   titleDe: true,
+  titleTr: true,
   descriptionAr: true,
   descriptionEn: true,
   descriptionDe: true,
+  descriptionTr: true,
 }
 
 function readOptions(argv) {

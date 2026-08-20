@@ -14,17 +14,14 @@ const governorates = {
   DEIR_EZ_ZOR: 'deir-ez-zor',
 }
 
-const localeSuffixes = { ar: 'Ar', de: 'De', en: 'En' }
-
-function localizedValue(record, field, localeCode) {
-  const suffix = localeSuffixes[localeCode] ?? localeSuffixes.en
-  return record[`${field}${suffix}`] ?? record[`${field}En`] ?? ''
-}
+const localeSuffixes = { ar: 'Ar', de: 'De', en: 'En', tr: 'Tr' }
 
 // Owners write the description — and an image alt text — once, in the language
 // they list in, so a viewer browsing in another language would otherwise see
 // nothing at all. The active locale wins; failing that the first translation
-// that carries text.
+// that carries text. Arabic leads the fallback because it is the language every
+// listing is actually written in: the Turkish columns are nullable and stay
+// empty until a translation lands, and Arabic is better than nothing.
 const translationFallbackOrder = ['ar', 'en', 'de']
 
 function localizedWithFallback(record, field, localeCode) {
@@ -154,7 +151,7 @@ export function fromPropertyApi(property, localeCode) {
     href: `/properties/${property.slug}`,
     image,
     images: images.length > 0 ? images : [image],
-    title: localizedValue(property, 'title', localeCode),
+    title: localizedWithFallback(property, 'title', localeCode),
     description: localizedWithFallback(property, 'description', localeCode),
     locationParts: editorial ? undefined : locationParts(property),
     locationKey: editorial?.locationKey,

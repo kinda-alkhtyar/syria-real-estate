@@ -350,11 +350,13 @@ test('returns only dashboard-safe property and image fields', async () => {
     'titleEn',
     'titleAr',
     'titleDe',
+    'titleTr',
     // Exposed to the dashboard on purpose: the edit form pre-fills the
     // description of the language being written.
     'descriptionEn',
     'descriptionAr',
     'descriptionDe',
+    'descriptionTr',
     'transaction',
     'propertyType',
     'status',

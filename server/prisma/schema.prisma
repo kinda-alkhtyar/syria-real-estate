@@ -113,9 +113,14 @@ model Property {
   titleEn          String
   titleAr          String
   titleDe          String
+  // Turkish arrived after the other three, so its columns are nullable: every
+  // listing written before automatic translation has none, and the reader falls
+  // back to the Arabic source rather than showing an empty card.
+  titleTr          String?
   descriptionEn    String?         @db.Text
   descriptionAr    String?         @db.Text
   descriptionDe    String?         @db.Text
+  descriptionTr    String?         @db.Text
   transaction      TransactionType
   propertyType     PropertyType
   status           ListingStatus   @default(DRAFT)
