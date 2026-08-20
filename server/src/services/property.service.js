@@ -16,6 +16,7 @@ import {
   updatePropertyModeration as updatePropertyModerationRecord,
 } from '../repositories/property.repository.js'
 import { publicPropertyStatuses } from '../validation/property.schema.js'
+import listingTranslator from './listing-translation.service.js'
 
 const publicStatusSet = new Set(publicPropertyStatuses)
 
@@ -159,6 +160,7 @@ export function createPropertyManagementService({
     updatePropertyModeration: updatePropertyModerationRecord,
   },
   notifier = telegramNotifier,
+  translator = listingTranslator,
   storage = propertyImageStorage,
   // Images and videos live in separate buckets, so each has its own adapter.
   videoStorage = propertyVideoStorage,
@@ -287,11 +289,19 @@ export function createPropertyManagementService({
         // offices, and a listing without one is perfectly valid.
         const office = await repository.findOfficeIdByOwner?.(actor.id)
 
+        // Listings are written in Arabic, so the English and German columns are
+        // filled from it here rather than left as duplicated Arabic for every
+        // EN/DE visitor. Optional call, and it resolves to `{}` on any failure:
+        // a translation outage must never cost the owner their listing.
+        const translations =
+          (await translator?.translateListingFields?.(data)) ?? {}
+
         // The slug is never accepted from the caller. A UUID satisfies both the
         // public `/:slug` route pattern and the column's unique constraint
         // without leaking a guessable identifier for unpublished listings.
         const property = await repository.createProperty({
           ...data,
+          ...translations,
           // An owner's listing enters review instead of going live; an
           // administrator writes the status they submitted, or the column
           // default, and so keeps publishing instantly.
