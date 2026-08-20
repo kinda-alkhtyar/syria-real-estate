@@ -20,6 +20,19 @@ import listingTranslator from './listing-translation.service.js'
 
 const publicStatusSet = new Set(publicPropertyStatuses)
 
+// Statuses an OWNER may write at any point in a listing's life. None of them
+// is visible to a visitor, so none of them can be used to skip review.
+const ownerUnrestrictedStatuses = new Set([
+  'DRAFT',
+  'PENDING_REVIEW',
+  'ARCHIVED',
+])
+
+// Publicly visible statuses an OWNER may reach, and only from a listing an
+// administrator has already approved. AVAILABLE is deliberately absent:
+// publishing is the moderator's decision, taken through the approve endpoint.
+const ownerRepublishableStatuses = new Set(['RESERVED', 'SOLD', 'RENTED'])
+
 const sortOrders = {
   newest: [{ createdAt: 'desc' }, { slug: 'asc' }],
   oldest: [{ createdAt: 'asc' }, { slug: 'asc' }],
@@ -132,6 +145,45 @@ function propertyError(code, message, statusCode) {
   return error
 }
 
+/**
+ * Review before publish. An owner moves their own listing freely between the
+ * statuses no visitor can see, and may mark an already approved listing as
+ * reserved, sold or rented. What they cannot do is push a listing that is still
+ * a draft, awaiting review, or rejected into a publicly visible status, and
+ * AVAILABLE is never theirs to write at all. An administrator is unaffected.
+ */
+function assertOwnerStatusTransition(current, nextStatus, actor) {
+  if (actor.role === 'ADMIN' || nextStatus === undefined) return
+  if (ownerUnrestrictedStatuses.has(nextStatus)) return
+  if (
+    ownerRepublishableStatuses.has(nextStatus) &&
+    current.status === 'AVAILABLE'
+  ) {
+    return
+  }
+
+  throw propertyError(
+    'STATUS_TRANSITION_FORBIDDEN',
+    'This listing must be approved by an administrator before it can be published.',
+    403,
+  )
+}
+
+/**
+ * Moderation is administrator-only. The routes already enforce the role, so
+ * this repeats the check one layer down: the service must not publish or reject
+ * a listing for a caller whose role was never verified.
+ */
+function assertAdministrator(actor) {
+  if (actor?.role !== 'ADMIN') {
+    throw propertyError(
+      'FORBIDDEN',
+      'Only an administrator may moderate a listing.',
+      403,
+    )
+  }
+}
+
 function translateWriteError(error) {
   if (error?.code === 'P2002') {
     throw propertyError(
@@ -207,6 +259,7 @@ export function createPropertyManagementService({
 
   async function updateAuthorizedProperty(id, data, actor) {
     const current = await authorizeProperty(id, actor)
+    assertOwnerStatusTransition(current, data.status, actor)
     const resubmission = resubmissionFor(current, data, actor)
     try {
       const property = await repository.updateProperty(id, {
@@ -273,7 +326,8 @@ export function createPropertyManagementService({
     }
   }
 
-  async function moderate(id, data) {
+  async function moderate(id, data, actor) {
+    assertAdministrator(actor)
     // Reuses the ownership lookup purely as an existence check, so a missing
     // listing is a 404 here as it is on every other management write.
     await authorizeProperty(id, { role: 'ADMIN' })
@@ -332,12 +386,16 @@ export function createPropertyManagementService({
       return { id }
     },
 
-    approveProperty(id) {
-      return moderate(id, { status: 'AVAILABLE', rejectionReason: null })
+    approveProperty(id, actor) {
+      return moderate(id, { status: 'AVAILABLE', rejectionReason: null }, actor)
     },
 
-    rejectProperty(id, reason) {
-      return moderate(id, { status: 'REJECTED', rejectionReason: reason })
+    rejectProperty(id, reason, actor) {
+      return moderate(
+        id,
+        { status: 'REJECTED', rejectionReason: reason },
+        actor,
+      )
     },
 
     archiveProperty(id, actor) {

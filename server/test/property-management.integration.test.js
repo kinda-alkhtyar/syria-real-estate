@@ -480,3 +480,29 @@ test('an administrator edit never resubmits a rejected listing', async () => {
   assert.equal(response.body.data.status, 'REJECTED')
   assert.equal('status' in lastUpdateData, false)
 })
+
+test('an owner cannot reach a public status from a listing under review', async () => {
+  seedOwnedProperty(ownerId, { status: 'PENDING_REVIEW' })
+  const reserved = await request(`/api/v1/properties/${propertyId}`, {
+    method: 'PATCH',
+    body: { status: 'reserved' },
+  })
+
+  assert.equal(reserved.status, 403)
+  assert.equal(reserved.body.error.code, 'STATUS_TRANSITION_FORBIDDEN')
+  assert.equal(records.get(propertyId).status, 'PENDING_REVIEW')
+  assert.equal(lastUpdateData, undefined)
+})
+
+test('an owner marks an approved listing reserved, sold or rented', async () => {
+  for (const status of ['reserved', 'sold', 'rented']) {
+    seedOwnedProperty(ownerId, { status: 'AVAILABLE' })
+    const response = await request(`/api/v1/properties/${propertyId}`, {
+      method: 'PATCH',
+      body: { status },
+    })
+
+    assert.equal(response.status, 200)
+    assert.equal(response.body.data.status, status.toUpperCase())
+  }
+})
