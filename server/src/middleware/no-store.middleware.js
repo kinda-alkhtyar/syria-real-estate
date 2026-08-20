@@ -13,3 +13,21 @@ export default function noStoreMiddleware(_request, response, next) {
   response.vary('Cookie')
   next()
 }
+
+/**
+ * The same guarantee for write endpoints.
+ *
+ * A shared cache will not store a POST, PATCH or DELETE response on its own, so
+ * this is defence in depth rather than a fix for observed behaviour: it removes
+ * the reliance on that default from an intermediary we do not control. Reads are
+ * skipped deliberately — the public listing GETs are meant to be cached, and
+ * their headers belong to the read cache.
+ */
+export function noStoreWriteMiddleware(request, response, next) {
+  if (request.method === 'GET' || request.method === 'HEAD') {
+    next()
+    return
+  }
+
+  noStoreMiddleware(request, response, next)
+}

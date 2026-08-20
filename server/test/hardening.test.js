@@ -7,7 +7,7 @@ process.env.CORS_ORIGINS = 'https://client.example'
 const [
   { parseApplicationEnvironment, productionConfigurationWarnings },
   { createErrorMiddleware },
-  { default: noStoreMiddleware },
+  { default: noStoreMiddleware, noStoreWriteMiddleware },
   { default: notFoundMiddleware },
   { createOperationalMetrics },
   { createGracefulShutdown },
@@ -143,6 +143,36 @@ test('marks session-scoped responses as unstorable without dropping Vary', () =>
   assert.equal(response.headers['Cache-Control'], 'no-store')
   assert.equal(response.headers.Vary, 'Origin, Cookie')
 })
+test('marks a write response as unstorable and leaves reads to the read cache', () => {
+  for (const method of ['POST', 'PUT', 'PATCH', 'DELETE']) {
+    const response = createResponse()
+    response.headers.Vary = 'Origin'
+
+    let advanced = false
+    noStoreWriteMiddleware({ method }, response, () => {
+      advanced = true
+    })
+
+    assert.equal(advanced, true)
+    assert.equal(response.headers['Cache-Control'], 'no-store')
+    assert.equal(response.headers.Vary, 'Origin, Cookie')
+  }
+
+  // A public listing GET is meant to be cached; its headers belong to the
+  // read cache, so this middleware must not touch them.
+  for (const method of ['GET', 'HEAD']) {
+    const response = createResponse()
+
+    let advanced = false
+    noStoreWriteMiddleware({ method }, response, () => {
+      advanced = true
+    })
+
+    assert.equal(advanced, true)
+    assert.deepEqual(response.headers, {})
+  }
+})
+
 
 test('an unmatched route answers with the same envelope as every other error', () => {
   const response = createResponse()

@@ -6,7 +6,9 @@ import helmet from 'helmet'
 import env from './config/env.js'
 import { getReadiness } from './controllers/health.controller.js'
 import errorMiddleware from './middleware/error.middleware.js'
-import noStoreMiddleware from './middleware/no-store.middleware.js'
+import noStoreMiddleware, {
+  noStoreWriteMiddleware,
+} from './middleware/no-store.middleware.js'
 import notFoundMiddleware from './middleware/not-found.middleware.js'
 import { createGeneralApiRateLimiter } from './middleware/rate-limit.middleware.js'
 import requestIdMiddleware from './middleware/request-id.middleware.js'
@@ -48,6 +50,13 @@ app.set('trust proxy', env.trustProxy)
 app.use(
   helmet({
     // This API is never framed, so the stricter action is the correct one.
+    // frame-ancestors has to say the same thing: a browser that understands
+    // CSP ignores X-Frame-Options entirely, and the helmet default would
+    // otherwise relax the policy back to 'self'.
+    contentSecurityPolicy: {
+      useDefaults: true,
+      directives: { frameAncestors: ["'none'"] },
+    },
     frameguard: { action: 'deny' },
     // HSTS is meaningless over the plain HTTP a local run serves, and a
     // browser would keep the pin long after the session ended.
@@ -85,11 +94,13 @@ app.use(
 app.use(
   '/api/v1/offices',
   createRouteContext('/api/v1/offices'),
+  noStoreWriteMiddleware,
   officeRouter,
 )
 app.use(
   '/api/v1/properties',
   createRouteContext('/api/v1/properties'),
+  noStoreWriteMiddleware,
   propertyRouter,
 )
 
