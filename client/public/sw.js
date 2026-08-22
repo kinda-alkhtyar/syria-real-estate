@@ -5,13 +5,13 @@
  * thing that makes a browser build a fresh cache, and `activate` deletes every
  * cache that does not carry the current name.
  */
-const version = 'v1'
+const version = 'v2'
 const shellCache = `dar-syria-shell-${version}`
 const assetCache = `dar-syria-assets-${version}`
 
 // Kept deliberately short. Everything else is cached as it is requested, so a
 // failure to fetch one optional file can never fail the install step.
-const shellUrls = ['/', '/manifest.webmanifest', '/favicon.svg']
+const shellUrls = ['/', '/manifest.webmanifest', '/images/favicon.svg']
 
 // Vite emits these with a content hash in the filename, so a given URL always
 // answers with the same bytes and may be served from the cache without a
